@@ -1,3 +1,1 @@
-TicTacGo!# tictacgo
-# tictacgo
 # tictacgo

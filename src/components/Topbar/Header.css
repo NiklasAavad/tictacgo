@@ -1,0 +1,8 @@
+.header {
+    background-color: green;
+    height: 48px;
+    align-items: center;
+    text-align: center;
+    font-size: 32px;
+    padding-top: 16px;
+}

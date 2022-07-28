@@ -1,15 +1,11 @@
 import React from 'react';
+import { Content } from './Content/Content';
 import "./Frontpage.css"
+import { Topbar } from './Topbar/Topbar';
 
 export const Frontpage: React.FC = () => {
-    return <div className="container">
-        <div className='top'>
-            <div className='header'>Header</div>
-            <div className='sub-header'>Lobby | User | Help</div>
-        </div>
-        <div className='center'>
-            <div className='chat'>Chat</div>
-            <div className='lobby'>Lobby</div>
-        </div>
-    </div>
+    return <>
+        <Topbar/>
+        <Content/>
+    </>
 }

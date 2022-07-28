@@ -5,6 +5,8 @@
     border-style: solid;
     font-size: 170px;
     text-align: center;
+    cursor: pointer;
+    user-select: none;
 }
 
 .top-border {

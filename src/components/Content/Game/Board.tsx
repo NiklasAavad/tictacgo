@@ -1,12 +1,34 @@
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import "./Board.css"
 import { Position } from "./Position"
 import { Border, Square, SquareCharacter } from "./Square"
+import { WINNING_COMBINATIONS } from "./WinningCombinations"
 
 export const Board: React.FC = () => {
     const [x, setX] = useState<Position[]>([]);
     const [o, setO] = useState<Position[]>([]);
     const [playerInTurn, setPlayerInTurn] = useState<SquareCharacter>(SquareCharacter.X);
+
+    useEffect(() => {
+        if (isGameOver()) {
+            console.log("GAME OVER!!!");
+        }
+    }, [x, o])
+
+    const hasPlayerWon = (playerPositions: Position[]) => {
+        return WINNING_COMBINATIONS.some((combination) => {
+            return combination.every((position) => playerPositions.includes(position))
+        });
+    }
+
+    const isGameOver = () => {
+        const notEnoughInputs = x.length < 3;
+        if (notEnoughInputs) {
+            return false;
+        }
+
+        return hasPlayerWon(x) || hasPlayerWon(o); 
+    }
 
     const isChoiceValid = (position: Position) => {
         const isAlreadyX = x.includes(position);

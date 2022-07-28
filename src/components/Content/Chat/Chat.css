@@ -1,8 +1,7 @@
 .chat {
     background-color: yellow;
-    width: 400px;
+    width: 30%;
     margin-left: 10%;
-    
     border: 4px;
 
     /* No border to the right, since that border is already drawn by the board */

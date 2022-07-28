@@ -3,7 +3,7 @@
     width: 400px;
     margin-left: 10%;
     
-    border: 2px;
+    border: 4px;
 
     /* No border to the right, since that border is already drawn by the board */
     border-left-style: solid;

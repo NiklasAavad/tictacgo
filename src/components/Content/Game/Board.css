@@ -4,3 +4,7 @@
     border: 0px;
     border-style: solid;
 }
+
+.row {
+    display: flex;
+}

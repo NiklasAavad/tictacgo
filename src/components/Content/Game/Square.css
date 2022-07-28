@@ -1,5 +1,24 @@
 .square {
     width: 33%;
+    height: 195px;
     border: 2px;
     border-style: solid;
+    font-size: 170px;
+    text-align: center;
+}
+
+.top-border {
+    border-top: 4px solid;
+}
+
+.bottom-border {
+    border-bottom: 4px solid;
+}
+
+.left-border {
+    border-left: 4px solid;
+}
+
+.right-border {
+    border-right: 4px solid;
 }

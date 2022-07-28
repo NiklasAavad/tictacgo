@@ -3,15 +3,24 @@ import "./Board.css"
 import { Position } from "./Position"
 import { Border, Square, SquareCharacter } from "./Square"
 
-// const fakeX = [0, 2, 4]
-// const fakeO = [1, 6, 8]
-
 export const Board: React.FC = () => {
     const [x, setX] = useState<Position[]>([]);
     const [o, setO] = useState<Position[]>([]);
     const [playerInTurn, setPlayerInTurn] = useState<SquareCharacter>(SquareCharacter.X);
 
+    const isChoiceValid = (position: Position) => {
+        const isAlreadyX = x.includes(position);
+        const isAlreadyO = o.includes(position)
+        const isPositionOccupied = isAlreadyX || isAlreadyO
+
+        return !isPositionOccupied;
+    }
+
     const chooseSquare = (position: Position) => {
+        if (!isChoiceValid(position)) {
+            return;
+        }
+
         if (playerInTurn === SquareCharacter.X) {
             const newX = [...x, position];
             setX(newX);

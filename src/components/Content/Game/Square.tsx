@@ -62,5 +62,7 @@ export const Square: React.FC<SquareProps> = (props) => {
     const character = getCharacter();
     const borderClasses = getBorderClasses();
 
-    return <div onClick={() => props.chooseSquare(props.position)} className={"square " + borderClasses}>{character}</div>
+    return <div onClick={() => props.chooseSquare(props.position)} className={"square" + BorderClass.SEPERATOR + borderClasses}>
+        {character}
+    </div>
 }

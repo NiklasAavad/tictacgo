@@ -55,7 +55,7 @@ export const Board: React.FC = () => {
     }
     
     // TODO overvej om det her kan trækkes ud i en en service eller andet. Her skal createSquare dog bruge x og o, hvilket bliver til mange argumenter.
-    const createSquare = (position: Position, border: Border = {}) => {
+    const createSquare = (position: Position, border: Border) => {
         const isX = x.includes(position);
         const isO = o.includes(position);
 

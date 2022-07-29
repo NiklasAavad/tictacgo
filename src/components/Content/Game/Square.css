@@ -1,12 +1,17 @@
 .square {
     width: 33%;
     height: 195px;
+    background-color: rgba(255, 0, 0, 1);
     border: 2px;
     border-style: solid;
     font-size: 170px;
     text-align: center;
     cursor: pointer;
     user-select: none;
+}
+
+.square:hover {
+    background-color: rgba(200, 0, 0, 0.6);
 }
 
 .top-border {

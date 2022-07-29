@@ -1,5 +1,12 @@
 import "./StartScreen.css"
 
-export const StartScreen: React.FC = () => {
-    return <div>Start Screen</div>
+type StartScreenprops = {
+    setIsGameStarted: (flag: boolean) => void
+}
+
+export const StartScreen: React.FC<StartScreenprops> = (props) => {
+    return <div className="start-screen-container">
+        <div className="start-screen-header">Start a new game!</div>
+        <button onClick={() => props.setIsGameStarted(true)} className="new-game-button">New Game</button>
+    </div>
 }

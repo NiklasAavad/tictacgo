@@ -1,0 +1,13 @@
+.start-screen-container {
+    padding-top: 200px;
+    text-align: center;
+}
+
+.start-screen-header {
+    font-size: 60px;
+    margin-bottom: 32px;
+}
+
+.new-game-button {
+    font-size: 40px;
+}

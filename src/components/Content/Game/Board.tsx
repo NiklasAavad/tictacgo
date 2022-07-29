@@ -4,14 +4,20 @@ import { Position } from "./Position"
 import { RemoveBorder, Square, SquareCharacter } from "./Square"
 import { WINNING_COMBINATIONS } from "./WinningCombinations"
 
-export const Board: React.FC = () => {
+type BoardProps = {
+    setIsSGameStarted: (flag: boolean) => void
+}
+
+export const Board: React.FC<BoardProps> = (props) => {
     const [x, setX] = useState<Position[]>([]);
     const [o, setO] = useState<Position[]>([]);
     const [playerInTurn, setPlayerInTurn] = useState<SquareCharacter>(SquareCharacter.X);
 
     useEffect(() => {
         if (isGameOver()) {
-            console.log("GAME OVER!!!");
+            console.log("Game is over!")
+            const timer = setTimeout(() => props.setIsSGameStarted(false), 5000)
+            return () => clearTimeout(timer);
         }
     }, [x, o])
 
@@ -31,6 +37,10 @@ export const Board: React.FC = () => {
     }
 
     const isChoiceValid = (position: Position) => {
+        if (isGameOver()) {
+            return false;
+        }
+
         const isAlreadyX = x.includes(position);
         const isAlreadyO = o.includes(position)
         const isPositionOccupied = isAlreadyX || isAlreadyO

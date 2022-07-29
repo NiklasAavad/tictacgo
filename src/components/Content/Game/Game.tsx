@@ -4,10 +4,9 @@ import "./Game.css"
 import { StartScreen } from "./StartScreen";
 
 export const Game: React.FC = () => {
-    const [isStarted, setIsStarted] = useState(true);
-
+    const [isGameStarted, setIsGameStarted] = useState(false);
 
     return <div className='game'>
-        {isStarted ? <Board/> : <StartScreen/>}
+        {isGameStarted ? <Board setIsSGameStarted={setIsGameStarted}/> : <StartScreen setIsGameStarted={setIsGameStarted}/>}
     </div>
 }

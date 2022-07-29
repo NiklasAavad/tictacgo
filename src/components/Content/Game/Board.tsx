@@ -16,28 +16,42 @@ export const Board: React.FC<BoardProps> = (props) => {
 
     useEffect(() => {
         if (isGameOver()) {
-            const newWinningCombination = getWinningCombination();
-            if (!newWinningCombination) {
-                throw Error("No winning combination was found!")
-            }
-            console.log("Game is over!")
-            setWinningCombination(newWinningCombination);
-            const timer = setTimeout(() => props.setIsSGameStarted(false), 5000)
-            return () => clearTimeout(timer);
+            endGame();
         }
     }, [x, o])
 
-    // TODO gad godt at denne altid returnerede en winning combination og ellers blev fejlen kastet herinde.
-    const getWinningCombination = () => {
+    const endGame = () => {
+        const [winningCombination, winningCharacter] = getWinningCombination();
+
+        if (winningCombination) {
+            console.log(`Game was won by ${winningCharacter}!`)
+            setWinningCombination(winningCombination)
+        } else {
+            console.log("Game was tied...");
+        }
+
+        const waitForNewGame = setTimeout(() => props.setIsSGameStarted(false), 2500)
+        return () => clearTimeout(waitForNewGame);
+    }
+
+    const getWinningCombination = (): [Position[] | undefined, SquareCharacter] => {
         const xWinningCombination = WINNING_COMBINATIONS.find(combination => {
             return combination.every(position => x.includes(position))
         });
+        
+        if (xWinningCombination) {
+            return [xWinningCombination, SquareCharacter.X];
+        }
 
         const oWinningCombination = WINNING_COMBINATIONS.find(combination => {
             return combination.every(position => o.includes(position))
         });
 
-        return xWinningCombination || oWinningCombination;
+        if (oWinningCombination) {
+            return [oWinningCombination, SquareCharacter.O]
+        }
+
+        return [undefined, SquareCharacter.EMPTY];
     }
 
     const hasPlayerWon = (playerPositions: Position[]) => {
@@ -50,6 +64,11 @@ export const Board: React.FC<BoardProps> = (props) => {
         const notEnoughInputs = x.length < 3;
         if (notEnoughInputs) {
             return false;
+        }
+
+        const allPositionsOccupied = x.length + o.length == 9; // TODO magisk konstant? 
+        if (allPositionsOccupied) {
+            return true;
         }
 
         return hasPlayerWon(x) || hasPlayerWon(o); 
@@ -88,7 +107,7 @@ export const Board: React.FC<BoardProps> = (props) => {
         const isX = x.includes(position);
         const isO = o.includes(position);
 
-        return <Square isX={isX} isO={isO} removeBorder={removeBorder} position={position} chooseSquare={chooseSquare} winningCombination={winningCombination}/>
+        return <Square key={position} isX={isX} isO={isO} removeBorder={removeBorder} position={position} chooseSquare={chooseSquare} winningCombination={winningCombination}/>
     }
 
     const createTopSquares = () => {

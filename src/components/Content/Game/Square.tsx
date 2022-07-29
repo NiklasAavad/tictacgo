@@ -17,6 +17,11 @@ enum RemoveBorderClass {
     SEPERATOR = " "
 }
 
+enum WinnerClass {
+    WINNER = "winner",
+    NO_WINNER = "no-winner"
+}
+
 export enum SquareCharacter {
     X = "X",
     O = "O",
@@ -35,7 +40,7 @@ type SquareProps = {
 // TODO overvej om der skal lægge noget state ifht om den her square er x eller o i dette komponent i stedet for i Board.
 // Board er ved at blive til et god-component
 export const Square: React.FC<SquareProps> = (props) => {
-    const getCharacter = useCallback(() => {
+    const getCharacter = useCallback((): SquareCharacter => {
         if (props.isX) return SquareCharacter.X;
         if (props.isO) return SquareCharacter.O;
         return SquareCharacter.EMPTY;
@@ -61,13 +66,13 @@ export const Square: React.FC<SquareProps> = (props) => {
         return removeBorderClasses.join(RemoveBorderClass.SEPERATOR);
     }, []);
 
-    const getWinnerClass = useCallback((): string => {
+    const getWinnerClass = useCallback((): WinnerClass => {
         const isSquareInWinningCombination = props.winningCombination.includes(props.position);
         if (isSquareInWinningCombination) {
-            return "winner"
+            return WinnerClass.WINNER;
         }
 
-        return "no-winner";
+        return WinnerClass.NO_WINNER;
     }, [props.winningCombination]);
 
     const character = getCharacter();

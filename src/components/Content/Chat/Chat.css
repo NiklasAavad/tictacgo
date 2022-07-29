@@ -1,11 +1,34 @@
 .chat {
-    background-color: orange;
+    background-color: var(--grey);
     width: 30%;
     margin-left: 10%;
     border: 4px;
+    border-color: var(--blue);
+    border-top-left-radius: 2%;
+    border-bottom-left-radius: 2%;
 
     /* No border to the right, since that border is already drawn by the board */
     border-left-style: solid;
     border-top-style: solid;
     border-bottom-style: solid;
+
+    box-shadow: var(--box-shadow);
+}
+
+.chat-header {
+    margin-top: 8px;
+    margin-bottom: 16px;
+    text-align: center;
+    font-size: 40px;
+}
+
+.underline {
+    border-bottom: 2px dotted black;
+    width: 90%;
+    margin-left: 5%;
+    display: block; 
+}
+
+.chat-messages {
+    margin-left: 8px;
 }

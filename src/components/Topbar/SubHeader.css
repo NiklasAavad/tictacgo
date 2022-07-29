@@ -1,7 +1,10 @@
 .sub-header {
-    background-color: blue;
+    background-color: var(--white);
+    color: var(--blue);
+    font-size: 22px;
     height: 32px;
     align-items: center;
     text-align: center;
     padding-top: 8px;
+    padding-bottom: 16px;
 }

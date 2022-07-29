@@ -1,3 +1,14 @@
+:root {
+  --beige: #EDC7B7;
+  --beige2: 237, 199, 183;
+  --white: #EEE2DC;
+  --grey: #BAB2B5;
+  --blue: #123C69;
+  --red: #AC3B61;
+  --box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+  background-color: var(--white);
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

@@ -14,6 +14,8 @@ enum RemoveBorderClass {
     BOTTOM = "no-bottom-border",
     LEFT = "no-left-border",
     RIGHT = "no-right-border",
+    TOP_RIGHT = "top-right-border-radius",
+    BOTTOM_RIGHT = "bottom-right-border-radius",
     SEPERATOR = " "
 }
 
@@ -61,6 +63,14 @@ export const Square: React.FC<SquareProps> = (props) => {
         }
         if (removeBorder.right) {
             removeBorderClasses.push(RemoveBorderClass.RIGHT);
+        }
+
+        if (removeBorder.top && removeBorder.right) {
+            removeBorderClasses.push(RemoveBorderClass.TOP_RIGHT);
+        }
+
+        if (removeBorder.bottom && removeBorder.right) {
+            removeBorderClasses.push(RemoveBorderClass.BOTTOM_RIGHT);
         }
 
         return removeBorderClasses.join(RemoveBorderClass.SEPERATOR);

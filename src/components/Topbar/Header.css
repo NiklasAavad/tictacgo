@@ -1,8 +1,9 @@
 .header {
-    background-color: green;
-    height: 48px;
+    background-color: var(--white);
+    color: var(--red);
+    height: 40px;
     align-items: center;
     text-align: center;
-    font-size: 32px;
-    padding-top: 16px;
+    font-size: 40px;
+    padding-top: 24px;
 }

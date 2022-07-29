@@ -12,18 +12,37 @@ export const Board: React.FC<BoardProps> = (props) => {
     const [x, setX] = useState<Position[]>([]);
     const [o, setO] = useState<Position[]>([]);
     const [playerInTurn, setPlayerInTurn] = useState<SquareCharacter>(SquareCharacter.X);
+    const [winningCombination, setWinningCombination] = useState<Position[]>([])
 
     useEffect(() => {
         if (isGameOver()) {
+            const newWinningCombination = getWinningCombination();
+            if (!newWinningCombination) {
+                throw Error("No winning combination was found!")
+            }
             console.log("Game is over!")
+            setWinningCombination(newWinningCombination);
             const timer = setTimeout(() => props.setIsSGameStarted(false), 5000)
             return () => clearTimeout(timer);
         }
     }, [x, o])
 
+    // TODO gad godt at denne altid returnerede en winning combination og ellers blev fejlen kastet herinde.
+    const getWinningCombination = () => {
+        const xWinningCombination = WINNING_COMBINATIONS.find(combination => {
+            return combination.every(position => x.includes(position))
+        });
+
+        const oWinningCombination = WINNING_COMBINATIONS.find(combination => {
+            return combination.every(position => o.includes(position))
+        });
+
+        return xWinningCombination || oWinningCombination;
+    }
+
     const hasPlayerWon = (playerPositions: Position[]) => {
-        return WINNING_COMBINATIONS.some((combination) => {
-            return combination.every((position) => playerPositions.includes(position))
+        return WINNING_COMBINATIONS.some(combination => {
+            return combination.every(position => playerPositions.includes(position))
         });
     }
 
@@ -69,7 +88,7 @@ export const Board: React.FC<BoardProps> = (props) => {
         const isX = x.includes(position);
         const isO = o.includes(position);
 
-        return <Square isX={isX} isO={isO} removeBorder={removeBorder} position={position} chooseSquare={chooseSquare}/>
+        return <Square isX={isX} isO={isO} removeBorder={removeBorder} position={position} chooseSquare={chooseSquare} winningCombination={winningCombination}/>
     }
 
     const createTopSquares = () => {

@@ -9,8 +9,16 @@
     user-select: none;
 }
 
-.square:hover {
+.no-winner {
+    background-color: red;
+}
+
+.no-winner:hover {
     background-color: rgba(200, 0, 0, 0.6);
+}
+
+.winner {
+    background-color: gold;
 }
 
 .no-top-border {

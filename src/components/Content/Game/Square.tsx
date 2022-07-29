@@ -1,3 +1,4 @@
+import { useCallback } from "react"
 import { Position } from "./Position"
 import "./Square.css"
 
@@ -8,20 +9,6 @@ export type Border = {
     right?: boolean
 }
 
-type SquareProps = {
-    isX?: boolean,
-    isO?: boolean,
-    border: Border,
-    position: Position,
-    chooseSquare: (position: Position) => void
-}
-
-export enum SquareCharacter {
-    X = "X",
-    O = "O",
-    EMPTY = ""
-}
-
 enum BorderClass {
     TOP = "top-border",
     BOTTOM = "bottom-border",
@@ -30,16 +17,30 @@ enum BorderClass {
     SEPERATOR = " "
 }
 
+export enum SquareCharacter {
+    X = "X",
+    O = "O",
+    EMPTY = ""
+}
+
+type SquareProps = {
+    isX?: boolean,
+    isO?: boolean,
+    border: Border,
+    position: Position,
+    chooseSquare: (position: Position) => void
+}
+
 // TODO overvej om der skal lægge noget state ifht om den her square er x eller o i dette komponent i stedet for i Board.
 // Board er ved at blive til et god-component
 export const Square: React.FC<SquareProps> = (props) => {
-    const getCharacter = () => {
+    const getCharacter = useCallback(() => {
         if (props.isX) return SquareCharacter.X;
         if (props.isO) return SquareCharacter.O;
         return SquareCharacter.EMPTY;
-    }
+    }, [props.isX, props.isO]);
 
-    const getBorderClasses = () => {
+    const getBorderClasses = useCallback(() => {
         const border = props.border;
         const borderClasses: BorderClass[] = []
         
@@ -57,7 +58,7 @@ export const Square: React.FC<SquareProps> = (props) => {
         }
 
         return borderClasses.join(BorderClass.SEPERATOR);
-    }
+    }, []);
 
     const character = getCharacter();
     const borderClasses = getBorderClasses();

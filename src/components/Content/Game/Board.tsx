@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import "./Board.css"
 import { Position } from "./Position"
 import { Border, Square, SquareCharacter } from "./Square"

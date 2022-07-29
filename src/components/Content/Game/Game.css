@@ -2,9 +2,8 @@
     width: 1024px;
     margin-right: 10%;
     border: 4px solid;
-    border-color: var(--blue);
+    border-color: black;
     border-top-right-radius: 2%;
     border-bottom-right-radius: 2%;
     box-shadow: var(--box-shadow);
-    z-index: 0;
 }

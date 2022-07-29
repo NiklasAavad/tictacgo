@@ -3,24 +3,28 @@
     height: 214.5px;
     border: 2px;
     border-style: dashed;
-    border-color: var(--blue);
+    border-color: black;
     color: black;
     font-size: 185px;
     text-align: center;
     cursor: pointer;
     user-select: none;
-}
-
-.no-winner {
     background-color: var(--beige);
 }
 
-.no-winner:hover {
+.square:hover {
     background-color: rgba(var(--beige2), 0.66);
 }
 
 .winner {
-    background-color: gold;
+}
+
+.X {
+    color: var(--blue);
+}
+
+.O {
+    color: var(--red);
 }
 
 .no-top-border {

@@ -19,11 +19,6 @@ enum RemoveBorderClass {
     SEPERATOR = " "
 }
 
-enum WinnerClass {
-    WINNER = "winner",
-    NO_WINNER = "no-winner"
-}
-
 export enum SquareCharacter {
     X = "X",
     O = "O",
@@ -76,20 +71,20 @@ export const Square: React.FC<SquareProps> = (props) => {
         return removeBorderClasses.join(RemoveBorderClass.SEPERATOR);
     }, []);
 
-    const getWinnerClass = useCallback((): WinnerClass => {
+    const getWinnerClass = useCallback(() => {
         const isSquareInWinningCombination = props.winningCombination.includes(props.position);
         if (isSquareInWinningCombination) {
-            return WinnerClass.WINNER;
+            return "winner";
         }
 
-        return WinnerClass.NO_WINNER;
+        return "";
     }, [props.winningCombination]);
 
     const character = getCharacter();
     const borderClasses = getBorderClasses();
     const winnerClass = getWinnerClass();
 
-    return <div onClick={() => props.chooseSquare(props.position)} className={`square ${borderClasses} ${winnerClass}`}>
+    return <div onClick={() => props.chooseSquare(props.position)} className={`square ${character} ${borderClasses} ${winnerClass}`}>
         {character}
     </div>
 }

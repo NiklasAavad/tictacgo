@@ -2,18 +2,18 @@ import { useCallback } from "react"
 import { Position } from "./Position"
 import "./Square.css"
 
-export type Border = {
+export type RemoveBorder = {
     top?: boolean,
     bottom?: boolean,
     left?: boolean,
     right?: boolean
 }
 
-enum BorderClass {
-    TOP = "top-border",
-    BOTTOM = "bottom-border",
-    LEFT = "left-border",
-    RIGHT = "right-border",
+enum RemoveBorderClass {
+    TOP = "no-top-border",
+    BOTTOM = "no-bottom-border",
+    LEFT = "no-left-border",
+    RIGHT = "no-right-border",
     SEPERATOR = " "
 }
 
@@ -26,7 +26,7 @@ export enum SquareCharacter {
 type SquareProps = {
     isX?: boolean,
     isO?: boolean,
-    border: Border,
+    removeBorder: RemoveBorder,
     position: Position,
     chooseSquare: (position: Position) => void
 }
@@ -41,29 +41,29 @@ export const Square: React.FC<SquareProps> = (props) => {
     }, [props.isX, props.isO]);
 
     const getBorderClasses = useCallback(() => {
-        const border = props.border;
-        const borderClasses: BorderClass[] = []
+        const removeBorder = props.removeBorder;
+        const removeBorderClasses: RemoveBorderClass[] = []
         
-        if (border.top) {
-            borderClasses.push(BorderClass.TOP);
+        if (removeBorder.top) {
+            removeBorderClasses.push(RemoveBorderClass.TOP);
         }
-        if (border.bottom) {
-            borderClasses.push(BorderClass.BOTTOM);
+        if (removeBorder.bottom) {
+            removeBorderClasses.push(RemoveBorderClass.BOTTOM);
         }
-        if (border.left) {
-            borderClasses.push(BorderClass.LEFT);
+        if (removeBorder.left) {
+            removeBorderClasses.push(RemoveBorderClass.LEFT);
         }
-        if (border.right) {
-            borderClasses.push(BorderClass.RIGHT);
+        if (removeBorder.right) {
+            removeBorderClasses.push(RemoveBorderClass.RIGHT);
         }
 
-        return borderClasses.join(BorderClass.SEPERATOR);
+        return removeBorderClasses.join(RemoveBorderClass.SEPERATOR);
     }, []);
 
     const character = getCharacter();
     const borderClasses = getBorderClasses();
 
-    return <div onClick={() => props.chooseSquare(props.position)} className={"square" + BorderClass.SEPERATOR + borderClasses}>
+    return <div onClick={() => props.chooseSquare(props.position)} className={"square" + RemoveBorderClass.SEPERATOR + borderClasses}>
         {character}
     </div>
 }

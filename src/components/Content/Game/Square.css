@@ -1,7 +1,6 @@
 .square {
     width: 33%;
     height: 195px;
-    background-color: rgba(255, 0, 0, 1);
     border: 2px;
     border-style: solid;
     font-size: 170px;
@@ -14,18 +13,18 @@
     background-color: rgba(200, 0, 0, 0.6);
 }
 
-.top-border {
-    border-top: 4px solid;
+.no-top-border {
+    border-top: 0px solid;
 }
 
-.bottom-border {
-    border-bottom: 4px solid;
+.no-bottom-border {
+    border-bottom: 0px solid;
 }
 
-.left-border {
-    border-left: 4px solid;
+.no-left-border {
+    border-left: 0px solid;
 }
 
-.right-border {
-    border-right: 4px solid;
+.no-right-border {
+    border-right: 0px solid;
 }

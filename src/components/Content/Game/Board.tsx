@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import "./Board.css"
 import { Position } from "./Position"
-import { Border, Square, SquareCharacter } from "./Square"
+import { RemoveBorder, Square, SquareCharacter } from "./Square"
 import { WINNING_COMBINATIONS } from "./WinningCombinations"
 
 export const Board: React.FC = () => {
@@ -55,11 +55,11 @@ export const Board: React.FC = () => {
     }
     
     // TODO overvej om det her kan trækkes ud i en en service eller andet. Her skal createSquare dog bruge x og o, hvilket bliver til mange argumenter.
-    const createSquare = (position: Position, border: Border) => {
+    const createSquare = (position: Position, removeBorder: RemoveBorder) => {
         const isX = x.includes(position);
         const isO = o.includes(position);
 
-        return <Square isX={isX} isO={isO} border={border} position={position} chooseSquare={chooseSquare}/>
+        return <Square isX={isX} isO={isO} removeBorder={removeBorder} position={position} chooseSquare={chooseSquare}/>
     }
 
     const createTopSquares = () => {

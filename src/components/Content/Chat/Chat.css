@@ -7,7 +7,7 @@
     border-top-left-radius: 2%;
     border-bottom-left-radius: 2%;
 
-    /* No border to the right, since that border is already drawn by the board */
+    /* No border to the right, since that border is already drawn by the game */
     border-left-style: solid;
     border-top-style: solid;
     border-bottom-style: solid;

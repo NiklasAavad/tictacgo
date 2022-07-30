@@ -1,10 +1,33 @@
 .sub-header {
-    background-color: var(--white);
     color: var(--blue);
-    font-size: 22px;
+    font-size: 26px;
     height: 32px;
     align-items: center;
     text-align: center;
-    padding-top: 8px;
+    padding-top: 28px;
     padding-bottom: 16px;
+}
+
+a:link {
+    color: var(--blue);
+    background-color: transparent;
+    text-decoration: none;
+}
+
+a:visited {
+    color: var(--blue);
+    background-color: transparent;
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--blue);
+    background-color: transparent;
+    text-decoration: underline;
+}
+
+a:active {
+    color: var(--blue);
+    background-color: transparent;
+    text-decoration: underline;
 }

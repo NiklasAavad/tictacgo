@@ -1,5 +1,9 @@
 import './SubHeader.css'
 
 export const SubHeader: React.FC = () => {
-    return <div className='sub-header'>Lobby | User | Help</div>
+    const lobby = <a href="/lobby">Lobby</a>
+    const user = <a href="/user">User</a>
+    const help = <a href="/help">Help</a>
+
+    return <div className='sub-header'>{lobby} | {user} | {help}</div>
 }

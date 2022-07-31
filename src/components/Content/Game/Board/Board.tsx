@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
+import { Position } from "../../../../utility/Position"
+import { WINNING_COMBINATIONS } from "../../../../utility/WinningCombinations"
+import { RemoveBorder, Square, SquareCharacter } from "../Square/Square"
 import "./Board.css"
-import { Position } from "./Position"
-import { RemoveBorder, Square, SquareCharacter } from "./Square"
-import { WINNING_COMBINATIONS } from "./WinningCombinations"
 
 type BoardProps = {
     setIsSGameStarted: (flag: boolean) => void

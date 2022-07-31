@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Board } from "./Board"
+import { Board } from "./Board/Board";
 import "./Game.css"
-import { StartScreen } from "./StartScreen";
+import { StartScreen } from "./Startscreen/StartScreen";
 
 export const Game: React.FC = () => {
     const [isGameStarted, setIsGameStarted] = useState(false);

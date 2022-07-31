@@ -1,5 +1,5 @@
 import { useCallback } from "react"
-import { Position } from "./Position"
+import { Position } from "../../../../utility/Position"
 import "./Square.css"
 
 export type RemoveBorder = {

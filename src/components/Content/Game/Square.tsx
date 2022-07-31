@@ -31,7 +31,7 @@ type SquareProps = {
     removeBorder: RemoveBorder,
     position: Position,
     chooseSquare: (position: Position) => void
-    winningCombination: Position[]
+    winningCombination: Position[] | null
 }
 
 // TODO overvej om der skal lægge noget state ifht om den her square er x eller o i dette komponent i stedet for i Board.
@@ -72,7 +72,7 @@ export const Square: React.FC<SquareProps> = (props) => {
     }, []);
 
     const getWinnerClass = useCallback(() => {
-        const isSquareInWinningCombination = props.winningCombination.includes(props.position);
+        const isSquareInWinningCombination = props.winningCombination?.includes(props.position);
         if (isSquareInWinningCombination) {
             return "winner";
         }

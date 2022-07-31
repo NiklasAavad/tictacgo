@@ -12,7 +12,7 @@ export const Board: React.FC<BoardProps> = (props) => {
     const [x, setX] = useState<Position[]>([]);
     const [o, setO] = useState<Position[]>([]);
     const [playerInTurn, setPlayerInTurn] = useState<SquareCharacter>(SquareCharacter.X);
-    const [winningCombination, setWinningCombination] = useState<Position[]>([])
+    const [winningCombination, setWinningCombination] = useState<Position[] | null>(null)
 
     useEffect(() => {
         if (isGameOver()) {

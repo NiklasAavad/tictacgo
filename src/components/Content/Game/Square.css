@@ -21,22 +21,19 @@
 }
 
 @keyframes winner-transition {
-    5% {
+    10% {
         color: red;
     }
-    10% {
+    20% {
         color: purple;
     }
-    15% {
+    30% {
         color: blue;
     }
-    20% {
+    40% {
         color: green;
     }
-    25% {
-        color: yellow;
-    }
-    30% {
+    50% {
         color: orange;
     }
 }
@@ -50,6 +47,7 @@
 }
 
 .no-top-border {
+
     border-top: 0px solid;
 }
 

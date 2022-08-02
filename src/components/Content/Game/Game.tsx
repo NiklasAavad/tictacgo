@@ -1,12 +1,13 @@
 import { useState } from "react";
+import { useGameContext } from "../../../context/GameContext";
 import { Board } from "./Board/Board";
 import "./Game.css"
 import { StartScreen } from "./Startscreen/StartScreen";
 
 export const Game: React.FC = () => {
-    const [isGameStarted, setIsGameStarted] = useState(false);
+    const { isGameStarted } = useGameContext();
 
     return <div className='game'>
-        {isGameStarted ? <Board setIsSGameStarted={setIsGameStarted}/> : <StartScreen setIsGameStarted={setIsGameStarted}/>}
+        {isGameStarted ? <Board/> : <StartScreen/>}
     </div>
 }

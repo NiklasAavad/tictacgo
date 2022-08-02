@@ -1,15 +1,16 @@
-import { useCallback } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { useGameContext } from "../../../../context/GameContext"
 import { Position } from "../../../../utility/Position"
 import "./Square.css"
 
-export type RemoveBorder = {
+export type Border = {
     top?: boolean,
     bottom?: boolean,
     left?: boolean,
     right?: boolean
 }
 
-enum RemoveBorderClass {
+enum BorderClass {
     TOP = "no-top-border",
     BOTTOM = "no-bottom-border",
     LEFT = "no-left-border",
@@ -25,66 +26,68 @@ export enum SquareCharacter {
     EMPTY = ""
 }
 
-type SquareProps = {
-    isX?: boolean,
-    isO?: boolean,
-    removeBorder: RemoveBorder,
+export type SquareType = {
     position: Position,
-    chooseSquare: (position: Position) => void
-    winningCombination: Position[] | null
+    character: SquareCharacter
 }
 
-// TODO overvej om der skal lægge noget state ifht om den her square er x eller o i dette komponent i stedet for i Board.
-// Board er ved at blive til et god-component
+type SquareProps = {
+    position: Position,
+    border: Border,
+}
+
+// TODO overvej React.memo
+// Problemet er, at React.memo ingen effekt har pga useGameContext, men måske man alligevel kan lave noget ala arePropsEqual og så tjek på
+// latestSquare.position og winningCombination.
 export const Square: React.FC<SquareProps> = (props) => {
-    const getCharacter = useCallback((): SquareCharacter => {
-        if (props.isX) return SquareCharacter.X;
-        if (props.isO) return SquareCharacter.O;
-        return SquareCharacter.EMPTY;
-    }, [props.isX, props.isO]);
+    const [character, setCharacter] = useState<SquareCharacter>(SquareCharacter.EMPTY);
+    const { latestSquare, winningCombination, chooseSquare } = useGameContext();
+    
+    useEffect(() => {
+        const squareHasBeenSelected = latestSquare?.position === props.position;
+        if (squareHasBeenSelected) {
+            setCharacter(latestSquare.character);  
+        }
+    }, [latestSquare])
 
-    const getBorderClasses = useCallback(() => {
-        const removeBorder = props.removeBorder;
-        const removeBorderClasses: RemoveBorderClass[] = []
+    const borderClasses = useMemo(() => {
+        const border = props.border;
+        const borderClasses: BorderClass[] = []
         
-        if (removeBorder.top) {
-            removeBorderClasses.push(RemoveBorderClass.TOP);
+        if (border.top) {
+            borderClasses.push(BorderClass.TOP);
         }
-        if (removeBorder.bottom) {
-            removeBorderClasses.push(RemoveBorderClass.BOTTOM);
+        if (border.bottom) {
+            borderClasses.push(BorderClass.BOTTOM);
         }
-        if (removeBorder.left) {
-            removeBorderClasses.push(RemoveBorderClass.LEFT);
+        if (border.left) {
+            borderClasses.push(BorderClass.LEFT);
         }
-        if (removeBorder.right) {
-            removeBorderClasses.push(RemoveBorderClass.RIGHT);
-        }
-
-        if (removeBorder.top && removeBorder.right) {
-            removeBorderClasses.push(RemoveBorderClass.TOP_RIGHT);
+        if (border.right) {
+            borderClasses.push(BorderClass.RIGHT);
         }
 
-        if (removeBorder.bottom && removeBorder.right) {
-            removeBorderClasses.push(RemoveBorderClass.BOTTOM_RIGHT);
+        if (border.top && border.right) {
+            borderClasses.push(BorderClass.TOP_RIGHT);
         }
 
-        return removeBorderClasses.join(RemoveBorderClass.SEPERATOR);
+        if (border.bottom && border.right) {
+            borderClasses.push(BorderClass.BOTTOM_RIGHT);
+        }
+
+        return borderClasses.join(BorderClass.SEPERATOR);
     }, []);
 
-    const getWinnerClass = useCallback(() => {
-        const isSquareInWinningCombination = props.winningCombination?.includes(props.position);
+    const winnerClass = useMemo(() => {
+        const isSquareInWinningCombination = winningCombination?.includes(props.position);
         if (isSquareInWinningCombination) {
             return "winner";
         }
 
         return "";
-    }, [props.winningCombination]);
+    }, [winningCombination]);
 
-    const character = getCharacter();
-    const borderClasses = getBorderClasses();
-    const winnerClass = getWinnerClass();
-
-    return <div onClick={() => props.chooseSquare(props.position)} className={`square ${character} ${borderClasses} ${winnerClass}`}>
+    return <div onClick={() => chooseSquare(props.position)} className={`square ${character} ${borderClasses} ${winnerClass}`}>
         {character}
     </div>
 }

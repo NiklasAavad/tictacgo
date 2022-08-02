@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useGameContext } from "../../../../context/GameContext"
 import { Position } from "../../../../utility/Position"
 import "./Square.css"
@@ -24,7 +24,7 @@ export enum SquareCharacter {
     O = "O",
 }
 
-type ExtendedSquareCharacter = SquareCharacter | "";
+type EmptyString = "";
 
 export type SquareType = {
     position: Position,
@@ -40,7 +40,7 @@ type SquareProps = {
 // Problemet er, at React.memo ingen effekt har pga useGameContext, men måske man alligevel kan lave noget ala arePropsEqual og så tjek på
 // latestSquare.position og winningCombination.
 export const Square: React.FC<SquareProps> = (props) => {
-    const [character, setCharacter] = useState<ExtendedSquareCharacter>("");
+    const [character, setCharacter] = useState<SquareCharacter | EmptyString>("");
     const { latestSquare, winningCombination, chooseSquare } = useGameContext();
     
     useEffect(() => {

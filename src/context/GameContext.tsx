@@ -34,6 +34,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
         }
     }, [latestSquare])
 
+    // TODO Det her kommer ikke til at virke online. Her skal latestSquare blive hentet på en anden måde (når spilleren skifter tur?).
     const chooseSquare = (position: Position) => {
         const latestSquare = OfflineMultiplayerGameService.chooseSquare(position);
 
@@ -71,7 +72,6 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
         startGame,
         chooseSquare
     }
-
 
     return <GameContext.Provider value={exposedValues}>
         {children}

@@ -1,6 +1,6 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { SquareType } from '../components/Content/Game/Square/Square';
-import OfflineMultiplayerGameService from '../service/OfflineMultiplayerGameService';
+import { GameService } from '../service/GameService';
 import { Position } from '../utility/Position';
 
 type GameContextType = {
@@ -22,31 +22,35 @@ export const useGameContext = () => {
     return context;
 }
 
-export const GameProvider = ({ children }: PropsWithChildren) => {
+type GameProviderProps = {
+    gameService: GameService
+}
+
+export const GameProvider = ({ gameService, children }: PropsWithChildren<GameProviderProps>) => {
     const [latestSquare, setLatestSquare] = useState<SquareType | null>(null);
     const [winningCombination, setWinningCombination] = useState<Position[] | null>(null)
     const [isGameStarted, setIsGameStarted] = useState(false);
 
     // Er det et problem at alle klienter spørger om spillet er slut? Ikke hvis man kan undgå at skulle broadcaste beskeden til alle.
     useEffect(() => {
-        if (OfflineMultiplayerGameService.isGameOver()) {
+        if (gameService.isGameOver()) {
             endGame();
         }
     }, [latestSquare])
 
     // TODO Det her kommer ikke til at virke online. Her skal latestSquare blive hentet på en anden måde (når spilleren skifter tur?).
     const chooseSquare = (position: Position) => {
-        if (!OfflineMultiplayerGameService.isChoiceValid(position)) {
+        if (!gameService.isChoiceValid(position)) {
             return;
         }
 
-        const latestSquare = OfflineMultiplayerGameService.chooseSquare(position);
+        const latestSquare = gameService.chooseSquare(position);
         setLatestSquare(latestSquare);
-        OfflineMultiplayerGameService.changePlayerInTurn();
+        gameService.changePlayerInTurn();
     }
 
     const endGame = () => {
-        const result = OfflineMultiplayerGameService.getResult();
+        const result = gameService.getResult();
 
         if (result) {
             console.log(`Game was won by ${result.winningCharacter}!`)
@@ -60,7 +64,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     }
 
     const startGame = () => {
-        OfflineMultiplayerGameService.startGame();
+        gameService.startGame();
         setLatestSquare(null);
         setWinningCombination(null);
         setIsGameStarted(true);

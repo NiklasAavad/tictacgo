@@ -4,8 +4,8 @@ import { GameService } from '../service/GameService';
 import { Position } from '../utility/Position';
 
 type GameContextType = {
-    latestSquare: SquareType | null,
-    winningCombination: Position[] | null,
+    latestSquare: SquareType | undefined,
+    winningCombination: Position[] | undefined,
     isGameStarted: boolean,
     chooseSquare: (position: Position) => void,
     startGame: () => void
@@ -27,8 +27,8 @@ type GameProviderProps = {
 }
 
 export const GameProvider = ({ gameService, children }: PropsWithChildren<GameProviderProps>) => {
-    const [latestSquare, setLatestSquare] = useState<SquareType | null>(null);
-    const [winningCombination, setWinningCombination] = useState<Position[] | null>(null)
+    const [latestSquare, setLatestSquare] = useState<SquareType | undefined>(undefined);
+    const [winningCombination, setWinningCombination] = useState<Position[] | undefined>(undefined)
     const [isGameStarted, setIsGameStarted] = useState(false);
 
     // Er det et problem at alle klienter spørger om spillet er slut? Ikke hvis man kan undgå at skulle broadcaste beskeden til alle.
@@ -65,8 +65,8 @@ export const GameProvider = ({ gameService, children }: PropsWithChildren<GamePr
 
     const startGame = () => {
         gameService.startGame();
-        setLatestSquare(null);
-        setWinningCombination(null);
+        setLatestSquare(undefined);
+        setWinningCombination(undefined);
         setIsGameStarted(true);
     }
 

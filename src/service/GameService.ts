@@ -6,6 +6,6 @@ export interface GameService {
     getWinningCombination: () => [Position[] | undefined, SquareCharacter],
     isGameOver: () => boolean,
     isChoiceValid: (position: Position) => boolean,
-    chooseSquare: (position: Position) => SquareType | null,
+    chooseSquare: (position: Position) => SquareType,
     changePlayerInTurn: () => void
 }

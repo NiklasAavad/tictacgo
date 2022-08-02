@@ -36,12 +36,13 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
 
     // TODO Det her kommer ikke til at virke online. Her skal latestSquare blive hentet på en anden måde (når spilleren skifter tur?).
     const chooseSquare = (position: Position) => {
-        const latestSquare = OfflineMultiplayerGameService.chooseSquare(position);
-
-        if (latestSquare) {
-            setLatestSquare(latestSquare);
-            OfflineMultiplayerGameService.changePlayerInTurn();
+        if (!OfflineMultiplayerGameService.isChoiceValid(position)) {
+            return;
         }
+
+        const latestSquare = OfflineMultiplayerGameService.chooseSquare(position);
+        setLatestSquare(latestSquare);
+        OfflineMultiplayerGameService.changePlayerInTurn();
     }
 
     const endGame = () => {
@@ -54,8 +55,8 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
             console.log("Game was tied...");
         }
 
-        const waitForNewGame = setTimeout(() => setIsGameStarted(false), 2500)
-        return () => clearTimeout(waitForNewGame);
+        const waitForGameToEnd = setTimeout(() => setIsGameStarted(false), 2500)
+        return () => clearTimeout(waitForGameToEnd);
     }
 
     const startGame = () => {

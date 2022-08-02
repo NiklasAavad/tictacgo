@@ -61,11 +61,7 @@ const OfflineMultiplayerGameService: GameService = {
         return !isPositionOccupied;
     },
 
-    chooseSquare: function (position: Position): SquareType | null {
-        if (!OfflineMultiplayerGameService.isChoiceValid(position)) {
-            return null;
-        }
-
+    chooseSquare: function (position: Position): SquareType {
         if (playerInTurn === SquareCharacter.X) {
             x.push(position);
         } else {

@@ -11,12 +11,12 @@ export type Border = {
 }
 
 enum BorderClass {
-    TOP = "no-top-border",
-    BOTTOM = "no-bottom-border",
-    LEFT = "no-left-border",
-    RIGHT = "no-right-border",
-    TOP_RIGHT = "top-right-border-radius",
-    BOTTOM_RIGHT = "bottom-right-border-radius",
+    NO_TOP = "no-top-border",
+    NO_BOTTOM = "no-bottom-border",
+    NO_LEFT = "no-left-border",
+    NO_RIGHT = "no-right-border",
+    TOP_RIGHT_BORDER_RADIUS = "top-right-border-radius",
+    BOTTOM_RIGHT_BORDER_RADIUS = "bottom-right-border-radius",
 }
 
 export enum SquareCharacter {
@@ -55,24 +55,24 @@ export const Square: React.FC<SquareProps> = (props) => {
         const borderClasses: BorderClass[] = []
         
         if (border.top) {
-            borderClasses.push(BorderClass.TOP);
+            borderClasses.push(BorderClass.NO_TOP);
         }
         if (border.bottom) {
-            borderClasses.push(BorderClass.BOTTOM);
+            borderClasses.push(BorderClass.NO_BOTTOM);
         }
         if (border.left) {
-            borderClasses.push(BorderClass.LEFT);
+            borderClasses.push(BorderClass.NO_LEFT);
         }
         if (border.right) {
-            borderClasses.push(BorderClass.RIGHT);
+            borderClasses.push(BorderClass.NO_RIGHT);
         }
 
         if (border.top && border.right) {
-            borderClasses.push(BorderClass.TOP_RIGHT);
+            borderClasses.push(BorderClass.TOP_RIGHT_BORDER_RADIUS);
         }
 
         if (border.bottom && border.right) {
-            borderClasses.push(BorderClass.BOTTOM_RIGHT);
+            borderClasses.push(BorderClass.BOTTOM_RIGHT_BORDER_RADIUS);
         }
 
         return borderClasses.join(" ");

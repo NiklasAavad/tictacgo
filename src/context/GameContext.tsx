@@ -46,11 +46,11 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     }
 
     const endGame = () => {
-        const [winningCombination, winningCharacter] = OfflineMultiplayerGameService.getWinningCombination();
+        const result = OfflineMultiplayerGameService.getResult();
 
-        if (winningCombination) {
-            console.log(`Game was won by ${winningCharacter}!`)
-            setWinningCombination(winningCombination)
+        if (result) {
+            console.log(`Game was won by ${result.winningCharacter}!`)
+            setWinningCombination(result.winningCombination)
         } else {
             console.log("Game was tied...");
         }

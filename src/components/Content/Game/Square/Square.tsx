@@ -17,14 +17,14 @@ enum BorderClass {
     RIGHT = "no-right-border",
     TOP_RIGHT = "top-right-border-radius",
     BOTTOM_RIGHT = "bottom-right-border-radius",
-    SEPERATOR = " "
 }
 
 export enum SquareCharacter {
     X = "X",
     O = "O",
-    EMPTY = ""
 }
+
+type ExtendedSquareCharacter = SquareCharacter | "";
 
 export type SquareType = {
     position: Position,
@@ -40,7 +40,7 @@ type SquareProps = {
 // Problemet er, at React.memo ingen effekt har pga useGameContext, men måske man alligevel kan lave noget ala arePropsEqual og så tjek på
 // latestSquare.position og winningCombination.
 export const Square: React.FC<SquareProps> = (props) => {
-    const [character, setCharacter] = useState<SquareCharacter>(SquareCharacter.EMPTY);
+    const [character, setCharacter] = useState<ExtendedSquareCharacter>("");
     const { latestSquare, winningCombination, chooseSquare } = useGameContext();
     
     useEffect(() => {
@@ -75,7 +75,7 @@ export const Square: React.FC<SquareProps> = (props) => {
             borderClasses.push(BorderClass.BOTTOM_RIGHT);
         }
 
-        return borderClasses.join(BorderClass.SEPERATOR);
+        return borderClasses.join(" ");
     }, []);
 
     const winnerClass = useMemo(() => {

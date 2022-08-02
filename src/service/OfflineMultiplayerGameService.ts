@@ -1,7 +1,7 @@
 import { SquareCharacter, SquareType } from "../components/Content/Game/Square/Square";
 import { Position } from "../utility/Position";
 import { WINNING_COMBINATIONS } from "../utility/WinningCombinations";
-import { GameService } from "./GameService";
+import { GameService, Result } from "./GameService";
 
 let x: Position[] = [];
 let o: Position[] = [];
@@ -15,13 +15,13 @@ const OfflineMultiplayerGameService: GameService = {
         playerInTurn = SquareCharacter.X;
     },
 
-    getWinningCombination: function (): [Position[] | undefined, SquareCharacter] {
+    getResult: function (): Result | undefined {
         const xWinningCombination = WINNING_COMBINATIONS.find(combination => {
             return combination.every(position => x.includes(position));
         });
 
         if (xWinningCombination) {
-            return [xWinningCombination, SquareCharacter.X];
+            return {winningCombination: xWinningCombination, winningCharacter: SquareCharacter.X}
         }
 
         const oWinningCombination = WINNING_COMBINATIONS.find(combination => {
@@ -29,10 +29,10 @@ const OfflineMultiplayerGameService: GameService = {
         });
 
         if (oWinningCombination) {
-            return [oWinningCombination, SquareCharacter.O];
+            return {winningCombination: oWinningCombination, winningCharacter: SquareCharacter.O}
         }
 
-        return [undefined, SquareCharacter.EMPTY];
+        return undefined;
     },
 
     isGameOver: function (): boolean {

@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useGameContext } from "../../../context/GameContext"
 import "./Chat.css"
+import { ChatInput } from "./ChatInput/ChatInput";
 
 enum ChatType {
-    GAME_INFO,
-    USER_MESSAGE
+    GAME_INFO = "Game info: ",
+    USER_MESSAGE = "User: "
 }
 
 type ChatMessage = {
@@ -13,22 +14,28 @@ type ChatMessage = {
 }
 
 export const Chat: React.FC = () => {
-    const [messages, setMessages] = useState<ChatMessage[]>([])
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [latestUserMessage, setLatestUserMessage] = useState<string | undefined>(undefined);
     const { latestGameInfoMessage } = useGameContext();
 
     useEffect(() => {
-        const gameInfoMessage = {text: latestGameInfoMessage, type: ChatType.GAME_INFO};
+        const gameInfoMessage = { text: latestGameInfoMessage, type: ChatType.GAME_INFO };
         setMessages([...messages, gameInfoMessage]);
     }, [latestGameInfoMessage])
 
+    useEffect(() => {
+        if (latestUserMessage) {
+            const userMessage = { text: latestUserMessage, type: ChatType.USER_MESSAGE }; 
+            setMessages([...messages, userMessage]);
+        }
+    }, [latestUserMessage]);
+
     const styledMessages = useMemo(() => {
         return messages.map((message, idx) => {
-            if (message.type == ChatType.GAME_INFO) {
-                return <div key={idx} className="chat-message">
-                    <span className="game-info-message">Game Info: </span>
-                    {message.text}
-                </div>
-            }
+            return <div key={idx} className="chat-message">
+                <span className="message-sender">{message.type}</span>
+                {message.text}
+            </div>
         });
     }, [messages])
 
@@ -39,5 +46,6 @@ export const Chat: React.FC = () => {
                 {styledMessages}
             </div>
         </div>
+        <ChatInput setLatestUserMessage={setLatestUserMessage} />
     </div>
 };

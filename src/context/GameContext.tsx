@@ -1,10 +1,11 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
-import { SquareType } from '../components/Content/Game/Square/Square';
-import { GameService } from '../service/GameService';
+import { SquareCharacter, SquareType } from '../components/Content/Game/Square/Square';
+import { GameService, Result } from '../service/GameService';
 import { Position } from '../utility/Position';
 
 type GameContextType = {
     latestSquare: SquareType | undefined,
+    latestGameMessage: GameMessage,
     winningCombination: Position[] | undefined,
     isGameStarted: boolean,
     chooseSquare: (position: Position) => void,
@@ -22,12 +23,23 @@ export const useGameContext = () => {
     return context;
 }
 
+enum GameMessage {
+    X_WON = "The game has been won by X!",
+    O_WON = "The game has been won by O!",
+    TIE = "The game has been tied...",
+    START_NEW_GAME = "Click on the 'New Game' button to begin!",
+    NEW_GAME_STARTED = "A new game has just begun! Good luck."
+}
+
 type GameProviderProps = {
     gameService: GameService
 }
 
+const TIMEOUT_PERIOD = 2500; // ms!
+
 export const GameProvider = ({ gameService, children }: PropsWithChildren<GameProviderProps>) => {
     const [latestSquare, setLatestSquare] = useState<SquareType | undefined>(undefined);
+    const [latestGameMessage, setLatestGameMessage] = useState<GameMessage>(GameMessage.START_NEW_GAME);
     const [winningCombination, setWinningCombination] = useState<Position[] | undefined>(undefined)
     const [isGameStarted, setIsGameStarted] = useState(false);
 
@@ -53,25 +65,42 @@ export const GameProvider = ({ gameService, children }: PropsWithChildren<GamePr
         const result = gameService.getResult();
 
         if (result) {
-            console.log(`Game was won by ${result.winningCharacter}!`)
+            const newGameMessage = getWinningMessage(result);
+            setLatestGameMessage(newGameMessage);
             setWinningCombination(result.winningCombination)
         } else {
-            console.log("Game was tied...");
+            setLatestGameMessage(GameMessage.TIE);
         }
 
-        const waitForGameToEnd = setTimeout(() => setIsGameStarted(false), 2500)
+        const waitForGameToEnd = setTimeout(() => {
+            setLatestGameMessage(GameMessage.START_NEW_GAME);
+            setIsGameStarted(false)
+        }, TIMEOUT_PERIOD);
+
         return () => clearTimeout(waitForGameToEnd);
+    }
+
+    const getWinningMessage = (result: Result): GameMessage => {
+        const xWon = result.winningCharacter == SquareCharacter.X;
+        if (xWon) {
+            return GameMessage.X_WON;
+        }
+        else {
+            return GameMessage.O_WON;
+        }
     }
 
     const startGame = () => {
         gameService.startGame();
         setLatestSquare(undefined);
+        setLatestGameMessage(GameMessage.NEW_GAME_STARTED);
         setWinningCombination(undefined);
         setIsGameStarted(true);
     }
 
     const exposedValues = {
         latestSquare,
+        latestGameMessage,
         winningCombination,
         isGameStarted,
         startGame,

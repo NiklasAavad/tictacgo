@@ -29,6 +29,11 @@
     display: block; 
 }
 
-.chat-messages {
+.chat-message {
     margin-left: 8px;
+    line-height: 24px;
+}
+
+.game-info-message {
+    font-weight: bold;
 }

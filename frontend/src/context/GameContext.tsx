@@ -43,6 +43,13 @@ export const GameProvider = ({ gameService, children }: PropsWithChildren<GamePr
     const [winningCombination, setWinningCombination] = useState<Position[] | undefined>(undefined)
     const [isGameStarted, setIsGameStarted] = useState(false);
 
+    const startGame = () => {
+        gameService.startGame();
+        setLatestSquare(undefined);
+        setLatestGameInfoMessage(GameInfoMessage.NEW_GAME_STARTED);
+        setWinningCombination(undefined);
+        setIsGameStarted(true);
+    }
 
     // TODO Det her kommer ikke til at virke online. Her skal latestSquare blive hentet på en anden måde (når spilleren skifter tur?).
     const chooseSquare = (position: Position) => {
@@ -55,7 +62,6 @@ export const GameProvider = ({ gameService, children }: PropsWithChildren<GamePr
         gameService.changePlayerInTurn();
     }
 
-
     const getWinningMessage = useCallback((result: Result): GameInfoMessage => {
         const xWon = result.winningCharacter === SquareCharacter.X;
         if (xWon) {
@@ -65,14 +71,6 @@ export const GameProvider = ({ gameService, children }: PropsWithChildren<GamePr
             return GameInfoMessage.O_WON;
         }
     }, []);
-
-    const startGame = () => {
-        gameService.startGame();
-        setLatestSquare(undefined);
-        setLatestGameInfoMessage(GameInfoMessage.NEW_GAME_STARTED);
-        setWinningCombination(undefined);
-        setIsGameStarted(true);
-    }
 
     const endGame = useCallback(() => {
         const result = gameService.getResult();

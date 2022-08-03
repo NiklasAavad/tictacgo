@@ -20,6 +20,7 @@
     margin-bottom: 16px;
     text-align: center;
     font-size: 40px;
+    height: 8%;
 }
 
 .underline {
@@ -29,11 +30,38 @@
     display: block; 
 }
 
+.message-container {
+    overflow-y: auto;
+    max-height: 80%;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
 .chat-message {
     margin-left: 8px;
-    line-height: 24px;
+    line-height: 27px;
 }
 
 .game-info-message {
     font-weight: bold;
 }
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: var(--white);
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }

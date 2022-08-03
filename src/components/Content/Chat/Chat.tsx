@@ -14,12 +14,12 @@ type ChatMessage = {
 
 export const Chat: React.FC = () => {
     const [messages, setMessages] = useState<ChatMessage[]>([])
-    const { latestGameInfoMessage: latestGameMessage } = useGameContext();
+    const { latestGameInfoMessage } = useGameContext();
 
     useEffect(() => {
-        const gameInfoMessage = {text: latestGameMessage, type: ChatType.GAME_INFO};
+        const gameInfoMessage = {text: latestGameInfoMessage, type: ChatType.GAME_INFO};
         setMessages([...messages, gameInfoMessage]);
-    }, [latestGameMessage])
+    }, [latestGameInfoMessage])
 
     const styledMessages = useMemo(() => {
         return messages.map((message, idx) => {
@@ -34,6 +34,10 @@ export const Chat: React.FC = () => {
 
     return <div className='chat'>
         <div className="chat-header underline">Chat</div>
-        {styledMessages}
+        <div className="message-container">
+            <div>
+                {styledMessages}
+            </div>
+        </div>
     </div>
 };

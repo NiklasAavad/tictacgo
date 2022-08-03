@@ -12,9 +12,9 @@ type ChatMessage = {
     type: ChatType
 }
 
-export const Chat: React.FC = React.memo(() => {
+export const Chat: React.FC = () => {
     const [messages, setMessages] = useState<ChatMessage[]>([])
-    const { latestGameMessage } = useGameContext();
+    const { latestGameInfoMessage: latestGameMessage } = useGameContext();
 
     useEffect(() => {
         const gameInfoMessage = {text: latestGameMessage, type: ChatType.GAME_INFO};
@@ -36,4 +36,4 @@ export const Chat: React.FC = React.memo(() => {
         <div className="chat-header underline">Chat</div>
         {styledMessages}
     </div>
-});
+};

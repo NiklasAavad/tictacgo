@@ -5,7 +5,7 @@ import { Position } from '../utility/Position';
 
 type GameContextType = {
     latestSquare: SquareType | undefined,
-    latestGameMessage: GameMessage,
+    latestGameInfoMessage: GameInfoMessage,
     winningCombination: Position[] | undefined,
     isGameStarted: boolean,
     chooseSquare: (position: Position) => void,
@@ -23,7 +23,7 @@ export const useGameContext = () => {
     return context;
 }
 
-enum GameMessage {
+enum GameInfoMessage {
     X_WON = "The game has been won by X!",
     O_WON = "The game has been won by O!",
     TIE = "The game has been tied...",
@@ -39,7 +39,7 @@ const TIMEOUT_PERIOD = 2500; // ms!
 
 export const GameProvider = ({ gameService, children }: PropsWithChildren<GameProviderProps>) => {
     const [latestSquare, setLatestSquare] = useState<SquareType | undefined>(undefined);
-    const [latestGameMessage, setLatestGameMessage] = useState<GameMessage>(GameMessage.START_NEW_GAME);
+    const [latestGameInfoMessage, setLatestGameInfoMessage] = useState<GameInfoMessage>(GameInfoMessage.START_NEW_GAME);
     const [winningCombination, setWinningCombination] = useState<Position[] | undefined>(undefined)
     const [isGameStarted, setIsGameStarted] = useState(false);
 
@@ -66,41 +66,41 @@ export const GameProvider = ({ gameService, children }: PropsWithChildren<GamePr
 
         if (result) {
             const newGameMessage = getWinningMessage(result);
-            setLatestGameMessage(newGameMessage);
+            setLatestGameInfoMessage(newGameMessage);
             setWinningCombination(result.winningCombination)
         } else {
-            setLatestGameMessage(GameMessage.TIE);
+            setLatestGameInfoMessage(GameInfoMessage.TIE);
         }
 
         const waitForGameToEnd = setTimeout(() => {
-            setLatestGameMessage(GameMessage.START_NEW_GAME);
+            setLatestGameInfoMessage(GameInfoMessage.START_NEW_GAME);
             setIsGameStarted(false)
         }, TIMEOUT_PERIOD);
 
         return () => clearTimeout(waitForGameToEnd);
     }
 
-    const getWinningMessage = (result: Result): GameMessage => {
+    const getWinningMessage = (result: Result): GameInfoMessage => {
         const xWon = result.winningCharacter == SquareCharacter.X;
         if (xWon) {
-            return GameMessage.X_WON;
+            return GameInfoMessage.X_WON;
         }
         else {
-            return GameMessage.O_WON;
+            return GameInfoMessage.O_WON;
         }
     }
 
     const startGame = () => {
         gameService.startGame();
         setLatestSquare(undefined);
-        setLatestGameMessage(GameMessage.NEW_GAME_STARTED);
+        setLatestGameInfoMessage(GameInfoMessage.NEW_GAME_STARTED);
         setWinningCombination(undefined);
         setIsGameStarted(true);
     }
 
     const exposedValues = {
         latestSquare,
-        latestGameMessage,
+        latestGameInfoMessage,
         winningCombination,
         isGameStarted,
         startGame,

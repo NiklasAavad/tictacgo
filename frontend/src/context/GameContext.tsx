@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
+import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useState } from 'react';
 import { SquareCharacter, SquareType } from '../components/Content/Game/Square/Square';
 import { GameService, Result } from '../service/GameService';
 import { Position } from '../utility/Position';
@@ -43,12 +43,6 @@ export const GameProvider = ({ gameService, children }: PropsWithChildren<GamePr
     const [winningCombination, setWinningCombination] = useState<Position[] | undefined>(undefined)
     const [isGameStarted, setIsGameStarted] = useState(false);
 
-    // Er det et problem at alle klienter spørger om spillet er slut? Ikke hvis man kan undgå at skulle broadcaste beskeden til alle.
-    useEffect(() => {
-        if (gameService.isGameOver()) {
-            endGame();
-        }
-    }, [latestSquare])
 
     // TODO Det her kommer ikke til at virke online. Her skal latestSquare blive hentet på en anden måde (når spilleren skifter tur?).
     const chooseSquare = (position: Position) => {
@@ -61,7 +55,26 @@ export const GameProvider = ({ gameService, children }: PropsWithChildren<GamePr
         gameService.changePlayerInTurn();
     }
 
-    const endGame = () => {
+
+    const getWinningMessage = useCallback((result: Result): GameInfoMessage => {
+        const xWon = result.winningCharacter === SquareCharacter.X;
+        if (xWon) {
+            return GameInfoMessage.X_WON;
+        }
+        else {
+            return GameInfoMessage.O_WON;
+        }
+    }, []);
+
+    const startGame = () => {
+        gameService.startGame();
+        setLatestSquare(undefined);
+        setLatestGameInfoMessage(GameInfoMessage.NEW_GAME_STARTED);
+        setWinningCombination(undefined);
+        setIsGameStarted(true);
+    }
+
+    const endGame = useCallback(() => {
         const result = gameService.getResult();
 
         if (result) {
@@ -78,25 +91,14 @@ export const GameProvider = ({ gameService, children }: PropsWithChildren<GamePr
         }, TIMEOUT_PERIOD);
 
         return () => clearTimeout(waitForGameToEnd);
-    }
+    }, [gameService, getWinningMessage]);
 
-    const getWinningMessage = (result: Result): GameInfoMessage => {
-        const xWon = result.winningCharacter == SquareCharacter.X;
-        if (xWon) {
-            return GameInfoMessage.X_WON;
+    // Er det et problem at alle klienter spørger om spillet er slut? Ikke hvis man kan undgå at skulle broadcaste beskeden til alle.
+    useEffect(() => {
+        if (gameService.isGameOver()) {
+            endGame();
         }
-        else {
-            return GameInfoMessage.O_WON;
-        }
-    }
-
-    const startGame = () => {
-        gameService.startGame();
-        setLatestSquare(undefined);
-        setLatestGameInfoMessage(GameInfoMessage.NEW_GAME_STARTED);
-        setWinningCombination(undefined);
-        setIsGameStarted(true);
-    }
+    }, [latestSquare, gameService, endGame])
 
     const exposedValues = {
         latestSquare,

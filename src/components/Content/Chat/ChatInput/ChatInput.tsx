@@ -14,7 +14,10 @@ export const ChatInput: React.FC<ChatInputProps> = (props) => {
     }
 
     const sendMessage = (message: string) => {
-        props.setLatestUserMessage(message);
+        const trimmedMessage = message.trim();
+        if (trimmedMessage) {
+            props.setLatestUserMessage(trimmedMessage);
+        }
     }
 
     return <div className="chat-input">

@@ -20,7 +20,7 @@ export const Chat: React.FC = () => {
 
     useEffect(() => {
         const gameInfoMessage = { text: latestGameInfoMessage, type: ChatType.GAME_INFO };
-        setMessages(messages =>[...messages, gameInfoMessage]);
+        setMessages(messages => [...messages, gameInfoMessage]);
     }, [latestGameInfoMessage])
 
     useEffect(() => {

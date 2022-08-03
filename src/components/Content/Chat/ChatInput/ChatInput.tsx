@@ -1,3 +1,4 @@
+import React, { useRef } from "react";
 import "./ChatInput.css";
 
 type ChatInputProps = {
@@ -5,11 +6,12 @@ type ChatInputProps = {
 };
 
 export const ChatInput: React.FC<ChatInputProps> = (props) => {
-    const onKeyDown = (event: any) => {
+    const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter") {
-            const message = event.target.value;
+            const inputElement = event.target;
+            const message = inputElement.value;
             sendMessage(message);
-            event.target.value = "";
+            inputElement.value = "";
         }
     }
 

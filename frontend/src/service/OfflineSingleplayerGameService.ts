@@ -41,6 +41,10 @@ const OfflineSingleplayerGameService: GameService = (gameContextMutator: GameCon
             return positionIfPlayerWouldWin;
         }
 
+        if (freePositions.includes(Position.CENTER)) {
+            return Position.CENTER;
+        }
+
         return getRandomItem(freePositions);
     }
 

@@ -25,7 +25,7 @@ export const Chat: React.FC = () => {
 
     useEffect(() => {
         if (latestUserMessage) {
-            const userMessage = { text: latestUserMessage, type: ChatType.USER_MESSAGE }; 
+            const userMessage = { text: latestUserMessage, type: ChatType.USER_MESSAGE };
             setMessages(messages => [...messages, userMessage]);
         }
     }, [latestUserMessage]);

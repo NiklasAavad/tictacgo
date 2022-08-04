@@ -7,7 +7,7 @@ import OfflineMultiplayerGameService from './service/OfflineMultiplayerGameServi
 export const App: React.FC = () => {
     return <>
         <Topbar/>
-        <GameProvider gameService={OfflineMultiplayerGameService}>
+        <GameProvider gameServiceProvider={OfflineMultiplayerGameService}>
             <Content/>
         </GameProvider>
     </>

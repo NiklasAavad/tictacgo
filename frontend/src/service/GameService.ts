@@ -1,3 +1,4 @@
+import React from "react";
 import { SquareCharacter, SquareType } from "../components/Content/Game/Square/Square";
 import { Position } from "../utility/Position";
 
@@ -6,11 +7,19 @@ export type Result = {
     winningCharacter: SquareCharacter;
 }
 
-export interface GameService {
+type SetLatestSquareFunction = React.Dispatch<React.SetStateAction<SquareType | undefined>>
+
+export type GameContextMutator = {
+    setLatestSquare: SetLatestSquareFunction
+}
+
+// TODO hvis det er nødvendigt at sætte playerInTurn i GameContext, så skal den muligvis også med som parameter.
+// I så fald vil det måske give mening at lave en type GameContextMutator, som har begge funktioner på sig.
+export type GameService = (gameContextMutator: GameContextMutator) => {
     startGame: () => void,
     getResult: () => Result | undefined,
     isGameOver: () => boolean,
     isChoiceValid: (position: Position) => boolean,
-    chooseSquare: (position: Position) => SquareType,
+    chooseSquare: (position: Position) => void,
     changePlayerInTurn: () => void
 }

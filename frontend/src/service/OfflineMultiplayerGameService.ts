@@ -1,27 +1,33 @@
-import { SquareCharacter, SquareType } from "../components/Content/Game/Square/Square";
+import { SquareCharacter } from "../components/Content/Game/Square/Square";
 import { Position } from "../utility/Position";
 import { WINNING_COMBINATIONS } from "../utility/WinningCombinations";
-import { GameService, Result } from "./GameService";
+import { GameContextMutator, GameService, Result } from "./GameService";
 
-let x: Position[] = [];
-let o: Position[] = [];
-let playerInTurn: SquareCharacter = SquareCharacter.X;
-const MAX_POSITIONS = 9;
+const OfflineMultiplayerGameService: GameService = (gameContextMutator: GameContextMutator) => {
+    let x: Position[] = [];
+    let o: Position[] = [];
+    let playerInTurn: SquareCharacter = SquareCharacter.X;
+    const MAX_POSITIONS = 9;
 
-const OfflineMultiplayerGameService: GameService = {
-    startGame: function (): void {
+    const hasPlayerWon = (playerPositions: Position[]) => {
+        return WINNING_COMBINATIONS.some(combination => {
+            return combination.every(position => playerPositions.includes(position))
+        });
+    };
+
+    const startGame = (): void => {
         x = [];
         o = [];
         playerInTurn = SquareCharacter.X;
-    },
+    };
 
-    getResult: function (): Result | undefined {
+    const getResult = (): Result | undefined => {
         const xWinningCombination = WINNING_COMBINATIONS.find(combination => {
             return combination.every(position => x.includes(position));
         });
 
         if (xWinningCombination) {
-            return {winningCombination: xWinningCombination, winningCharacter: SquareCharacter.X}
+            return { winningCombination: xWinningCombination, winningCharacter: SquareCharacter.X }
         }
 
         const oWinningCombination = WINNING_COMBINATIONS.find(combination => {
@@ -29,28 +35,28 @@ const OfflineMultiplayerGameService: GameService = {
         });
 
         if (oWinningCombination) {
-            return {winningCombination: oWinningCombination, winningCharacter: SquareCharacter.O}
+            return { winningCombination: oWinningCombination, winningCharacter: SquareCharacter.O }
         }
 
         return undefined;
-    },
+    };
 
-    isGameOver: function (): boolean {
+    const isGameOver = (): boolean => {
         const notEnoughInputs = x.length < 3;
         if (notEnoughInputs) {
             return false;
         }
 
-        const allPositionsOccupied = x.length + o.length == MAX_POSITIONS;
+        const allPositionsOccupied = x.length + o.length === MAX_POSITIONS;
         if (allPositionsOccupied) {
             return true;
         }
 
         return hasPlayerWon(x) || hasPlayerWon(o);
-    },
+    };
 
-    isChoiceValid: function (position: Position): boolean {
-        if (OfflineMultiplayerGameService.isGameOver()) {
+    const isChoiceValid = (position: Position): boolean => {
+        if (isGameOver()) {
             return false;
         }
 
@@ -59,31 +65,34 @@ const OfflineMultiplayerGameService: GameService = {
         const isPositionOccupied = isAlreadyX || isAlreadyO;
 
         return !isPositionOccupied;
-    },
+    };
 
-    chooseSquare: function (position: Position): SquareType {
+    const chooseSquare = (position: Position): void => {
         if (playerInTurn === SquareCharacter.X) {
             x.push(position);
         } else {
             o.push(position);
         }
+        const latestSquare = { position: position, character: playerInTurn };
+        gameContextMutator.setLatestSquare(latestSquare);
+    };
 
-        return { position: position, character: playerInTurn };
-    },
-
-    changePlayerInTurn: function (): void {
-        if (playerInTurn == SquareCharacter.X) {
+    const changePlayerInTurn = (): void => {
+        if (playerInTurn === SquareCharacter.X) {
             playerInTurn = SquareCharacter.O;
         } else {
             playerInTurn = SquareCharacter.X;
         }
-    },
-}
+    };
 
-const hasPlayerWon = (playerPositions: Position[]) => {
-    return WINNING_COMBINATIONS.some(combination => {
-        return combination.every(position => playerPositions.includes(position))
-    });
+    return {
+        startGame,
+        getResult,
+        isGameOver,
+        isChoiceValid,
+        chooseSquare,
+        changePlayerInTurn
+    }
 }
 
 export default OfflineMultiplayerGameService;

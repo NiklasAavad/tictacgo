@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { SquareCharacter, SquareType } from '../components/Content/Game/Square/Square';
 import { GameService, Result } from '../service/GameService';
 import { Position } from '../utility/Position';
@@ -32,16 +32,23 @@ enum GameInfoMessage {
 }
 
 type GameProviderProps = {
-    gameService: GameService
+    gameServiceProvider: GameService
 }
 
 const TIMEOUT_PERIOD = 2500; // ms!
 
-export const GameProvider = ({ gameService, children }: PropsWithChildren<GameProviderProps>) => {
+export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildren<GameProviderProps>) => {
+    // TODO slet hvis ændringen af latestSquare renderes korrekt.
     const [latestSquare, setLatestSquare] = useState<SquareType | undefined>(undefined);
     const [latestGameInfoMessage, setLatestGameInfoMessage] = useState<GameInfoMessage>(GameInfoMessage.START_NEW_GAME);
     const [winningCombination, setWinningCombination] = useState<Position[] | undefined>(undefined)
     const [isGameStarted, setIsGameStarted] = useState(false);
+
+    const gameContextMutator = useMemo(() => {
+        return { setLatestSquare: setLatestSquare }
+    }, [setLatestSquare]);
+
+    const gameService = useMemo(() => gameServiceProvider(gameContextMutator), [gameServiceProvider, gameContextMutator]);
 
     const startGame = () => {
         gameService.startGame();
@@ -51,14 +58,11 @@ export const GameProvider = ({ gameService, children }: PropsWithChildren<GamePr
         setIsGameStarted(true);
     }
 
-    // TODO Det her kommer ikke til at virke online. Her skal latestSquare blive hentet på en anden måde (når spilleren skifter tur?).
     const chooseSquare = (position: Position) => {
         if (!gameService.isChoiceValid(position)) {
             return;
         }
-
-        const latestSquare = gameService.chooseSquare(position);
-        setLatestSquare(latestSquare);
+        gameService.chooseSquare(position);
         gameService.changePlayerInTurn();
     }
 

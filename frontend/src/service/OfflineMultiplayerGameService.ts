@@ -1,4 +1,5 @@
 import { SquareCharacter } from "../components/Content/Game/Square/Square";
+import { hasPlayerWon } from "../utility/GameServiceUtility";
 import { Position } from "../utility/Position";
 import { WINNING_COMBINATIONS } from "../utility/WinningCombinations";
 import { GameContextMutator, GameService, Result } from "./GameService";
@@ -8,12 +9,6 @@ const OfflineMultiplayerGameService: GameService = (gameContextMutator: GameCont
     let o: Position[] = [];
     let playerInTurn: SquareCharacter = SquareCharacter.X;
     const MAX_POSITIONS = 9;
-
-    const hasPlayerWon = (playerPositions: Position[]) => {
-        return WINNING_COMBINATIONS.some(combination => {
-            return combination.every(position => playerPositions.includes(position))
-        });
-    };
 
     const startGame = (): void => {
         x = [];

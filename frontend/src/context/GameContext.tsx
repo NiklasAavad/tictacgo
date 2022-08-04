@@ -28,7 +28,7 @@ enum GameInfoMessage {
     O_WON = "The game has been won by O!",
     TIE = "The game has been tied...",
     START_NEW_GAME = "Click on the 'New Game' button to begin!",
-    NEW_GAME_STARTED = "A new game has just begun! Good luck."
+    NEW_GAME_STARTED = "A new game has just begun! X begins."
 }
 
 type GameProviderProps = {

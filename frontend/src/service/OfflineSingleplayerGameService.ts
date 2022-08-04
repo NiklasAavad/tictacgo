@@ -17,7 +17,7 @@ const OfflineSingleplayerGameService: GameService = (gameContextMutator: GameCon
         } else {
             o.push(position);
         }
-        freePositions = freePositions.filter(freePosition => freePosition != position);
+        freePositions = freePositions.filter(freePosition => freePosition !== position);
     }
 
     const choosePositionIfGameWouldEnd = (playerPositions: Position[]): Position | undefined => {

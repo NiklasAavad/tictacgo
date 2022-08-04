@@ -41,8 +41,6 @@ const OfflineMultiplayerGameService: GameService = (gameContextMutator: GameCont
             return false;
         }
 
-        console.log("length of all positions", allPositions.length);
-
         const allPositionsOccupied = x.length + o.length === allPositions.length;
         if (allPositionsOccupied) {
             return true;

@@ -1,9 +1,9 @@
 const socket = new WebSocket("ws://localhost:8080/ws");
 
-type Callback = (msg: MessageEvent) => void;
+export type MessageCallback = (msg: MessageEvent) => void;
 
 // TODO fix any
-export const connect = (cb: Callback) => {
+export const connect = (messageCallback: MessageCallback) => {
     console.log("Attempting connection...");
 
     socket.onopen = () => {
@@ -12,7 +12,7 @@ export const connect = (cb: Callback) => {
 
     socket.onmessage = (msg: MessageEvent) => {
         console.log(msg);
-        cb(msg);
+        messageCallback(msg);
     };
 
     socket.onclose = (event: CloseEvent) => {

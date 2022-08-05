@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useGameContext } from "../../../context/GameContext"
-import { connect } from "../../../websocket/Websocket";
+import { MessageCallback, connect } from "../../../websocket/Websocket";
 import "./Chat.css"
 import { ChatInput } from "./ChatInput/ChatInput";
 
@@ -19,12 +19,14 @@ export const Chat: React.FC = () => {
     const [latestUserMessage, setLatestUserMessage] = useState<string | undefined>(undefined);
     const { latestGameInfoMessage } = useGameContext();
 
+    const messageCallback: MessageCallback = (msg: MessageEvent) => {
+        const text: string = msg.data;
+        const userMessage = { text: text, type: ChatType.USER_MESSAGE };
+        setMessages(messages => [...messages, userMessage]);
+    }
+
     useEffect(() => {
-        connect((msg: MessageEvent) => {
-            const text: string = msg.data;
-            const userMessage = { text: text, type: ChatType.USER_MESSAGE };
-            setMessages(messages => [...messages, userMessage]);
-        })
+        connect(messageCallback);
     })
 
     useEffect(() => {

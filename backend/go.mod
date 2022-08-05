@@ -1,4 +1,4 @@
-module github.com/NiklasPrograms/tictacgo
+module github.com/NiklasPrograms/tictacgo/backend
 
 go 1.18
 

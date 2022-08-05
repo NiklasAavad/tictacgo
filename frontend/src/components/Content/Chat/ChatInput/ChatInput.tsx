@@ -7,10 +7,6 @@ type ChatInputProps = {
 };
 
 export const ChatInput: React.FC<ChatInputProps> = (props) => {
-    useEffect(() => {
-        connect()
-    }, [])
-
     const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter") {
             const inputElement = event.target;

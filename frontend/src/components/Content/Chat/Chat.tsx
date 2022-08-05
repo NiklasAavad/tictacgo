@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useGameContext } from "../../../context/GameContext"
+import { connect } from "../../../websocket/Websocket";
 import "./Chat.css"
 import { ChatInput } from "./ChatInput/ChatInput";
 
@@ -19,16 +20,17 @@ export const Chat: React.FC = () => {
     const { latestGameInfoMessage } = useGameContext();
 
     useEffect(() => {
+        connect((msg: MessageEvent) => {
+            const text: string = msg.data;
+            const userMessage = { text: text, type: ChatType.USER_MESSAGE };
+            setMessages(messages => [...messages, userMessage]);
+        })
+    })
+
+    useEffect(() => {
         const gameInfoMessage = { text: latestGameInfoMessage, type: ChatType.GAME_INFO };
         setMessages(messages => [...messages, gameInfoMessage]);
     }, [latestGameInfoMessage])
-
-    useEffect(() => {
-        if (latestUserMessage) {
-            const userMessage = { text: latestUserMessage, type: ChatType.USER_MESSAGE };
-            setMessages(messages => [...messages, userMessage]);
-        }
-    }, [latestUserMessage]);
 
     const styledMessages = useMemo(() => {
         return messages.map((message, idx) => {

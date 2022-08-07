@@ -1,27 +1,17 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useGameContext } from "../../../context/GameContext"
-import { MessageCallback, connect } from "../../../websocket/Websocket";
-import "./Chat.css"
+import { useGameContext } from "../../../context/GameContext";
+import { connect, MessageCallback } from "../../../websocket/Websocket";
+import "./Chat.css";
 import { ChatInput } from "./ChatInput/ChatInput";
-
-enum ChatType {
-    GAME_INFO = "Game info: ",
-    USER_MESSAGE = "User: "
-}
-
-type ChatMessage = {
-    text: string,
-    type: ChatType
-}
+import { ChatMessage, ChatType, Message } from "./Message/Message";
 
 export const Chat: React.FC = () => {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [latestUserMessage, setLatestUserMessage] = useState<string | undefined>(undefined);
     const { latestGameInfoMessage } = useGameContext();
 
     const messageCallback: MessageCallback = (msg: MessageEvent) => {
-        const text: string = msg.data;
-        const userMessage = { text: text, type: ChatType.USER_MESSAGE };
+        const parsedMessage: ChatMessage = JSON.parse(msg.data);
+        const userMessage: ChatMessage = { body: parsedMessage.body, type: ChatType.USER_MESSAGE };
         setMessages(messages => [...messages, userMessage]);
     }
 
@@ -30,17 +20,12 @@ export const Chat: React.FC = () => {
     })
 
     useEffect(() => {
-        const gameInfoMessage = { text: latestGameInfoMessage, type: ChatType.GAME_INFO };
+        const gameInfoMessage = { body: latestGameInfoMessage, type: ChatType.GAME_INFO };
         setMessages(messages => [...messages, gameInfoMessage]);
     }, [latestGameInfoMessage])
 
     const styledMessages = useMemo(() => {
-        return messages.map((message, idx) => {
-            return <div key={idx} className="chat-message">
-                <span className="message-sender">{message.type}</span>
-                {message.text}
-            </div>
-        });
+        return messages.map((message, idx) => <Message message={message} key={idx} />)
     }, [messages])
 
     return <div className='chat'>
@@ -50,6 +35,6 @@ export const Chat: React.FC = () => {
                 {styledMessages}
             </div>
         </div>
-        <ChatInput setLatestUserMessage={setLatestUserMessage} />
+        <ChatInput />
     </div>
 };

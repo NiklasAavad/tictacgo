@@ -1,30 +1,22 @@
-import React, { useEffect } from "react";
-import { sendMsg, connect } from "../../../../websocket/Websocket";
+import React from "react";
+import { sendMsg } from "../../../../websocket/Websocket";
 import "./ChatInput.css";
 
-type ChatInputProps = {
-    setLatestUserMessage: (message: string) => void
-};
-
-export const ChatInput: React.FC<ChatInputProps> = (props) => {
+export const ChatInput: React.FC = () => {
     const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === "Enter") {
             const inputElement = event.target;
-            const message = inputElement.value;
-            sendMessage(message);
+            
+            const message = inputElement.value.trim();
+            if (message) {
+                sendMsg(message);
+            }
+            
             inputElement.value = "";
         }
     }
 
-    const sendMessage = (message: string) => {
-        const trimmedMessage = message.trim();
-        if (trimmedMessage) {
-            props.setLatestUserMessage(trimmedMessage);
-        }
-        sendMsg(trimmedMessage);
-    }
-
     return <div className="chat-input">
-        <input placeholder="Type a message..." onKeyDown={onKeyDown}/>
+        <input placeholder="Type a message..." onKeyDown={onKeyDown} />
     </div>
 }

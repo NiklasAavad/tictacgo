@@ -42,18 +42,18 @@ type SquareProps = {
 export const Square: React.FC<SquareProps> = (props) => {
     const [character, setCharacter] = useState<SquareCharacter | EmptyString>("");
     const { latestSquare, winningCombination, chooseSquare } = useGameContext();
-    
+
     useEffect(() => {
         const squareHasBeenSelected = latestSquare?.position === props.position;
         if (squareHasBeenSelected) {
-            setCharacter(latestSquare.character);  
+            setCharacter(latestSquare.character);
         }
-    }, [latestSquare])
+    }, [latestSquare, props.position])
 
     const borderClasses = useMemo(() => {
         const border = props.border;
         const borderClasses: BorderClass[] = []
-        
+
         if (border.top) {
             borderClasses.push(BorderClass.NO_TOP);
         }
@@ -76,7 +76,7 @@ export const Square: React.FC<SquareProps> = (props) => {
         }
 
         return borderClasses.join(" ");
-    }, []);
+    }, [props.border]);
 
     const winnerClass = useMemo(() => {
         const isSquareInWinningCombination = winningCombination?.includes(props.position);
@@ -85,7 +85,7 @@ export const Square: React.FC<SquareProps> = (props) => {
         }
 
         return "";
-    }, [winningCombination]);
+    }, [winningCombination, props.position]);
 
     return <div onClick={() => chooseSquare(props.position)} className={`square ${character} ${borderClasses} ${winnerClass}`}>
         {character}

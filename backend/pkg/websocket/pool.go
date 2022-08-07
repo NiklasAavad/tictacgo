@@ -1,11 +1,15 @@
 package websocket
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/gorilla/websocket"
+)
 
 type Pool struct {
 	Register   chan *Client
 	Unregister chan *Client
-	Clients    map[*Client]bool // forstår ikke helt typen her
+	Clients    map[*Client]bool
 	Broadcast  chan Message
 }
 
@@ -21,7 +25,7 @@ func NewPool() *Pool {
 func registerClient(p *Pool, c *Client) {
 	p.Clients[c] = true
 	fmt.Println("Size of Connection Pool: ", len(p.Clients))
-	msg := Message{Type: 1, Body: "New User Joined..."}
+	msg := Message{Type: websocket.TextMessage, Body: "New User Joined..."}
 	for client := range p.Clients {
 		fmt.Println(client)
 		client.Conn.WriteJSON(msg)
@@ -31,7 +35,7 @@ func registerClient(p *Pool, c *Client) {
 func unregisterClient(p *Pool, c *Client) {
 	delete(p.Clients, c)
 	fmt.Println("Size of Connection pool: ", len(p.Clients))
-	msg := Message{Type: 1, Body: "User Disconnected..."}
+	msg := Message{Type: websocket.TextMessage, Body: "User Disconnected..."}
 	for client := range p.Clients {
 		client.Conn.WriteJSON(msg)
 	}

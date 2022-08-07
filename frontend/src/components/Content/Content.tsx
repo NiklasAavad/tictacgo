@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from "react"
+import { useEffect } from "react"
 import { useUserContext } from "../../context/UserContext"
 import { Chat } from "./Chat/Chat"
 import "./Content.css"

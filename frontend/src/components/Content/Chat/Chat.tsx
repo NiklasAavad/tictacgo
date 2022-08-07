@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useGameContext } from "../../../context/GameContext";
-import { connect, MessageCallback } from "../../../websocket/Websocket";
+import { MessageCallback, useWebsocket } from "../../../websocket/useWebsocket";
 import "./Chat.css";
 import { ChatInput } from "./ChatInput/ChatInput";
 import { ChatMessage, InfoSender, Message } from "./Message/Message";
@@ -8,6 +8,7 @@ import { ChatMessage, InfoSender, Message } from "./Message/Message";
 export const Chat: React.FC = () => {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const { latestGameInfoMessage } = useGameContext();
+    const {connect, sendMessage} = useWebsocket();
 
     const messageCallback: MessageCallback = (msg: MessageEvent) => {
         const parsedMessage = JSON.parse(msg.data);
@@ -35,6 +36,6 @@ export const Chat: React.FC = () => {
                 {styledMessages}
             </div>
         </div>
-        <ChatInput />
+        <ChatInput sendMessage={sendMessage}/>
     </div>
 };

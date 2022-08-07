@@ -25,7 +25,7 @@ func NewPool() *Pool {
 func registerClient(p *Pool, c *Client) {
 	p.Clients[c] = true
 	fmt.Println("Size of Connection Pool: ", len(p.Clients))
-	msg := Message{Type: websocket.TextMessage, Body: "New User Joined..."}
+	msg := Message{Type: websocket.TextMessage, Sender: "Chat Info", Body: "New User Joined..."}
 	for client := range p.Clients {
 		fmt.Println(client)
 		client.Conn.WriteJSON(msg)
@@ -35,7 +35,7 @@ func registerClient(p *Pool, c *Client) {
 func unregisterClient(p *Pool, c *Client) {
 	delete(p.Clients, c)
 	fmt.Println("Size of Connection pool: ", len(p.Clients))
-	msg := Message{Type: websocket.TextMessage, Body: "User Disconnected..."}
+	msg := Message{Type: websocket.TextMessage, Sender: "Chat Info", Body: "User Disconnected..."}
 	for client := range p.Clients {
 		client.Conn.WriteJSON(msg)
 	}

@@ -9,7 +9,7 @@ import (
 
 type Client struct {
 	ID   string
-	name string
+	Name string
 	Conn *websocket.Conn
 	Pool *Pool
 }
@@ -35,7 +35,7 @@ func (c *Client) Read() {
 			return
 		}
 
-		message := Message{Type: messageType, Sender: c.name, Body: string(p)}
+		message := Message{Type: messageType, Sender: c.Name, Body: string(p)}
 		c.Pool.Broadcast <- message
 		fmt.Printf("Message Received: %+v\n", message)
 	}

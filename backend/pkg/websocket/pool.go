@@ -22,33 +22,23 @@ func NewPool() *Pool {
 	}
 }
 
-func registerClient(p *Pool, c *Client) {
+func (p *Pool) registerClient(c *Client) {
 	p.Clients[c] = true
-	fmt.Println("Size of Connection Pool: ", len(p.Clients))
 
 	body := c.Name + " just joined!"
 	msg := Message{Type: websocket.TextMessage, Sender: "Chat Info", Body: body}
-
-	for client := range p.Clients {
-		fmt.Println(client)
-		client.Conn.WriteJSON(msg)
-	}
+	p.broadcastMessage(msg)
 }
 
-func unregisterClient(p *Pool, c *Client) {
+func (p *Pool) unregisterClient(c *Client) {
 	delete(p.Clients, c)
-	fmt.Println("Size of Connection pool: ", len(p.Clients))
 
 	body := c.Name + " just left..."
 	msg := Message{Type: websocket.TextMessage, Sender: "Chat Info", Body: body}
-
-	for client := range p.Clients {
-		client.Conn.WriteJSON(msg)
-	}
+	p.broadcastMessage(msg)
 }
 
-func broadcastMessage(p *Pool, msg Message) error {
-	fmt.Println("Sending message to all clients in Pool")
+func (p *Pool) broadcastMessage(msg Message) error {
 	for client := range p.Clients {
 		if err := client.Conn.WriteJSON(msg); err != nil {
 			return err
@@ -61,13 +51,13 @@ func (pool *Pool) Start() {
 	for {
 		select {
 		case client := <-pool.Register:
-			registerClient(pool, client)
+			pool.registerClient(client)
 			break
 		case client := <-pool.Unregister:
-			unregisterClient(pool, client)
+			pool.unregisterClient(client)
 			break
 		case message := <-pool.Broadcast:
-			if err := broadcastMessage(pool, message); err != nil {
+			if err := pool.broadcastMessage(message); err != nil {
 				fmt.Println(err)
 				return
 			}

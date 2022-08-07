@@ -1,11 +1,14 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 export type MessageCallback = (msg: MessageEvent) => void;
 
-export const useWebsocket = () => {
-    const socket = useMemo(() => new WebSocket("ws://localhost:8080/ws?name=Niklas"), []);
+const BASE_URL = "localhost:8080"
 
-    const connect = (messageCallback: MessageCallback) => {
+export const useWebsocket = (name: string | undefined) => {
+    const userName = name || "Unknown User";
+    const socket = useMemo(() => new WebSocket(`ws://${BASE_URL}/ws?name=${userName}`), [name]);
+
+    const connect = useCallback((messageCallback: MessageCallback) => {
         console.log("Attempting connection...");
 
         socket.onopen = () => {
@@ -24,12 +27,12 @@ export const useWebsocket = () => {
         socket.onerror = (error: Event) => {
             console.log("Socket error:", error);
         };
-    };
+    }, []);
 
-    const sendMessage = (msg: string) => {
+    const sendMessage = useCallback((msg: string) => {
         console.log("Sending message:", msg)
         socket.send(msg);
-    };
+    }, []);
 
     return { connect, sendMessage };
 }

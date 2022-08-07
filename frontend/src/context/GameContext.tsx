@@ -13,6 +13,7 @@ type GameContextType = {
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
+
 export const useGameContext = () => {
     const context = useContext(GameContext);
 

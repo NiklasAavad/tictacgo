@@ -1,12 +1,12 @@
 import "./Message.css";
 
-export enum ChatType {
-    GAME_INFO = "Game info: ",
-    USER_MESSAGE = "User: "
+export enum InfoSender {
+    GAME_INFO = "Game Info",
+    CHAT_INFO = "Chat Info"
 }
 
 export type ChatMessage = {
-    type: ChatType
+    sender: string,
     body: string,
 }
 
@@ -17,7 +17,7 @@ type MessageProps = {
 
 export const Message: React.FC<MessageProps> = (props) => {
     return <div key={props.key} className="chat-message">
-        <span className="message-sender">{props.message.type}</span>
+        <span className="message-sender">{props.message.sender}: </span>
         {props.message.body}
     </div>
 }

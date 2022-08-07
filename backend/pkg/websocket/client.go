@@ -3,6 +3,7 @@ package websocket
 import (
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/gorilla/websocket"
 )
@@ -18,6 +19,21 @@ type Message struct {
 	Type   int    `json:"type"`
 	Sender string `json:"sender"`
 	Body   string `json:"body"`
+}
+
+func NewClient(r *http.Request, conn *websocket.Conn, pool *Pool) *Client {
+	clientName := r.URL.Query().Get("name")
+	if clientName == "" {
+		clientName = "Unknown"
+	}
+
+	client := &Client{
+		Name: clientName,
+		Conn: conn,
+		Pool: pool,
+	}
+
+	return client
 }
 
 func closeConn(c *Client) {

@@ -3,15 +3,15 @@ import { useGameContext } from "../../../context/GameContext";
 import { connect, MessageCallback } from "../../../websocket/Websocket";
 import "./Chat.css";
 import { ChatInput } from "./ChatInput/ChatInput";
-import { ChatMessage, ChatType, Message } from "./Message/Message";
+import { ChatMessage, InfoSender, Message } from "./Message/Message";
 
 export const Chat: React.FC = () => {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const { latestGameInfoMessage } = useGameContext();
 
     const messageCallback: MessageCallback = (msg: MessageEvent) => {
-        const parsedMessage: ChatMessage = JSON.parse(msg.data);
-        const userMessage: ChatMessage = { body: parsedMessage.body, type: ChatType.USER_MESSAGE };
+        const parsedMessage = JSON.parse(msg.data);
+        const userMessage: ChatMessage = { sender: parsedMessage.sender, body: parsedMessage.body };
         setMessages(messages => [...messages, userMessage]);
     }
 
@@ -20,7 +20,7 @@ export const Chat: React.FC = () => {
     })
 
     useEffect(() => {
-        const gameInfoMessage = { body: latestGameInfoMessage, type: ChatType.GAME_INFO };
+        const gameInfoMessage = { sender: InfoSender.GAME_INFO, body: latestGameInfoMessage };
         setMessages(messages => [...messages, gameInfoMessage]);
     }, [latestGameInfoMessage])
 

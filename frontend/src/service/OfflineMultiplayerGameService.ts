@@ -1,5 +1,5 @@
 import { SquareCharacter } from "../components/Content/Game/Square/Square";
-import { EMPTY_BOARD, hasPlayerWon } from "../utility/GameServiceUtility";
+import { getEmptyBoard, hasPlayerWon } from "../utility/GameServiceUtility";
 import { allPositions, Position } from "../utility/Position";
 import { WINNING_COMBINATIONS } from "../utility/WinningCombinations";
 import { GameContextMutator, GameService, Result } from "./GameService";
@@ -7,12 +7,13 @@ import { GameContextMutator, GameService, Result } from "./GameService";
 const OfflineMultiplayerGameService: GameService = (gameContextMutator: GameContextMutator) => {
     let x: Position[] = []; // TODO måske udfases?
     let o: Position[] = []; // TODO måske udfases?
-    let board = EMPTY_BOARD;
+    let board = getEmptyBoard();
     let playerInTurn: SquareCharacter = SquareCharacter.X;
 
     const startGame = (): void => {
         x = [];
         o = [];
+        board = getEmptyBoard();
         playerInTurn = SquareCharacter.X;
     };
 

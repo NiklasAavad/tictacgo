@@ -1,7 +1,7 @@
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { EmptyString, SquareCharacter } from '../components/Content/Game/Square/Square';
 import { GameService, Result } from '../service/GameService';
-import { EMPTY_BOARD } from '../utility/GameServiceUtility';
+import { getEmptyBoard } from '../utility/GameServiceUtility';
 import { Position } from '../utility/Position';
 
 type GameContextType = {
@@ -40,7 +40,7 @@ type GameProviderProps = {
 const TIMEOUT_PERIOD = 2500; // ms!
 
 export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildren<GameProviderProps>) => {
-    const [board, setBoard] = useState<(SquareCharacter | EmptyString)[]>(EMPTY_BOARD);
+    const [board, setBoard] = useState<(SquareCharacter | EmptyString)[]>(getEmptyBoard());
     const [latestGameInfoMessage, setLatestGameInfoMessage] = useState<GameInfoMessage>(GameInfoMessage.START_NEW_GAME);
     const [winningCombination, setWinningCombination] = useState<Position[] | undefined>(undefined)
     const [isGameStarted, setIsGameStarted] = useState(false);
@@ -55,7 +55,7 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
 
     const startGame = () => {
         gameService.startGame();
-        setBoard(EMPTY_BOARD);
+        setBoard(getEmptyBoard());
         setLatestGameInfoMessage(GameInfoMessage.NEW_GAME_STARTED);
         setWinningCombination(undefined);
         setIsGameStarted(true);

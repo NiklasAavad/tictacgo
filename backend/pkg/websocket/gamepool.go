@@ -3,6 +3,7 @@ package websocket
 import (
 	"fmt"
 
+	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
 	"github.com/gorilla/websocket"
 )
 
@@ -11,7 +12,7 @@ type GamePool struct {
 	Unregister chan *Client
 	Clients    map[*Client]bool
 	Broadcast  chan Message
-	GameService
+	Game       *game.Game
 }
 
 func NewGamePool() *GamePool {

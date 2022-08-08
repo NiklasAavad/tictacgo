@@ -10,7 +10,7 @@ export const Chat: React.FC = () => {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const { latestGameInfoMessage } = useGameContext();
     const { name } = useUserContext();
-    const { connect, sendMessage } = useWebsocket(name);
+    const { connect, sendChatMessage } = useWebsocket(name);
 
     const messageCallback: MessageCallback =  useCallback((msg: MessageEvent) => {
         const parsedMessage = JSON.parse(msg.data);
@@ -38,6 +38,6 @@ export const Chat: React.FC = () => {
                 {styledMessages}
             </div>
         </div>
-        <ChatInput sendMessage={sendMessage} />
+        <ChatInput sendMessage={sendChatMessage} />
     </div>
 };

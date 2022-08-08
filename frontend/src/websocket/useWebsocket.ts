@@ -29,15 +29,29 @@ export const useWebsocket = (name: string | undefined) => {
         };
     }, [socket]);
 
-    const sendMessage = useCallback((msg: string) => {
-        console.log("Sending message:", msg)
+    const sendChatMessage = useCallback((msg: string) => {
+        console.log("Sending chat message:", msg)
+
         const jsonMsg = JSON.stringify({
             type: 0,
             sender: userName,
             body: msg
         })
+        
         socket.send(jsonMsg);
     }, [socket]);
 
-    return { connect, sendMessage };
+    const sendGameMessage = useCallback((instruction: string, content: number) => {
+        console.log("Sending game message!");
+
+        const jsonMsg = JSON.stringify({
+            instruction,
+            content
+        })
+
+        socket.send(jsonMsg)
+
+    }, [socket])
+
+    return { connect, sendChatMessage, sendGameMessage };
 }

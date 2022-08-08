@@ -10,23 +10,23 @@ import (
 type GamePool struct {
 	Register   chan *Client
 	Unregister chan *Client
-	Clients    map[*Client]bool
+	clients    map[*Client]bool
 	Broadcast  chan Message
-	Game       game.GameService
+	game       game.GameService
 }
 
 func NewGamePool() *GamePool {
 	return &GamePool{
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
-		Clients:    make(map[*Client]bool),
+		clients:    make(map[*Client]bool),
 		Broadcast:  make(chan Message),
-		Game:       game.NewGame(),
+		game:       game.NewGame(),
 	}
 }
 
 func (p *GamePool) registerClient(c *Client) {
-	p.Clients[c] = true // TODO  måske ændres til false for dem som ikke spiller
+	p.clients[c] = true // TODO  måske ændres til false for dem som ikke spiller
 
 	body := c.Name + " is ready to play!"
 	msg := Message{Type: websocket.TextMessage, Sender: GAME_INFO.String(), Body: body}
@@ -34,7 +34,7 @@ func (p *GamePool) registerClient(c *Client) {
 }
 
 func (p *GamePool) unregisterClient(c *Client) {
-	delete(p.Clients, c)
+	delete(p.clients, c)
 
 	body := c.Name + " will no longer play..."
 	msg := Message{Type: websocket.TextMessage, Sender: GAME_INFO.String(), Body: body}
@@ -42,7 +42,7 @@ func (p *GamePool) unregisterClient(c *Client) {
 }
 
 func (p *GamePool) broadcastMessage(msg Message) error {
-	for client := range p.Clients {
+	for client := range p.clients {
 		if err := client.Conn.WriteJSON(msg); err != nil {
 			return err
 		}

@@ -9,7 +9,7 @@ import (
 type ChatPool struct {
 	Register   chan *Client
 	Unregister chan *Client
-	Clients    map[*Client]bool
+	clients    map[*Client]bool
 	Broadcast  chan Message
 }
 
@@ -17,13 +17,13 @@ func NewChatPool() *ChatPool {
 	return &ChatPool{
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
-		Clients:    make(map[*Client]bool),
+		clients:    make(map[*Client]bool),
 		Broadcast:  make(chan Message),
 	}
 }
 
 func (p *ChatPool) registerClient(c *Client) {
-	p.Clients[c] = true
+	p.clients[c] = true
 
 	body := c.Name + " just joined!"
 	msg := Message{Type: websocket.TextMessage, Sender: CHAT_INFO.String(), Body: body}
@@ -31,7 +31,7 @@ func (p *ChatPool) registerClient(c *Client) {
 }
 
 func (p *ChatPool) unregisterClient(c *Client) {
-	delete(p.Clients, c)
+	delete(p.clients, c)
 
 	body := c.Name + " just left..."
 	msg := Message{Type: websocket.TextMessage, Sender: CHAT_INFO.String(), Body: body}
@@ -39,7 +39,7 @@ func (p *ChatPool) unregisterClient(c *Client) {
 }
 
 func (p *ChatPool) broadcastMessage(msg Message) error {
-	for client := range p.Clients {
+	for client := range p.clients {
 		if err := client.Conn.WriteJSON(msg); err != nil {
 			return err
 		}

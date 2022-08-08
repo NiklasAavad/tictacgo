@@ -12,7 +12,7 @@ type GamePool struct {
 	Unregister chan *Client
 	Clients    map[*Client]bool
 	Broadcast  chan Message
-	Game       *game.Game
+	Game       game.GameService
 }
 
 func NewGamePool() *GamePool {

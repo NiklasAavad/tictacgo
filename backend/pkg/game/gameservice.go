@@ -1,7 +1,7 @@
 package game
 
 type Board = [9]SquareCharacter
-type WinningCombination = [3]SquareCharacter
+type WinningCombination = [3]Position
 
 type Result struct {
 	WinningCombination WinningCombination
@@ -12,7 +12,7 @@ type GameService interface {
 	StartGame() Board
 	GetResult() Result
 	IsGameOver() bool
-	IsChoiceValid(position int) bool
-	ChooseSquare(position int)
+	IsChoiceValid(p Position) bool
+	ChooseSquare(p Position)
 	ChangePlayerInTurn()
 }

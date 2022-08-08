@@ -31,7 +31,12 @@ export const useWebsocket = (name: string | undefined) => {
 
     const sendMessage = useCallback((msg: string) => {
         console.log("Sending message:", msg)
-        socket.send(msg);
+        const jsonMsg = JSON.stringify({
+            type: 0,
+            sender: userName,
+            body: msg
+        })
+        socket.send(jsonMsg);
     }, [socket]);
 
     return { connect, sendMessage };

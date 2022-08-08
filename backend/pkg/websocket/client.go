@@ -2,7 +2,6 @@ package websocket
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -16,9 +15,11 @@ type Client struct {
 }
 
 type Message struct {
-	Type   int    `json:"type"`
-	Sender string `json:"sender"`
-	Body   string `json:"body"`
+	Type        int    `json:"type"`
+	Sender      string `json:"sender"`
+	Instruction string `json:"instruction"`
+	Body        string `json:"body"`
+	Content     int    `json:"content"`
 }
 
 func NewClient(r *http.Request, conn *websocket.Conn, pool *ChatPool) *Client {
@@ -45,13 +46,19 @@ func (c *Client) Read() {
 	defer closeConn(c)
 
 	for {
-		messageType, p, err := c.Conn.ReadMessage()
-		if err != nil {
-			log.Println(err)
-			return
+		var message Message
+		if err := c.Conn.ReadJSON(&message); err != nil {
+			fmt.Printf("Message did not match json schema: %+v\n", message)
+			continue
 		}
 
-		message := Message{Type: messageType, Sender: c.Name, Body: string(p)}
+		// messageType, p, err := c.Conn.ReadMessage()
+		// if err != nil {
+		// log.Println(err)
+		// return
+		// }
+
+		// message := Message{Type: messageType, Sender: c.Name, Body: string(p)}
 		c.Pool.Broadcast <- message
 		fmt.Printf("Message Received: %+v\n", message)
 	}

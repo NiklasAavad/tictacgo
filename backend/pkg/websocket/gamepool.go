@@ -25,6 +25,10 @@ func NewGamePool() *GamePool {
 	}
 }
 
+type GameResponse struct {
+	Board game.Board `json:"board"`
+}
+
 func (p *GamePool) registerClient(c *Client) {
 	p.clients[c] = true // TODO  måske ændres til false for dem som ikke spiller
 
@@ -50,6 +54,31 @@ func (p *GamePool) broadcastMessage(msg Message) error {
 	return nil
 }
 
+func (p *GamePool) broadcastResponse(response GameResponse) error {
+	for client := range p.clients {
+		if err := client.Conn.WriteJSON(response); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (pool *GamePool) execute(instruction string, body int) game.Board {
+	switch instruction {
+	case "Choose Square":
+		position := game.Position(body)
+		return pool.game.ChooseSquare(position)
+	}
+
+	// TODO bør nok returnerer en error i stedet for
+	return game.Board{}
+}
+
+func (pool *GamePool) respond(instruction string, body int) GameResponse {
+	board := pool.execute(instruction, body)
+	return GameResponse{Board: board}
+}
+
 func (pool *GamePool) Start() {
 	for {
 		select {
@@ -60,7 +89,8 @@ func (pool *GamePool) Start() {
 			pool.unregisterClient(client)
 			break
 		case message := <-pool.Broadcast:
-			if err := pool.broadcastMessage(message); err != nil {
+			response := pool.respond(message.Instruction, message.Content)
+			if err := pool.broadcastResponse(response); err != nil {
 				fmt.Println(err)
 				return
 			}

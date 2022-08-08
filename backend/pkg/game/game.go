@@ -96,8 +96,9 @@ func (g *Game) IsChoiceValid(p Position) bool {
 	return g.board[p] == EMPTY
 }
 
-func (g *Game) ChooseSquare(p Position) {
+func (g *Game) ChooseSquare(p Position) Board {
 	g.board[p] = g.playerInTurn
+	return g.board
 }
 
 func (g *Game) ChangePlayerInTurn() {

@@ -21,6 +21,7 @@ func NewGamePool() *GamePool {
 		Unregister: make(chan *Client),
 		Clients:    make(map[*Client]bool),
 		Broadcast:  make(chan Message),
+		Game:       game.NewGame(),
 	}
 }
 

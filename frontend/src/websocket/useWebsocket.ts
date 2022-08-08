@@ -4,9 +4,9 @@ export type MessageCallback = (msg: MessageEvent) => void;
 
 const BASE_URL = "localhost:8080"
 
-export const useWebsocket = (name: string | undefined) => {
+export const useWebsocket = (name: string | undefined, isGameSocket: boolean = false) => {
     const userName = name || "Unknown User";
-    const socket = useMemo(() => new WebSocket(`ws://${BASE_URL}/ws?name=${userName}`), [userName]);
+    const socket = useMemo(() => new WebSocket(`ws://${BASE_URL}/${isGameSocket ? "game" : ""}ws?name=${userName}`), [userName]);
 
     const connect = useCallback((messageCallback: MessageCallback) => {
         console.log("Attempting connection...");

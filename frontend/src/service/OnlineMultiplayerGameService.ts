@@ -3,7 +3,7 @@ import { MessageCallback, useWebsocket } from "../websocket/useWebsocket";
 import { GameContextMutator, GameService, Result } from "./GameService";
 
 const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameContextMutator) => {
-    const { connect, sendGameMessage } = useWebsocket("Test");
+    const { connect, sendGameMessage } = useWebsocket("Test", true);
 
     const messageCallback: MessageCallback = (msg: MessageEvent) => {
         const parsedMessage = JSON.parse(msg.data);

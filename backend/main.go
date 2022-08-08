@@ -22,11 +22,30 @@ func serveWs(pool *websocket.ChatPool, w http.ResponseWriter, r *http.Request) {
 	client.Read()
 }
 
+func serveGameWs(pool *websocket.GamePool, w http.ResponseWriter, r *http.Request) {
+	fmt.Println("WebSocket Endpoint Hit")
+
+	conn, err := websocket.Upgrade(w, r)
+	if err != nil {
+		fmt.Fprintf(w, "%+V\n", err)
+	}
+
+	client := websocket.NewGameClient(r, conn, pool)
+
+	pool.Register <- client
+
+	client.Read()
+}
+
 func setupRoutes() {
 	chatPool := websocket.NewChatPool()
 	go chatPool.Start()
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		serveWs(chatPool, w, r)
+	})
+
+	http.HandleFunc("/gamews", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(chatPool, w, r)
 	})
 }

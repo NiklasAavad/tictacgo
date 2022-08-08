@@ -8,19 +8,19 @@ import (
 )
 
 type GamePool struct {
-	Register   chan *Client
-	Unregister chan *Client
-	clients    map[*Client]bool
-	Broadcast  chan Message
+	Register   chan *GameClient
+	Unregister chan *GameClient
+	clients    map[*GameClient]bool
+	Broadcast  chan GameMessage
 	game       game.GameService
 }
 
 func NewGamePool() *GamePool {
 	return &GamePool{
-		Register:   make(chan *Client),
-		Unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
-		Broadcast:  make(chan Message),
+		Register:   make(chan *GameClient),
+		Unregister: make(chan *GameClient),
+		clients:    make(map[*GameClient]bool),
+		Broadcast:  make(chan GameMessage),
 		game:       game.NewGame(),
 	}
 }
@@ -29,7 +29,7 @@ type GameResponse struct {
 	Board game.Board `json:"board"`
 }
 
-func (p *GamePool) registerClient(c *Client) {
+func (p *GamePool) registerClient(c *GameClient) {
 	p.clients[c] = true // TODO  måske ændres til false for dem som ikke spiller
 
 	body := c.Name + " is ready to play!"
@@ -37,7 +37,7 @@ func (p *GamePool) registerClient(c *Client) {
 	p.broadcastMessage(msg)
 }
 
-func (p *GamePool) unregisterClient(c *Client) {
+func (p *GamePool) unregisterClient(c *GameClient) {
 	delete(p.clients, c)
 
 	body := c.Name + " will no longer play..."

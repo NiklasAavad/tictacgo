@@ -48,8 +48,8 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
     const [isGameOver, setIsGameOver] = useState<boolean>(false);
 
     const gameContextMutator = useMemo(() => {
-        return { setBoard, setResult, setIsGameOver }
-    }, [setBoard, setResult, setIsGameOver]);
+        return { setBoard, setResult, setIsGameOver, setIsGameStarted }
+    }, [setBoard, setResult, setIsGameOver, setIsGameStarted]);
 
     const gameService = useMemo(() => gameServiceProvider(gameContextMutator), [gameServiceProvider, gameContextMutator]);
 

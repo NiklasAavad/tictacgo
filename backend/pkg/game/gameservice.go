@@ -16,4 +16,5 @@ type GameService interface {
 	IsChoiceValid(p Position) bool
 	ChooseSquare(p Position) Board
 	ChangePlayerInTurn() SquareCharacter
+	Board() Board
 }

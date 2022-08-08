@@ -6,6 +6,11 @@ import { GameContextMutator, GameService, Result } from "./GameService";
 const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameContextMutator) => {
     const socket = new WebSocket(`ws://${BASE_URL}/${GAME_WS}`);
 
+    socket.onopen = () => {
+        console.log("Connection is opened");
+        sendGameMessage("Get Board");
+    }
+
     // TODO validation!
     socket.onmessage = (msg: MessageEvent): void => {
         console.log("receiving message");
@@ -32,6 +37,7 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
                 console.log("Received game over message");
                 return gameContextMutator.setIsGameOver(true);
             case "Board":
+                gameContextMutator.setIsGameStarted(true);
                 const backendBoard = response;
                 const adaptedBoard = adaptBoard(backendBoard);
                 return gameContextMutator.setBoard(adaptedBoard);

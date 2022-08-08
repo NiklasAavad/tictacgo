@@ -114,3 +114,7 @@ func (g *Game) ChangePlayerInTurn() SquareCharacter {
 
 	return g.playerInTurn
 }
+
+func (g *Game) Board() Board {
+	return g.board
+}

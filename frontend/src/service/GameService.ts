@@ -10,11 +10,13 @@ export type Result = {
 type SetBoardFunction = React.Dispatch<React.SetStateAction<(SquareCharacter | EmptyString)[]>>
 type SetResultFunction = React.Dispatch<React.SetStateAction<Result | undefined>>
 type SetIsGameOverFunction = React.Dispatch<React.SetStateAction<boolean>>
+type SetIsGameStartedFunction = React.Dispatch<React.SetStateAction<boolean>>
 
 export type GameContextMutator = {
     setBoard: SetBoardFunction,
     setResult: SetResultFunction,
     setIsGameOver: SetIsGameOverFunction,
+    setIsGameStarted: SetIsGameStartedFunction,
 }
 
 // TODO hvis det er nødvendigt at sætte playerInTurn i GameContext, så skal den muligvis også med som parameter.

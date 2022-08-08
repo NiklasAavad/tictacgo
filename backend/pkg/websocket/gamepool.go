@@ -80,6 +80,8 @@ func (pool *GamePool) execute(instruction string, body int) (string, any) {
 		return "Board", pool.game.ChooseSquare(position)
 	case "Change Player In Turn":
 		return "Player In Turn", pool.game.ChangePlayerInTurn()
+	case "Get Board":
+		return "Board", pool.game.Board()
 	}
 
 	// TODO bør nok returnerer en error i stedet for

@@ -26,11 +26,6 @@ export enum SquareCharacter {
 
 export type EmptyString = "";
 
-export type SquareType = {
-    position: Position,
-    character: SquareCharacter
-}
-
 type SquareProps = {
     position: Position,
     border: Border,
@@ -45,11 +40,11 @@ export const Square: React.FC<SquareProps> = (props) => {
 
     useEffect(() => {
         const characterOnBoard = board[props.position];
-        const squareHasBeenSelected = characterOnBoard != character;
+        const squareHasBeenSelected = characterOnBoard !== character;
         if (squareHasBeenSelected) {
             setCharacter(characterOnBoard);
         }
-    }, [board, props.position])
+    }, [board, props.position, character])
 
     const borderClasses = useMemo(() => {
         const border = props.border;

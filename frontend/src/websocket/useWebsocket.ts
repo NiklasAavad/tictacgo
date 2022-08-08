@@ -39,7 +39,7 @@ export const useWebsocket = (name: string | undefined) => {
         })
         
         socket.send(jsonMsg);
-    }, [socket]);
+    }, [socket, userName]);
 
     return { connect, sendChatMessage };
 }

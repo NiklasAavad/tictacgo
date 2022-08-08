@@ -1,5 +1,5 @@
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { EmptyString, SquareCharacter, SquareType } from '../components/Content/Game/Square/Square';
+import { EmptyString, SquareCharacter } from '../components/Content/Game/Square/Square';
 import { GameService, Result } from '../service/GameService';
 import { EMPTY_BOARD } from '../utility/GameServiceUtility';
 import { Position } from '../utility/Position';
@@ -46,7 +46,6 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
     const [isGameStarted, setIsGameStarted] = useState(false);
     const [result, setResult] = useState<Result | undefined>(undefined);
     const [isGameOver, setIsGameOver] = useState<boolean>(false);
-    const [playerInTurn, setPlayerInTurn] = useState<SquareCharacter>(SquareCharacter.X);
 
     const gameContextMutator = useMemo(() => {
         return { setBoard, setResult, setIsGameOver }

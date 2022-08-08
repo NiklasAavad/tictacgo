@@ -6,6 +6,7 @@ type WinningCombination = [3]Position
 type Result struct {
 	WinningCombination WinningCombination
 	WinningCharacter   SquareCharacter
+	HasWinner          bool
 }
 
 type GameService interface {

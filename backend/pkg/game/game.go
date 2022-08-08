@@ -33,11 +33,11 @@ func (g *Game) GetResult() Result {
 	for _, winningCombination := range WinningCombinations {
 		if g.isWinningRow(winningCombination) {
 			winningCharacter := g.board[winningCombination[0]]
-			return Result{winningCombination, winningCharacter}
+			return Result{winningCombination, winningCharacter, true}
 		}
 	}
 
-	return Result{}
+	return Result{HasWinner: false}
 }
 
 func (g *Game) occupiedSquares() []SquareCharacter {

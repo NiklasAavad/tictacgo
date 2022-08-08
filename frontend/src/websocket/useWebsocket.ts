@@ -1,12 +1,12 @@
 import { useCallback, useMemo } from "react";
+import { BASE_URL } from "../api/Api";
 
 export type MessageCallback = (msg: MessageEvent) => void;
 
-const BASE_URL = "localhost:8080"
 
-export const useWebsocket = (name: string | undefined, isGameSocket: boolean = false) => {
+export const useWebsocket = (name: string | undefined) => {
     const userName = name || "Unknown User";
-    const socket = useMemo(() => new WebSocket(`ws://${BASE_URL}/${isGameSocket ? "game" : ""}ws?name=${userName}`), [userName]);
+    const socket = useMemo(() => new WebSocket(`ws://${BASE_URL}/ws?name=${userName}`), [userName]);
 
     const connect = useCallback((messageCallback: MessageCallback) => {
         console.log("Attempting connection...");
@@ -41,17 +41,5 @@ export const useWebsocket = (name: string | undefined, isGameSocket: boolean = f
         socket.send(jsonMsg);
     }, [socket]);
 
-    const sendGameMessage = useCallback((instruction: string, content: number) => {
-        console.log("Sending game message!");
-
-        const jsonMsg = JSON.stringify({
-            instruction,
-            content
-        })
-
-        socket.send(jsonMsg)
-
-    }, [socket])
-
-    return { connect, sendChatMessage, sendGameMessage };
+    return { connect, sendChatMessage };
 }

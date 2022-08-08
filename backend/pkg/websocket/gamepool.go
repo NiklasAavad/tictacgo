@@ -26,7 +26,7 @@ func NewGamePool() *GamePool {
 }
 
 type GameResponse struct {
-	Board game.Board `json:"board"`
+	Response any `json:"response"`
 }
 
 func (p *GamePool) registerClient(c *GameClient) {
@@ -63,20 +63,32 @@ func (p *GamePool) broadcastResponse(response GameResponse) error {
 	return nil
 }
 
-func (pool *GamePool) execute(instruction string, body int) game.Board {
+// TODO fix any!
+func (pool *GamePool) execute(instruction string, body int) any {
 	switch instruction {
+	case "Start Game":
+		return pool.game.StartGame()
+	case "Get Result":
+		return pool.game.GetResult()
+	case "Is Game Over":
+		return pool.game.IsGameOver()
+	case "Is Choice Valid":
+		position := game.Position(body)
+		return pool.game.IsChoiceValid(position)
 	case "Choose Square":
 		position := game.Position(body)
 		return pool.game.ChooseSquare(position)
+	case "Change Player In Turn":
+		return pool.game.ChangePlayerInTurn()
 	}
 
 	// TODO bør nok returnerer en error i stedet for
-	return game.Board{}
+	return nil
 }
 
 func (pool *GamePool) respond(instruction string, body int) GameResponse {
-	board := pool.execute(instruction, body)
-	return GameResponse{Board: board}
+	response := pool.execute(instruction, body)
+	return GameResponse{Response: response}
 }
 
 func (pool *GamePool) Start() {

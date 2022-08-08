@@ -8,7 +8,7 @@ import (
 )
 
 func serveWs(pool *websocket.ChatPool, w http.ResponseWriter, r *http.Request) {
-	fmt.Println("WebSocket Endpoint Hit")
+	fmt.Println("Chat WebSocket Endpoint Hit")
 
 	conn, err := websocket.Upgrade(w, r)
 	if err != nil {
@@ -23,7 +23,7 @@ func serveWs(pool *websocket.ChatPool, w http.ResponseWriter, r *http.Request) {
 }
 
 func serveGameWs(pool *websocket.GamePool, w http.ResponseWriter, r *http.Request) {
-	fmt.Println("WebSocket Endpoint Hit")
+	fmt.Println("Game WebSocket Endpoint Hit")
 
 	conn, err := websocket.Upgrade(w, r)
 	if err != nil {
@@ -41,12 +41,15 @@ func setupRoutes() {
 	chatPool := websocket.NewChatPool()
 	go chatPool.Start()
 
+	gamePool := websocket.NewGamePool()
+	go gamePool.Start()
+
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(chatPool, w, r)
 	})
 
 	http.HandleFunc("/gamews", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(chatPool, w, r)
+		serveGameWs(gamePool, w, r)
 	})
 }
 

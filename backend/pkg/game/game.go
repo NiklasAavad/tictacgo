@@ -101,10 +101,12 @@ func (g *Game) ChooseSquare(p Position) Board {
 	return g.board
 }
 
-func (g *Game) ChangePlayerInTurn() {
+func (g *Game) ChangePlayerInTurn() SquareCharacter {
 	if g.playerInTurn == X {
 		g.playerInTurn = O
 	} else if g.playerInTurn == O {
 		g.playerInTurn = X
 	}
+
+	return g.playerInTurn
 }

@@ -9,3 +9,9 @@ export const allPositions = [
     Position.CENTER_LEFT, Position.CENTER, Position.CENTER_RIGHT,
     Position.BOTTOM_LEFT, Position.BOTTOM_CENTER, Position.BOTTOM_RIGHT
 ];
+
+export enum BackendPosition {
+    TOP_LEFT = 0, TOP_CENTER, TOP_RIGHT,
+    CENTER_LEFT, CENTER, CENTER_RIGHT,
+    BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT
+}

@@ -1,17 +1,22 @@
+import { BASE_URL, GAME_WS } from "../api/Api";
 import { Position } from "../utility/Position";
-import { MessageCallback, useWebsocket } from "../websocket/useWebsocket";
 import { GameContextMutator, GameService, Result } from "./GameService";
 
 const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameContextMutator) => {
-    const { connect, sendGameMessage } = useWebsocket("Test", true);
+    const socket = new WebSocket(`ws://${BASE_URL}/${GAME_WS}`);
 
-    const messageCallback: MessageCallback = (msg: MessageEvent) => {
-        const parsedMessage = JSON.parse(msg.data);
-        const board = parsedMessage.board;
-        console.log(board);
+    socket.onmessage = (msg: MessageEvent) => {
+        console.log("receiving message");
+        console.log(msg);
+    };
+
+    const sendGameMessage = (instruction: string, content?: Position) => {
+        console.log("Sending game message");
+
+        const jsonMessage = JSON.stringify({ instruction, content })
+
+        socket.send(jsonMessage);
     }
-
-    connect(messageCallback);
 
     const startGame = (): void => {
         console.log("Starting game")
@@ -39,6 +44,7 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
 
     const changePlayerInTurn = (): void => {
         console.log("Changing player in turn")
+        sendGameMessage("Change Player In Turn")
     };
 
     return {

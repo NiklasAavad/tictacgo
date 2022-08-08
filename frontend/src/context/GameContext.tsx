@@ -44,10 +44,13 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
     const [latestGameInfoMessage, setLatestGameInfoMessage] = useState<GameInfoMessage>(GameInfoMessage.START_NEW_GAME);
     const [winningCombination, setWinningCombination] = useState<Position[] | undefined>(undefined)
     const [isGameStarted, setIsGameStarted] = useState(false);
+    const [result, setResult] = useState<Result | undefined>(undefined);
+    const [isGameOver, setIsGameOver] = useState<boolean>(false);
+    const [playerInTurn, setPlayerInTurn] = useState<SquareCharacter>(SquareCharacter.X);
 
     const gameContextMutator = useMemo(() => {
-        return { setLatestSquare: setLatestSquare }
-    }, [setLatestSquare]);
+        return { setLatestSquare, setResult, setIsGameOver }
+    }, [setLatestSquare, setResult, setIsGameOver]);
 
     const gameService = useMemo(() => gameServiceProvider(gameContextMutator), [gameServiceProvider, gameContextMutator]);
 
@@ -57,14 +60,12 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
         setLatestGameInfoMessage(GameInfoMessage.NEW_GAME_STARTED);
         setWinningCombination(undefined);
         setIsGameStarted(true);
+        setResult(undefined);
+        setIsGameOver(false);
     }
 
     const chooseSquare = (position: Position) => {
-        if (!gameService.isChoiceValid(position)) {
-            return;
-        }
         gameService.chooseSquare(position);
-        gameService.changePlayerInTurn();
     }
 
     const getWinningMessage = useCallback((result: Result): GameInfoMessage => {
@@ -78,8 +79,6 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
     }, []);
 
     const endGame = useCallback(() => {
-        const result = gameService.getResult();
-
         if (result) {
             const newGameMessage = getWinningMessage(result);
             setLatestGameInfoMessage(newGameMessage);
@@ -94,14 +93,13 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
         }, TIMEOUT_PERIOD);
 
         return () => clearTimeout(waitForGameToEnd);
-    }, [gameService, getWinningMessage]);
+    }, [getWinningMessage, result]);
 
-    // Er det et problem at alle klienter spørger om spillet er slut? Ikke hvis man kan undgå at skulle broadcaste beskeden til alle.
     useEffect(() => {
-        if (gameService.isGameOver()) {
+        if (isGameOver) {
             endGame();
         }
-    }, [latestSquare, gameService, endGame])
+    }, [isGameOver, endGame])
 
     const exposedValues = {
         latestSquare,

@@ -52,7 +52,6 @@ const OfflineSingleplayerGameService: GameService = (gameContextMutator: GameCon
         const positionChosenByBot = choosePositionByBot();
         decoratee.chooseSquare(positionChosenByBot);
         addSquareToBoard(SquareCharacter.O, positionChosenByBot);
-        changePlayerInTurn();
     }
 
     const startGame = (): void => {

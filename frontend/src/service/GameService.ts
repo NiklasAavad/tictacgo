@@ -8,9 +8,13 @@ export type Result = {
 }
 
 type SetLatestSquareFunction = React.Dispatch<React.SetStateAction<SquareType | undefined>>
+type SetResultFunction = React.Dispatch<React.SetStateAction<Result | undefined>>
+type SetIsGameOverFunction = React.Dispatch<React.SetStateAction<boolean>>
 
 export type GameContextMutator = {
-    setLatestSquare: SetLatestSquareFunction
+    setLatestSquare: SetLatestSquareFunction,
+    setResult: SetResultFunction,
+    setIsGameOver: SetIsGameOverFunction,
 }
 
 // TODO hvis det er nødvendigt at sætte playerInTurn i GameContext, så skal den muligvis også med som parameter.

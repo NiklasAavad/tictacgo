@@ -61,14 +61,30 @@ const OfflineMultiplayerGameService: GameService = (gameContextMutator: GameCont
         return !isPositionOccupied;
     };
 
-    const chooseSquare = (position: Position): void => {
+    const addSquareToBoard = (position: Position): void => {
         if (playerInTurn === SquareCharacter.X) {
             x.push(position);
         } else {
             o.push(position);
         }
+    }
+
+    const chooseSquare = (position: Position): void => {
+        if (!isChoiceValid(position)) {
+            return;
+        }
+
+        addSquareToBoard(position);
         const latestSquare = { position: position, character: playerInTurn };
         gameContextMutator.setLatestSquare(latestSquare);
+
+        if (isGameOver()) {
+            const result = getResult();
+            gameContextMutator.setResult(result);
+            gameContextMutator.setIsGameOver(true)
+        };
+
+        changePlayerInTurn();
     };
 
     const changePlayerInTurn = (): void => {

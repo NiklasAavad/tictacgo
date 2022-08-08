@@ -1,13 +1,14 @@
-package websocket
-
-type Board = [9]int
-type WinningCombination = [3]int
+package game
 
 type SquareCharacter int
+
+type Board = [9]SquareCharacter
+type WinningCombination = [3]SquareCharacter
 
 const (
 	X SquareCharacter = iota
 	O
+	EMPTY
 )
 
 func (s SquareCharacter) String() string {
@@ -16,6 +17,8 @@ func (s SquareCharacter) String() string {
 		return "X"
 	case O:
 		return "O"
+	case EMPTY:
+		return ""
 	}
 	return "unknown"
 }
@@ -40,28 +43,45 @@ type Game struct {
 	PlayerInTurn SquareCharacter
 }
 
-var _ GameService = new(Game) // check that Game implements GameService
-
-func (g Game) StartGame() Board {
-	return [9]int{}
+func NewGame() *Game {
+	return &Game{
+		Board:        newBoard(),
+		PlayerInTurn: X,
+	}
 }
 
-func (g Game) GetResult() Result {
+var _ GameService = new(Game) // check that Game implements GameService
+
+func newBoard() Board {
+	return [9]SquareCharacter{
+		EMPTY, EMPTY, EMPTY,
+		EMPTY, EMPTY, EMPTY,
+		EMPTY, EMPTY, EMPTY,
+	}
+}
+
+func (g *Game) StartGame() Board {
+	g.Board = newBoard()
+	g.PlayerInTurn = X
+	return g.Board
+}
+
+func (g *Game) GetResult() Result {
 	return Result{}
 }
 
-func (g Game) IsGameOver() bool {
+func (g *Game) IsGameOver() bool {
 	return false
 }
 
-func (g Game) IsChoiceValid(position int) bool {
+func (g *Game) IsChoiceValid(position int) bool {
 	return false
 }
 
-func (g Game) ChooseSquare(position int) {
+func (g *Game) ChooseSquare(position int) {
 	// not implemented
 }
 
-func (g Game) ChangePlayerInTurn() {
+func (g *Game) ChangePlayerInTurn() {
 	// not implemented
 }

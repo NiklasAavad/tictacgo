@@ -19,6 +19,7 @@ func TestStartGame(t *testing.T) {
 	expectedPlayerInTurn := X
 
 	assert.Equal(t, expectedBoard, board)
+	assert.Equal(t, expectedBoard, g.board)
 	assert.Equal(t, expectedPlayerInTurn, g.playerInTurn)
 }
 

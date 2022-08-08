@@ -12,7 +12,7 @@ type Client struct {
 	ID   string
 	Name string
 	Conn *websocket.Conn
-	Pool *Pool
+	Pool *ChatPool
 }
 
 type Message struct {
@@ -21,7 +21,7 @@ type Message struct {
 	Body   string `json:"body"`
 }
 
-func NewClient(r *http.Request, conn *websocket.Conn, pool *Pool) *Client {
+func NewClient(r *http.Request, conn *websocket.Conn, pool *ChatPool) *Client {
 	clientName := r.URL.Query().Get("name")
 	if clientName == "" {
 		clientName = "Unknown"

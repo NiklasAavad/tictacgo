@@ -6,15 +6,15 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type Pool struct {
+type ChatPool struct {
 	Register   chan *Client
 	Unregister chan *Client
 	Clients    map[*Client]bool
 	Broadcast  chan Message
 }
 
-func NewPool() *Pool {
-	return &Pool{
+func NewChatPool() *ChatPool {
+	return &ChatPool{
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
 		Clients:    make(map[*Client]bool),
@@ -22,7 +22,7 @@ func NewPool() *Pool {
 	}
 }
 
-func (p *Pool) registerClient(c *Client) {
+func (p *ChatPool) registerClient(c *Client) {
 	p.Clients[c] = true
 
 	body := c.Name + " just joined!"
@@ -30,7 +30,7 @@ func (p *Pool) registerClient(c *Client) {
 	p.broadcastMessage(msg)
 }
 
-func (p *Pool) unregisterClient(c *Client) {
+func (p *ChatPool) unregisterClient(c *Client) {
 	delete(p.Clients, c)
 
 	body := c.Name + " just left..."
@@ -38,7 +38,7 @@ func (p *Pool) unregisterClient(c *Client) {
 	p.broadcastMessage(msg)
 }
 
-func (p *Pool) broadcastMessage(msg Message) error {
+func (p *ChatPool) broadcastMessage(msg Message) error {
 	for client := range p.Clients {
 		if err := client.Conn.WriteJSON(msg); err != nil {
 			return err
@@ -47,7 +47,7 @@ func (p *Pool) broadcastMessage(msg Message) error {
 	return nil
 }
 
-func (pool *Pool) Start() {
+func (pool *ChatPool) Start() {
 	for {
 		select {
 		case client := <-pool.Register:

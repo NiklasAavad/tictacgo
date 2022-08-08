@@ -26,7 +26,8 @@ func NewGamePool() *GamePool {
 }
 
 type GameResponse struct {
-	Response any `json:"response"`
+	Command  string `json:"command"`
+	Response any    `json:"response"`
 }
 
 func (p *GamePool) registerClient(c *GameClient) {
@@ -64,31 +65,30 @@ func (p *GamePool) broadcastResponse(response GameResponse) error {
 }
 
 // TODO fix any!
-func (pool *GamePool) execute(instruction string, body int) any {
+func (pool *GamePool) execute(instruction string, body int) (string, any) {
 	switch instruction {
 	case "Start Game":
-		return pool.game.StartGame()
+		return "Board", pool.game.StartGame()
 	case "Get Result":
-		return pool.game.GetResult()
+		fmt.Println("Getting the result")
+		return "Result", pool.game.GetResult()
 	case "Is Game Over":
-		return pool.game.IsGameOver()
-	case "Is Choice Valid":
-		position := game.Position(body)
-		return pool.game.IsChoiceValid(position)
+		fmt.Println("Checking if game is over")
+		return "Game Over", pool.game.IsGameOver()
 	case "Choose Square":
 		position := game.Position(body)
-		return pool.game.ChooseSquare(position)
+		return "Board", pool.game.ChooseSquare(position)
 	case "Change Player In Turn":
-		return pool.game.ChangePlayerInTurn()
+		return "Player In Turn", pool.game.ChangePlayerInTurn()
 	}
 
 	// TODO bør nok returnerer en error i stedet for
-	return nil
+	return "Error", nil
 }
 
 func (pool *GamePool) respond(instruction string, body int) GameResponse {
-	response := pool.execute(instruction, body)
-	return GameResponse{Response: response}
+	command, response := pool.execute(instruction, body)
+	return GameResponse{Command: command, Response: response}
 }
 
 func (pool *GamePool) Start() {
@@ -102,9 +102,15 @@ func (pool *GamePool) Start() {
 			break
 		case message := <-pool.Broadcast:
 			response := pool.respond(message.Instruction, message.Content)
-			if err := pool.broadcastResponse(response); err != nil {
-				fmt.Println(err)
-				return
+			pool.broadcastResponse(response)
+			if message.Instruction == "Choose Square" {
+				fmt.Println("Inside if statement in Start method.")
+				if pool.game.IsGameOver() {
+					isGameOverResponse := pool.respond("Is Game Over", 0)
+					resultResponse := pool.respond("Get Result", 0)
+					pool.broadcastResponse(isGameOverResponse)
+					pool.broadcastResponse(resultResponse)
+				}
 			}
 		}
 	}

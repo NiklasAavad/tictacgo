@@ -1,3 +1,4 @@
+import { adaptBoard, adaptWinningCharacter } from "../adapter/Adapter";
 import { BASE_URL, GAME_WS } from "../api/Api";
 import { Position } from "../utility/Position";
 import { GameContextMutator, GameService, Result } from "./GameService";
@@ -5,9 +6,33 @@ import { GameContextMutator, GameService, Result } from "./GameService";
 const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameContextMutator) => {
     const socket = new WebSocket(`ws://${BASE_URL}/${GAME_WS}`);
 
+    // TODO validation!
     socket.onmessage = (msg: MessageEvent) => {
         console.log("receiving message");
         console.log(msg);
+
+        // TODO mangler at broadcaste at et nyt spil er gået igang
+        // TODO mangler at fixe ties  
+        const parsedMsg = JSON.parse(msg.data);
+        const response = parsedMsg.response;
+        switch (parsedMsg.command) {
+            case "Result":
+                console.log("Received result message");
+                const winningCombination = response.WinningCombination;
+                const winningCharacter = adaptWinningCharacter(response.WinningCharacter);
+                const result = {winningCombination, winningCharacter};
+                return gameContextMutator.setResult(result);
+            case "Game Over":
+                console.log("Received game over message");
+                return gameContextMutator.setIsGameOver(true);
+            case "Board":
+                const backendBoard = response;
+                const adaptedBoard = adaptBoard(backendBoard);
+                return gameContextMutator.setBoard(adaptedBoard);
+            case "Player In Turn":
+                console.log("Received Player In Turn message");
+                return;
+        }
     };
 
     const sendGameMessage = (instruction: string, content?: Position) => {
@@ -20,6 +45,7 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
 
     const startGame = (): void => {
         console.log("Starting game")
+        sendGameMessage("Start Game");
     };
 
     const getResult = (): Result | undefined => {

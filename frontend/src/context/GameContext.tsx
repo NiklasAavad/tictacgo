@@ -1,10 +1,11 @@
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { SquareCharacter, SquareType } from '../components/Content/Game/Square/Square';
+import { EmptyString, SquareCharacter, SquareType } from '../components/Content/Game/Square/Square';
 import { GameService, Result } from '../service/GameService';
+import { EMPTY_BOARD } from '../utility/GameServiceUtility';
 import { Position } from '../utility/Position';
 
 type GameContextType = {
-    latestSquare: SquareType | undefined,
+    board: (SquareCharacter | EmptyString)[],
     latestGameInfoMessage: GameInfoMessage,
     winningCombination: Position[] | undefined,
     isGameStarted: boolean,
@@ -39,8 +40,7 @@ type GameProviderProps = {
 const TIMEOUT_PERIOD = 2500; // ms!
 
 export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildren<GameProviderProps>) => {
-    // TODO slet hvis ændringen af latestSquare renderes korrekt.
-    const [latestSquare, setLatestSquare] = useState<SquareType | undefined>(undefined);
+    const [board, setBoard] = useState<(SquareCharacter | EmptyString)[]>(EMPTY_BOARD);
     const [latestGameInfoMessage, setLatestGameInfoMessage] = useState<GameInfoMessage>(GameInfoMessage.START_NEW_GAME);
     const [winningCombination, setWinningCombination] = useState<Position[] | undefined>(undefined)
     const [isGameStarted, setIsGameStarted] = useState(false);
@@ -49,14 +49,14 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
     const [playerInTurn, setPlayerInTurn] = useState<SquareCharacter>(SquareCharacter.X);
 
     const gameContextMutator = useMemo(() => {
-        return { setLatestSquare, setResult, setIsGameOver }
-    }, [setLatestSquare, setResult, setIsGameOver]);
+        return { setBoard, setResult, setIsGameOver }
+    }, [setBoard, setResult, setIsGameOver]);
 
     const gameService = useMemo(() => gameServiceProvider(gameContextMutator), [gameServiceProvider, gameContextMutator]);
 
     const startGame = () => {
         gameService.startGame();
-        setLatestSquare(undefined);
+        setBoard(EMPTY_BOARD);
         setLatestGameInfoMessage(GameInfoMessage.NEW_GAME_STARTED);
         setWinningCombination(undefined);
         setIsGameStarted(true);
@@ -102,7 +102,7 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
     }, [isGameOver, endGame])
 
     const exposedValues = {
-        latestSquare,
+        board,
         latestGameInfoMessage,
         winningCombination,
         isGameStarted,

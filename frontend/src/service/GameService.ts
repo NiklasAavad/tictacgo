@@ -1,5 +1,5 @@
 import React from "react";
-import { SquareCharacter, SquareType } from "../components/Content/Game/Square/Square";
+import { EmptyString, SquareCharacter, SquareType } from "../components/Content/Game/Square/Square";
 import { Position } from "../utility/Position";
 
 export type Result = {
@@ -8,11 +8,12 @@ export type Result = {
 }
 
 type SetLatestSquareFunction = React.Dispatch<React.SetStateAction<SquareType | undefined>>
+type SetBoardFunction = React.Dispatch<React.SetStateAction<(SquareCharacter | EmptyString)[]>>
 type SetResultFunction = React.Dispatch<React.SetStateAction<Result | undefined>>
 type SetIsGameOverFunction = React.Dispatch<React.SetStateAction<boolean>>
 
 export type GameContextMutator = {
-    setLatestSquare: SetLatestSquareFunction,
+    setBoard: SetBoardFunction,
     setResult: SetResultFunction,
     setIsGameOver: SetIsGameOverFunction,
 }

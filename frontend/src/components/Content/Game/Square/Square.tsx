@@ -24,7 +24,7 @@ export enum SquareCharacter {
     O = "O",
 }
 
-type EmptyString = "";
+export type EmptyString = "";
 
 export type SquareType = {
     position: Position,
@@ -41,14 +41,15 @@ type SquareProps = {
 // latestSquare.position og winningCombination.
 export const Square: React.FC<SquareProps> = (props) => {
     const [character, setCharacter] = useState<SquareCharacter | EmptyString>("");
-    const { latestSquare, winningCombination, chooseSquare } = useGameContext();
+    const { board, winningCombination, chooseSquare } = useGameContext();
 
     useEffect(() => {
-        const squareHasBeenSelected = latestSquare?.position === props.position;
+        const characterOnBoard = board[props.position];
+        const squareHasBeenSelected = characterOnBoard != character;
         if (squareHasBeenSelected) {
-            setCharacter(latestSquare.character);
+            setCharacter(characterOnBoard);
         }
-    }, [latestSquare, props.position])
+    }, [board, props.position])
 
     const borderClasses = useMemo(() => {
         const border = props.border;

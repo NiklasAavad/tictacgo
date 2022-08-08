@@ -26,7 +26,7 @@ func (p *Pool) registerClient(c *Client) {
 	p.Clients[c] = true
 
 	body := c.Name + " just joined!"
-	msg := Message{Type: websocket.TextMessage, Sender: "Chat Info", Body: body}
+	msg := Message{Type: websocket.TextMessage, Sender: CHAT_INFO.String(), Body: body}
 	p.broadcastMessage(msg)
 }
 
@@ -34,7 +34,7 @@ func (p *Pool) unregisterClient(c *Client) {
 	delete(p.Clients, c)
 
 	body := c.Name + " just left..."
-	msg := Message{Type: websocket.TextMessage, Sender: "Chat Info", Body: body}
+	msg := Message{Type: websocket.TextMessage, Sender: CHAT_INFO.String(), Body: body}
 	p.broadcastMessage(msg)
 }
 

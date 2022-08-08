@@ -28,16 +28,16 @@ func NewGamePool() *GamePool {
 func (p *GamePool) registerClient(c *Client) {
 	p.Clients[c] = true // TODO  måske ændres til false for dem som ikke spiller
 
-	body := c.Name + " just joined!"
-	msg := Message{Type: websocket.TextMessage, Sender: "Chat Info", Body: body}
+	body := c.Name + " is ready to play!"
+	msg := Message{Type: websocket.TextMessage, Sender: GAME_INFO.String(), Body: body}
 	p.broadcastMessage(msg)
 }
 
 func (p *GamePool) unregisterClient(c *Client) {
 	delete(p.Clients, c)
 
-	body := c.Name + " just left..."
-	msg := Message{Type: websocket.TextMessage, Sender: "Chat Info", Body: body}
+	body := c.Name + " will no longer play..."
+	msg := Message{Type: websocket.TextMessage, Sender: GAME_INFO.String(), Body: body}
 	p.broadcastMessage(msg)
 }
 

@@ -59,12 +59,9 @@ func (g *Game) isBoardFull() bool {
 }
 
 func (g *Game) isWinningRow(p [3]Position) bool {
-	if g.board[p[0]] == EMPTY {
-		return false
-	}
-
+	rowIsNotEmpty := g.board[p[0]] != EMPTY
 	isSameCharacter := g.board[p[0]] == g.board[p[1]] && g.board[p[1]] == g.board[p[2]]
-	return isSameCharacter
+	return rowIsNotEmpty && isSameCharacter
 }
 
 func (g *Game) hasWinner() bool {

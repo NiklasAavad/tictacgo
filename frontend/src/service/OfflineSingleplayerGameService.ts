@@ -63,14 +63,26 @@ const OfflineSingleplayerGameService: GameService = (gameContextMutator: GameCon
     };
 
     const getResult = (): Result | undefined => {
+        if (!decoratee.getResult) {
+            throw new Error("getResult could not be delegated to decoratee.")
+        }
+
         return decoratee.getResult();
     };
 
     const isGameOver = (): boolean => {
+        if (!decoratee.isGameOver) {
+            throw new Error("isGameOver could not be delegated to decoratee.")
+        }
+
         return decoratee.isGameOver();
     };
 
     const isChoiceValid = (position: Position): boolean => {
+        if (!decoratee.isChoiceValid) {
+            throw new Error("isChoiceValid could not be delegated to decoratee.")
+        }
+
         if (isBotChoosing) {
             return false;
         }
@@ -94,6 +106,10 @@ const OfflineSingleplayerGameService: GameService = (gameContextMutator: GameCon
     };
 
     const changePlayerInTurn = (): void => {
+        if (!decoratee.changePlayerInTurn) {
+            throw new Error("changePlayerInTurn could not be delegated to decoratee.")
+        }
+
         decoratee.changePlayerInTurn();
     };
 

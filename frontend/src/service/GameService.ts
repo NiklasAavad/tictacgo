@@ -22,10 +22,13 @@ export type GameContextMutator = {
 // TODO hvis det er nødvendigt at sætte playerInTurn i GameContext, så skal den muligvis også med som parameter.
 // I så fald vil det måske give mening at lave en type GameContextMutator, som har begge funktioner på sig.
 export type GameService = (gameContextMutator: GameContextMutator) => {
+    // reqired methods
     startGame: () => void,
-    getResult: () => Result | undefined,
-    isGameOver: () => boolean,
-    isChoiceValid: (position: Position) => boolean,
     chooseSquare: (position: Position) => void,
-    changePlayerInTurn: () => void
+
+    // optional methods, used for offline services.
+    getResult?: () => Result | undefined,
+    isGameOver?: () => boolean,
+    isChoiceValid?: (position: Position) => boolean,
+    changePlayerInTurn?: () => void
 }

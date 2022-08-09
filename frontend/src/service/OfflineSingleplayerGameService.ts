@@ -91,8 +91,12 @@ const OfflineSingleplayerGameService: GameService = (gameContextMutator: GameCon
     };
 
     const chooseSquare = (position: Position): void => {
+        if (!isChoiceValid(position)) {
+            return;
+        }
+
         decoratee.chooseSquare(position);
-        addSquareToBoard(SquareCharacter.X, position);
+        addSquareToBoard(SquareCharacter.X, position)
 
         if (isGameOver()) {
             return;

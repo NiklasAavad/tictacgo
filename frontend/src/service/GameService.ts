@@ -7,6 +7,8 @@ export type Result = {
     winningCharacter: SquareCharacter;
 }
 
+export type Board = (SquareCharacter | EmptyString)[];
+
 type SetBoardFunction = React.Dispatch<React.SetStateAction<(SquareCharacter | EmptyString)[]>>
 type SetResultFunction = React.Dispatch<React.SetStateAction<Result | undefined>>
 type SetIsGameOverFunction = React.Dispatch<React.SetStateAction<boolean>>

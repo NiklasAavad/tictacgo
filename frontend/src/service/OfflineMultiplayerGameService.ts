@@ -1,54 +1,61 @@
 import { SquareCharacter } from "../components/Content/Game/Square/Square";
-import { getEmptyBoard, hasPlayerWon } from "../utility/GameServiceUtility";
+import { getEmptyBoard } from "../utility/GameServiceUtility";
 import { allPositions, Position } from "../utility/Position";
 import { WINNING_COMBINATIONS } from "../utility/WinningCombinations";
-import { GameContextMutator, GameService, Result } from "./GameService";
+import { Board, GameContextMutator, GameService, Result } from "./GameService";
 
 const OfflineMultiplayerGameService: GameService = (gameContextMutator: GameContextMutator) => {
-    let x: Position[] = []; // TODO måske udfases?
-    let o: Position[] = []; // TODO måske udfases?
-    let board = getEmptyBoard();
+    let board: Board = getEmptyBoard();
     let playerInTurn: SquareCharacter = SquareCharacter.X;
 
     const startGame = (): void => {
-        x = [];
-        o = [];
         board = getEmptyBoard();
         playerInTurn = SquareCharacter.X;
     };
 
     const getResult = (): Result | undefined => {
-        const xWinningCombination = WINNING_COMBINATIONS.find(combination => {
-            return combination.every(position => x.includes(position));
-        });
+        for (const winningCombination of WINNING_COMBINATIONS) {
+            if (isWinningRow(winningCombination)) {
+                const winningCharacter = board[winningCombination[0]];
 
-        if (xWinningCombination) {
-            return { winningCombination: xWinningCombination, winningCharacter: SquareCharacter.X }
-        }
+                if (winningCharacter === "") {
+                    throw new Error("Game had a result, but no winning character");
+                }
 
-        const oWinningCombination = WINNING_COMBINATIONS.find(combination => {
-            return combination.every(position => o.includes(position));
-        });
-
-        if (oWinningCombination) {
-            return { winningCombination: oWinningCombination, winningCharacter: SquareCharacter.O }
+                return { winningCombination, winningCharacter };
+            }
         }
 
         return undefined;
     };
 
+    const isWinningRow = (row: Position[]) => {
+        const isNotEmptyRow = board[row[0]] !== ""
+        const isSameCharacter = board[row[0]] === board[row[1]] && board[row[1]] === board[row[2]];
+        return isNotEmptyRow && isSameCharacter;
+    }
+
+    const hasWinner = (): boolean => {
+        return WINNING_COMBINATIONS.some(combination => isWinningRow(combination));
+    }
+
+    const getOccupiedSquares = () => {
+        return board.filter(square => square !== "");
+    }
+
     const isGameOver = (): boolean => {
-        const notEnoughInputs = x.length < 3;
+        const occupiedSquares = getOccupiedSquares();
+        const notEnoughInputs = occupiedSquares.length < 5;
         if (notEnoughInputs) {
             return false;
         }
 
-        const allPositionsOccupied = x.length + o.length === allPositions.length;
+        const allPositionsOccupied = occupiedSquares.length === allPositions.length;
         if (allPositionsOccupied) {
             return true;
         }
 
-        return hasPlayerWon(x) || hasPlayerWon(o);
+        return hasWinner();
     };
 
     const isChoiceValid = (position: Position): boolean => {
@@ -56,19 +63,11 @@ const OfflineMultiplayerGameService: GameService = (gameContextMutator: GameCont
             return false;
         }
 
-        const isAlreadyX = x.includes(position);
-        const isAlreadyO = o.includes(position);
-        const isPositionOccupied = isAlreadyX || isAlreadyO;
-
-        return !isPositionOccupied;
+        const isSquareFree = board[position] === "";
+        return isSquareFree;
     };
 
     const addSquareToBoard = (position: Position): void => {
-        if (playerInTurn === SquareCharacter.X) {
-            x.push(position);
-        } else {
-            o.push(position);
-        }
         board[position] = playerInTurn;
         gameContextMutator.setBoard([...board]);
     }

@@ -1,4 +1,4 @@
-import { adaptBoard, adaptWinningCharacter } from "../adapter/Adapter";
+import { adaptBoard, adaptWinningCharacter, BackendSquareChacter, BackendWinningCharacter } from "../adapter/Adapter";
 import { BASE_URL, GAME_WS } from "../api/Api";
 import { Position } from "../utility/Position";
 import { GameContextMutator, GameService, Result } from "./GameService";
@@ -12,40 +12,57 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
     }
 
     // TODO validation!
+    // TODO Broadcast et nyt spil er gået igang!
     socket.onmessage = (msg: MessageEvent): void => {
-        console.log("receiving message");
-        console.log(msg);
-
-        // TODO mangler at broadcaste at et nyt spil er gået igang
         const parsedMsg = JSON.parse(msg.data);
         const response = parsedMsg.response;
         switch (parsedMsg.command) {
             case "Result":
-                console.log("Received result message");
-                
-                const hasWinner = response.HasWinner;
-                if (!hasWinner) {
-                    return;
-                }
-
-                const winningCombination = response.WinningCombination;
-                const winningCharacter = adaptWinningCharacter(response.WinningCharacter);
-                const result = {winningCombination, winningCharacter};
-                
-                return gameContextMutator.setResult(result);
+                return resultDidChange(response)
             case "Game Over":
-                console.log("Received game over message");
-                return gameContextMutator.setIsGameOver(true);
+                return gameDidEnd();
             case "Board":
-                gameContextMutator.setIsGameStarted(true);
-                const backendBoard = response;
-                const adaptedBoard = adaptBoard(backendBoard);
-                return gameContextMutator.setBoard(adaptedBoard);
+                return boardDidChange(response);
             case "Player In Turn":
-                console.log("Received Player In Turn message");
-                return;
+                return playerInTurnDidChange(response);
         }
+        throw new Error("No command matched the received message: " + msg);
     };
+
+    type JSONResult = {
+        WinningCombination?: Position[],
+        WinningCharacter?: BackendWinningCharacter,
+        HasWinner: boolean
+    }
+
+    const resultDidChange = (jsonResult: JSONResult) => {
+        if (!jsonResult.HasWinner) {
+            return;
+        }
+
+        console.log(jsonResult.WinningCharacter);
+
+        const winningCombination = jsonResult.WinningCombination!;
+        const winningCharacter = adaptWinningCharacter(jsonResult.WinningCharacter!);
+        const result = { winningCombination, winningCharacter };
+
+        gameContextMutator.setResult(result);
+    }
+
+    const gameDidEnd = () => {
+        gameContextMutator.setIsGameOver(true);
+    }
+
+    const boardDidChange = (board: BackendSquareChacter[]) => {
+        gameContextMutator.setIsGameStarted(true);
+        const adaptedBoard = adaptBoard(board);
+        gameContextMutator.setBoard(adaptedBoard);
+    }
+
+    // Unused for now
+    const playerInTurnDidChange = (playerInTurn: BackendSquareChacter) => {
+        // Do nothing
+    }
 
     const sendGameMessage = (instruction: string, content?: Position) => {
         console.log("Sending game message");

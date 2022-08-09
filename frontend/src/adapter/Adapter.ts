@@ -1,7 +1,7 @@
 import { EmptyString, SquareCharacter } from "../components/Content/Game/Square/Square";
 
-type BackendWinningCharacter = 0 | 1;
-type BackendSquareChacter = 0 | 1 | 2;
+export type BackendWinningCharacter = 0 | 1;
+export type BackendSquareChacter = 0 | 1 | 2;
 
 export const adaptBoard = (backendBoard: BackendSquareChacter[]): (SquareCharacter | EmptyString)[] => {
     return backendBoard.map(square => adaptCharacter(square))

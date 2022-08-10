@@ -3,7 +3,6 @@ import { BASE_URL } from "../api/BackendApi";
 
 export type MessageCallback = (msg: MessageEvent) => void;
 
-
 export const useWebsocket = (name: string | undefined) => {
     const userName = name || "Unknown User";
     const socket = useMemo(() => new WebSocket(`ws://${BASE_URL}/ws?name=${userName}`), [userName]);
@@ -31,15 +30,8 @@ export const useWebsocket = (name: string | undefined) => {
 
     const sendChatMessage = useCallback((msg: string) => {
         console.log("Sending chat message:", msg)
-
-        const jsonMsg = JSON.stringify({
-            type: 0,
-            sender: userName,
-            body: msg
-        })
-        
-        socket.send(jsonMsg);
-    }, [socket, userName]);
+        socket.send(msg);
+    }, [socket]);
 
     return { connect, sendChatMessage };
 }

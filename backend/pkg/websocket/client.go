@@ -36,13 +36,13 @@ func NewClient(r *http.Request, conn *websocket.Conn, pool *ChatPool) *Client {
 	return client
 }
 
-func closeConn(c *Client) {
+func (c *Client) closeConn() {
 	c.Pool.Unregister <- c
 	c.Conn.Close()
 }
 
 func (c *Client) Read() {
-	defer closeConn(c)
+	defer c.closeConn()
 
 	for {
 		messageType, p, err := c.Conn.ReadMessage()

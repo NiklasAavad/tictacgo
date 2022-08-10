@@ -34,13 +34,13 @@ func NewGameClient(r *http.Request, conn *websocket.Conn, pool *GamePool) *GameC
 	return client
 }
 
-func closeGameConn(c *GameClient) {
+func (c *GameClient) closeConn() {
 	c.Pool.Unregister <- c
 	c.Conn.Close()
 }
 
 func (c *GameClient) Read() {
-	defer closeGameConn(c)
+	defer c.closeConn()
 
 	for {
 		var message GameMessage

@@ -3,16 +3,14 @@ import { BASE_URL } from "../api/BackendApi";
 
 export type MessageCallback = (msg: MessageEvent) => void;
 
-export const useWebsocket = (name: string | undefined) => {
+const RECONNECT_INTERVAL = 1000; // ms!
+
+export const useWebsocket = (name: string | undefined, messageCallback: MessageCallback) => {
     const userName = name || "Unknown User";
     const socket = useMemo(() => new WebSocket(`ws://${BASE_URL}/ws?name=${userName}`), [userName]);
 
-    const connect = useCallback((messageCallback: MessageCallback) => {
+    const connect = useCallback(() => {
         console.log("Attempting connection...");
-
-        socket.onopen = () => {
-            console.log("Successfully connected");
-        };
 
         socket.onmessage = (msg: MessageEvent) => {
             console.log(msg);
@@ -21,12 +19,16 @@ export const useWebsocket = (name: string | undefined) => {
 
         socket.onclose = (event: CloseEvent) => {
             console.log("Socket closed connection", event);
+            console.log("Trying to reconnect...");
+            setTimeout(() => connect(), RECONNECT_INTERVAL); // TODO Websocket is already in CLOSING or CLOSED state.
         };
 
         socket.onerror = (error: Event) => {
             console.log("Socket error:", error);
+            console.log("Closing connection...");
+            socket.close();
         };
-    }, [socket]);
+    }, [socket, messageCallback]);
 
     const sendChatMessage = useCallback((msg: string) => {
         console.log("Sending chat message:", msg)

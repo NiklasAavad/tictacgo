@@ -10,7 +10,6 @@ export const Chat: React.FC = () => {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const { latestGameInfoMessage } = useGameContext();
     const { name } = useUserContext();
-    const { connect, sendChatMessage } = useWebsocket(name);
 
     const messageCallback: MessageCallback =  useCallback((msg: MessageEvent) => {
         const parsedMessage = JSON.parse(msg.data);
@@ -18,9 +17,11 @@ export const Chat: React.FC = () => {
         setMessages(messages => [...messages, userMessage]);
     }, [setMessages]);
 
+    const { connect, sendChatMessage } = useWebsocket(name, messageCallback);
+
     useEffect(() => {
-        connect(messageCallback);
-    }, [connect, messageCallback])
+        connect();
+    }, [connect])
 
     useEffect(() => {
         const gameInfoMessage = { sender: InfoSender.GAME_INFO, body: latestGameInfoMessage };

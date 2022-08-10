@@ -23,5 +23,5 @@ export type GameBody = JSONResult | BackendSquareChacter[] | BackendSquareChacte
 // Not used yet, but should be used to validate the response from the game.
 export type GameResponse = {
     command: GameCommand,
-    response: GameBody
+    body: GameBody
 };

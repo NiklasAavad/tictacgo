@@ -13,16 +13,16 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
 
     // TODO validation!
     socket.onmessage = (msg: MessageEvent): void => {
-        const { command, response } = JSON.parse(msg.data);
+        const { command, body } = JSON.parse(msg.data);
         switch (command) {
             case GameCommand.RESULT:
-                return resultDidChange(response)
+                return resultDidChange(body)
             case GameCommand.GAME_OVER:
                 return gameDidEnd();
             case GameCommand.BOARD:
-                return boardDidChange(response);
+                return boardDidChange(body);
             case GameCommand.PLAYER_IN_TURN:
-                return playerInTurnDidChange(response);
+                return playerInTurnDidChange(body);
         }
         throw new Error("No command matched the received message: " + msg);
     };

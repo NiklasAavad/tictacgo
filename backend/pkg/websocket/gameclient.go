@@ -46,16 +46,9 @@ func (c *GameClient) Read() {
 		var message GameMessage
 		if err := c.Conn.ReadJSON(&message); err != nil {
 			fmt.Printf("Message did not match json schema: %+v\n", message)
-			continue
+			return
 		}
 
-		// messageType, p, err := c.Conn.ReadMessage()
-		// if err != nil {
-		// log.Println(err)
-		// return
-		// }
-
-		// message := Message{Type: messageType, Sender: c.Name, Body: string(p)}
 		c.Pool.Broadcast <- message
 		fmt.Printf("Message Received: %+v\n", message)
 	}

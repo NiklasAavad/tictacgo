@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { BASE_URL } from "../api/Api";
+import { BASE_URL } from "../api/BackendApi";
 
 export type MessageCallback = (msg: MessageEvent) => void;
 

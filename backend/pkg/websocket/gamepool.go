@@ -1,8 +1,6 @@
 package websocket
 
 import (
-	"fmt"
-
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
 	"github.com/gorilla/websocket"
 )
@@ -65,22 +63,14 @@ func (p *GamePool) broadcastResponse(response GameResponse) error {
 }
 
 // TODO fix any!
-func (pool *GamePool) execute(instruction string, content int) (string, any) {
+func (pool *GamePool) execute(instruction GameInstruction, content int) (string, any) {
 	switch instruction {
-	case "Start Game":
+	case START_GAME:
 		return "Board", pool.game.StartGame()
-	case "Get Result":
-		fmt.Println("Getting the result")
-		return "Result", pool.game.GetResult()
-	case "Is Game Over":
-		fmt.Println("Checking if game is over")
-		return "Game Over", pool.game.IsGameOver()
-	case "Choose Square":
+	case CHOOSE_SQUARE:
 		position := game.Position(content)
 		return "Board", pool.game.ChooseSquare(position)
-	case "Change Player In Turn":
-		return "Player In Turn", pool.game.ChangePlayerInTurn()
-	case "Get Board":
+	case GET_BOARD:
 		return "Board", pool.game.Board()
 	}
 
@@ -88,7 +78,8 @@ func (pool *GamePool) execute(instruction string, content int) (string, any) {
 	return "Error", nil
 }
 
-func (pool *GamePool) respond(instruction string, content int) GameResponse {
+// TODO med det her sender vi ikke til klienten at spille er slut og at der er fundet en vinder.
+func (pool *GamePool) respond(instruction GameInstruction, content int) GameResponse {
 	command, body := pool.execute(instruction, content)
 	return GameResponse{Command: command, Body: body}
 }
@@ -98,22 +89,11 @@ func (pool *GamePool) Start() {
 		select {
 		case client := <-pool.Register:
 			pool.registerClient(client)
-			break
 		case client := <-pool.Unregister:
 			pool.unregisterClient(client)
-			break
 		case message := <-pool.Broadcast:
 			response := pool.respond(message.Instruction, message.Content)
 			pool.broadcastResponse(response)
-			if message.Instruction == "Choose Square" {
-				fmt.Println("Inside if statement in Start method.")
-				if pool.game.IsGameOver() {
-					isGameOverResponse := pool.respond("Is Game Over", 0)
-					resultResponse := pool.respond("Get Result", 0)
-					pool.broadcastResponse(isGameOverResponse)
-					pool.broadcastResponse(resultResponse)
-				}
-			}
 		}
 	}
 }

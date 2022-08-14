@@ -8,7 +8,7 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
     const socket = new WebSocket(`ws://${BASE_URL}/${GAME_WS}`);
 
     socket.onopen = () => {
-        sendGameMessage(GameInstruction.GET_BOARD);
+        // sendGameMessage(GameInstruction.GET_BOARD);
     }
 
     // TODO validation!
@@ -24,7 +24,7 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
             case GameCommand.PLAYER_IN_TURN:
                 return playerInTurnDidChange(body);
         }
-        throw new Error("No command matched the received message: " + msg);
+        throw new Error("No command matched the received message: " + JSON.stringify(msg));
     };
 
 

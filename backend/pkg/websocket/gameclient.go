@@ -15,8 +15,8 @@ type GameClient struct {
 }
 
 type GameMessage struct {
-	Instruction string `json:"instruction"`
-	Content     int    `json:"content"`
+	Instruction GameInstruction `json:"instruction"`
+	Content     int             `json:"content"`
 }
 
 func NewGameClient(r *http.Request, conn *websocket.Conn, pool *GamePool) *GameClient {
@@ -45,7 +45,7 @@ func (c *GameClient) Read() {
 	for {
 		var message GameMessage
 		if err := c.Conn.ReadJSON(&message); err != nil {
-			fmt.Printf("Message did not match json schema: %+v\n", message)
+			fmt.Println(err)
 			return
 		}
 

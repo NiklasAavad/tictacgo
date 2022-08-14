@@ -13,6 +13,7 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
 
     // TODO validation!
     socket.onmessage = (msg: MessageEvent): void => {
+        console.log(msg);
         const { command, body } = JSON.parse(msg.data);
         switch (command) {
             case GameCommand.RESULT:

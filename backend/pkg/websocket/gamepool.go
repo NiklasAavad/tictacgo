@@ -62,25 +62,37 @@ func (p *GamePool) broadcastResponse(response GameResponse) error {
 	return nil
 }
 
+// TODO This response is not received by all clients..
+func (pool *GamePool) broadcastGameIsOver() {
+	gameOverResponse := GameResponse{"Game Over", 0}
+
+	result := pool.game.GetResult()
+	resultResponse := GameResponse{"Result", result}
+
+	pool.broadcastResponse(gameOverResponse)
+	pool.broadcastResponse(resultResponse)
+}
+
 // TODO fix any!
-func (pool *GamePool) execute(instruction GameInstruction, content int) (string, any) {
+func (pool *GamePool) executeInstruction(instruction GameInstruction, content int) any {
 	switch instruction {
 	case START_GAME:
-		return "Board", pool.game.StartGame()
+		return pool.game.StartGame()
 	case CHOOSE_SQUARE:
 		position := game.Position(content)
-		return "Board", pool.game.ChooseSquare(position)
+		return pool.game.ChooseSquare(position)
 	case GET_BOARD:
-		return "Board", pool.game.Board()
+		return pool.game.Board()
 	}
 
 	// TODO bør nok returnerer en error i stedet for
-	return "Error", nil
+	return nil
 }
 
 // TODO med det her sender vi ikke til klienten at spille er slut og at der er fundet en vinder.
 func (pool *GamePool) respond(instruction GameInstruction, content int) GameResponse {
-	command, body := pool.execute(instruction, content)
+	command := "Board"
+	body := pool.executeInstruction(instruction, content)
 	return GameResponse{Command: command, Body: body}
 }
 
@@ -94,6 +106,9 @@ func (pool *GamePool) Start() {
 		case message := <-pool.Broadcast:
 			response := pool.respond(message.Instruction, message.Content)
 			pool.broadcastResponse(response)
+			if pool.game.IsGameOver() {
+				pool.broadcastGameIsOver()
+			}
 		}
 	}
 }

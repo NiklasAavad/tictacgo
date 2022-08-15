@@ -70,7 +70,7 @@ func (pool *GamePool) broadcastGameIsOver() {
 	pool.broadcastResponse(resultResponse)
 }
 
-func (pool *GamePool) executeInstruction(message GameMessage) (game.Board, error) {
+func (pool *GamePool) executeMessage(message GameMessage) (game.Board, error) {
 	switch message.Instruction {
 	case START_GAME:
 		return pool.game.StartGame(), nil
@@ -86,7 +86,7 @@ func (pool *GamePool) executeInstruction(message GameMessage) (game.Board, error
 
 func (pool *GamePool) respond(message GameMessage) error {
 	command := BOARD
-	body, err := pool.executeInstruction(message)
+	body, err := pool.executeMessage(message)
 
 	if err != nil {
 		return err

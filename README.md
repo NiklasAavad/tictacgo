@@ -5,9 +5,6 @@ Challenge your friends in a online game of tic tac toe. You can even play agains
 ## Chat
 Make the game even more interesting by chatting inbetween the rounds. However, if you are in the mood for a silent game of tic tac toe, you can always go in zen-mode and have the chat messages muted.
 
-
-
-
 ## Tech Stack
 
 **Client:** React, Typescript

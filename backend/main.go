@@ -7,7 +7,7 @@ import (
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 )
 
-func serveWs(pool *websocket.ChatPool, w http.ResponseWriter, r *http.Request) {
+func serveChatWs(pool *websocket.ChatPool, w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Chat WebSocket Endpoint Hit")
 
 	conn, err := websocket.Upgrade(w, r)
@@ -44,8 +44,8 @@ func setupRoutes() {
 	gamePool := websocket.NewGamePool()
 	go gamePool.Start()
 
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(chatPool, w, r)
+	http.HandleFunc("/chatws", func(w http.ResponseWriter, r *http.Request) {
+		serveChatWs(chatPool, w, r)
 	})
 
 	http.HandleFunc("/gamews", func(w http.ResponseWriter, r *http.Request) {

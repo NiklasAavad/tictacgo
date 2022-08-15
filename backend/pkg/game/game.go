@@ -85,7 +85,7 @@ func (g *Game) IsGameOver() bool {
 	return g.hasWinner()
 }
 
-func (g *Game) IsChoiceValid(p Position) bool {
+func (g *Game) isChoiceValid(p Position) bool {
 	if g.IsGameOver() {
 		return false
 	}
@@ -94,15 +94,15 @@ func (g *Game) IsChoiceValid(p Position) bool {
 }
 
 func (g *Game) ChooseSquare(p Position) Board {
-	if g.IsChoiceValid(p) {
+	if g.isChoiceValid(p) {
 		g.board[p] = g.playerInTurn
-		g.ChangePlayerInTurn()
+		g.changePlayerInTurn()
 	}
 
 	return g.board
 }
 
-func (g *Game) ChangePlayerInTurn() SquareCharacter {
+func (g *Game) changePlayerInTurn() SquareCharacter {
 	if g.playerInTurn == X {
 		g.playerInTurn = O
 	} else if g.playerInTurn == O {

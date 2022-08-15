@@ -2,14 +2,13 @@ import { BackendSquareChacter, BackendWinningCharacter } from "../adapter/Adapte
 import { Position } from "../utility/Position";
 
 export const BASE_URL = "localhost:8080";
-export const GAME_WS = "gamews";
-export const CHAT_WS = "chatws";
+export const GAME_WS_URL = `ws://${BASE_URL}/gamews`;
+export const CHAT_WS_URL = `ws://${BASE_URL}/chatws`;
 
 export enum GameCommand {
-    RESULT = "Result",
-    GAME_OVER = "Game Over",
-    BOARD = "Board",
-    PLAYER_IN_TURN = "Player In Turn"
+    RESULT = "result",
+    GAME_OVER = "game over",
+    BOARD = "board",
 };
 
 export type JSONResult = {

@@ -9,7 +9,6 @@ import (
 type GameInstruction uint8
 
 var _ json.Unmarshaler = new(GameInstruction) // Unmarshaller interface is implemented
-var _ json.Marshaler = new(GameInstruction)   // Marshaller interface is implemented
 
 const (
 	START_GAME GameInstruction = iota + 1
@@ -32,10 +31,6 @@ var (
 
 func (gi GameInstruction) String() string {
 	return GameInstructionName[uint8(gi)]
-}
-
-func (gi GameInstruction) MarshalJSON() ([]byte, error) {
-	return json.Marshal(gi.String())
 }
 
 func ParseGameInstruction(s string) (GameInstruction, error) {

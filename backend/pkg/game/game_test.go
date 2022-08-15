@@ -26,7 +26,7 @@ func TestStartGame(t *testing.T) {
 func TestShouldBeValidChoiceIfFreePosition(t *testing.T) {
 	g := NewGame()
 
-	assert.True(t, g.IsChoiceValid(TOP_LEFT))
+	assert.True(t, g.isChoiceValid(TOP_LEFT))
 }
 
 func TestShouldBeInvalidChoiceIfOccupiedPosition(t *testing.T) {
@@ -34,7 +34,7 @@ func TestShouldBeInvalidChoiceIfOccupiedPosition(t *testing.T) {
 
 	g.ChooseSquare(TOP_LEFT)
 
-	assert.False(t, g.IsChoiceValid(TOP_LEFT))
+	assert.False(t, g.isChoiceValid(TOP_LEFT))
 }
 
 func TestShouldBeInvalidChoiceIfGameIsOver(t *testing.T) {
@@ -42,7 +42,7 @@ func TestShouldBeInvalidChoiceIfGameIsOver(t *testing.T) {
 
 	g.board = mockWinningBoard()
 
-	assert.False(t, g.IsChoiceValid(BOTTOM_RIGHT))
+	assert.False(t, g.isChoiceValid(BOTTOM_RIGHT))
 }
 
 func TestShouldChooseTopLeft(t *testing.T) {
@@ -62,10 +62,10 @@ func TestShouldChooseTopLeft(t *testing.T) {
 func TestChangePlayerInTurn(t *testing.T) {
 	g := NewGame()
 
-	g.ChangePlayerInTurn()
+	g.changePlayerInTurn()
 	assert.Equal(t, O, g.playerInTurn)
 
-	g.ChangePlayerInTurn()
+	g.changePlayerInTurn()
 	assert.Equal(t, X, g.playerInTurn)
 }
 

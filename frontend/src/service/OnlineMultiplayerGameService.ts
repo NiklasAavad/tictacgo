@@ -1,11 +1,12 @@
 import { adaptBoard, adaptWinningCharacter, BackendSquareChacter } from "../adapter/Adapter";
-import { BASE_URL, GameCommand, GAME_WS, JSONResult } from "../api/BackendApi";
+import { GameCommand, JSONResult } from "../api/BackendApi";
 import { GameInstruction } from "../api/FrontendApi";
 import { Position } from "../utility/Position";
+import { GAME_WS_URL } from './../api/BackendApi';
 import { GameContextMutator, GameService } from "./GameService";
 
 const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameContextMutator) => {
-    const socket = new WebSocket(`ws://${BASE_URL}/${GAME_WS}`);
+    const socket = new WebSocket(GAME_WS_URL);
 
     socket.onopen = () => {
         // sendGameMessage(GameInstruction.GET_BOARD);
@@ -22,8 +23,6 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
                 return gameDidEnd();
             case GameCommand.BOARD:
                 return boardDidChange(body);
-            case GameCommand.PLAYER_IN_TURN:
-                return playerInTurnDidChange(body);
         }
         throw new Error("No command matched the received message: " + JSON.stringify(msg));
     };
@@ -49,11 +48,6 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
         gameContextMutator.setIsGameStarted(true);
         const adaptedBoard = adaptBoard(board);
         gameContextMutator.setBoard(adaptedBoard);
-    }
-
-    // Unused for now
-    const playerInTurnDidChange = (playerInTurn: BackendSquareChacter) => {
-        // Do nothing
     }
 
     const sendGameMessage = (instruction: GameInstruction, content?: Position) => {

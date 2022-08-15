@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { BASE_URL } from "../api/BackendApi";
+import { CHAT_WS_URL } from './../api/BackendApi';
 
 export type MessageCallback = (msg: MessageEvent) => void;
 
@@ -7,7 +7,7 @@ const RECONNECT_INTERVAL = 1000; // ms!
 
 export const useWebsocket = (name: string | undefined, messageCallback: MessageCallback) => {
     const userName = name || "Unknown User";
-    const socket = useMemo(() => new WebSocket(`ws://${BASE_URL}/ws?name=${userName}`), [userName]);
+    const socket = useMemo(() => new WebSocket(`${CHAT_WS_URL}?name=${userName}`), [userName]);
 
     const connect = useCallback(() => {
         console.log("Attempting connection...");

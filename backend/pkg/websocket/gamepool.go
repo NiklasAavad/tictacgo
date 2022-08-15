@@ -1,6 +1,8 @@
 package websocket
 
 import (
+	"fmt"
+
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
 	"github.com/gorilla/websocket"
 )
@@ -21,11 +23,6 @@ func NewGamePool() *GamePool {
 		Broadcast:  make(chan GameMessage),
 		game:       game.NewGame(),
 	}
-}
-
-type GameResponse struct {
-	Command string `json:"command"`
-	Body    any    `json:"body"`
 }
 
 func (p *GamePool) registerClient(c *GameClient) {
@@ -64,36 +61,45 @@ func (p *GamePool) broadcastResponse(response GameResponse) error {
 
 // TODO This response is not received by all clients..
 func (pool *GamePool) broadcastGameIsOver() {
-	gameOverResponse := GameResponse{"Game Over", 0}
+	gameOverResponse := GameResponse{GAME_OVER, true}
 
 	result := pool.game.GetResult()
-	resultResponse := GameResponse{"Result", result}
+	resultResponse := GameResponse{RESULT, result}
 
 	pool.broadcastResponse(gameOverResponse)
 	pool.broadcastResponse(resultResponse)
 }
 
-// TODO fix any!
-func (pool *GamePool) executeInstruction(instruction GameInstruction, content int) any {
-	switch instruction {
+func (pool *GamePool) executeInstruction(message GameMessage) (game.Board, error) {
+	switch message.Instruction {
 	case START_GAME:
-		return pool.game.StartGame()
+		return pool.game.StartGame(), nil
 	case CHOOSE_SQUARE:
-		position := game.Position(content)
-		return pool.game.ChooseSquare(position)
+		position := game.Position(message.Content)
+		return pool.game.ChooseSquare(position), nil
 	case GET_BOARD:
-		return pool.game.Board()
+		return pool.game.Board(), nil
 	}
 
-	// TODO bør nok returnerer en error i stedet for
-	return nil
+	return game.Board{}, fmt.Errorf("GameInstruction could not be found: %v", message.Instruction)
 }
 
-// TODO med det her sender vi ikke til klienten at spille er slut og at der er fundet en vinder.
-func (pool *GamePool) respond(instruction GameInstruction, content int) GameResponse {
-	command := "Board"
-	body := pool.executeInstruction(instruction, content)
-	return GameResponse{Command: command, Body: body}
+func (pool *GamePool) respond(message GameMessage) error {
+	command := BOARD
+	body, err := pool.executeInstruction(message)
+
+	if err != nil {
+		return err
+	}
+
+	response := GameResponse{command, body}
+	pool.broadcastResponse(response)
+
+	if pool.game.IsGameOver() {
+		pool.broadcastGameIsOver()
+	}
+
+	return nil
 }
 
 func (pool *GamePool) Start() {
@@ -104,10 +110,9 @@ func (pool *GamePool) Start() {
 		case client := <-pool.Unregister:
 			pool.unregisterClient(client)
 		case message := <-pool.Broadcast:
-			response := pool.respond(message.Instruction, message.Content)
-			pool.broadcastResponse(response)
-			if pool.game.IsGameOver() {
-				pool.broadcastGameIsOver()
+			if err := pool.respond(message); err != nil {
+				fmt.Println(err)
+				return
 			}
 		}
 	}

@@ -13,8 +13,8 @@ type GameService interface {
 	StartGame() Board
 	GetResult() Result
 	IsGameOver() bool
-	IsChoiceValid(p Position) bool
+	isChoiceValid(p Position) bool
 	ChooseSquare(p Position) Board
-	ChangePlayerInTurn() SquareCharacter
+	changePlayerInTurn() SquareCharacter
 	Board() Board
 }

@@ -12,11 +12,10 @@ export type ChatMessage = {
 
 type MessageProps = {
     message: ChatMessage,
-    key: number
 }
 
 export const Message: React.FC<MessageProps> = (props) => {
-    return <div key={props.key} className="chat-message">
+    return <div className="chat-message">
         <span className="message-sender">{props.message.sender}: </span>
         {props.message.body}
     </div>

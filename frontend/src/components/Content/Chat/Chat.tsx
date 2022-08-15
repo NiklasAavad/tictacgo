@@ -11,7 +11,7 @@ export const Chat: React.FC = () => {
     const { latestGameInfoMessage } = useGameContext();
     const { name } = useUserContext();
 
-    const messageCallback: MessageCallback =  useCallback((msg: MessageEvent) => {
+    const messageCallback: MessageCallback = useCallback((msg: MessageEvent) => {
         const parsedMessage = JSON.parse(msg.data);
         const userMessage: ChatMessage = { sender: parsedMessage.sender, body: parsedMessage.body };
         setMessages(messages => [...messages, userMessage]);

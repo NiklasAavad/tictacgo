@@ -9,7 +9,7 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
     const socket = new WebSocket(GAME_WS_URL);
 
     socket.onopen = () => {
-        // sendGameMessage(GameInstruction.GET_BOARD);
+        sendGameMessage(GameInstruction.GET_BOARD);
     }
 
     // TODO validation!
@@ -46,6 +46,8 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
 
     const boardDidChange = (board: BackendSquareChacter[]) => {
         gameContextMutator.setIsGameStarted(true);
+        gameContextMutator.setIsGameOver(false);
+
         const adaptedBoard = adaptBoard(board);
         gameContextMutator.setBoard(adaptedBoard);
     }

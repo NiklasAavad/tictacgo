@@ -1,4 +1,4 @@
-package websocket
+package chat
 
 import (
 	"fmt"
@@ -22,11 +22,13 @@ func NewChatPool() *ChatPool {
 	}
 }
 
+const CHAT_INFO = "Chat Info"
+
 func (p *ChatPool) registerClient(c *Client) {
 	p.clients[c] = true
 
 	body := c.Name + " just joined!"
-	msg := Message{Type: websocket.TextMessage, Sender: CHAT_INFO.String(), Body: body}
+	msg := Message{Type: websocket.TextMessage, Sender: CHAT_INFO, Body: body}
 	p.broadcastMessage(msg)
 }
 
@@ -34,7 +36,7 @@ func (p *ChatPool) unregisterClient(c *Client) {
 	delete(p.clients, c)
 
 	body := c.Name + " just left..."
-	msg := Message{Type: websocket.TextMessage, Sender: CHAT_INFO.String(), Body: body}
+	msg := Message{Type: websocket.TextMessage, Sender: CHAT_INFO, Body: body}
 	p.broadcastMessage(msg)
 }
 

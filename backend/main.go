@@ -5,9 +5,11 @@ import (
 	"net/http"
 
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
+	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket/chat"
+	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket/gamesocket"
 )
 
-func serveChatWs(pool *websocket.ChatPool, w http.ResponseWriter, r *http.Request) {
+func serveChatWs(pool *chat.ChatPool, w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Chat WebSocket Endpoint Hit")
 
 	conn, err := websocket.Upgrade(w, r)
@@ -15,14 +17,14 @@ func serveChatWs(pool *websocket.ChatPool, w http.ResponseWriter, r *http.Reques
 		fmt.Fprintf(w, "%+V\n", err)
 	}
 
-	client := websocket.NewClient(r, conn, pool)
+	client := chat.NewClient(r, conn, pool)
 
 	pool.Register <- client
 
 	client.Read()
 }
 
-func serveGameWs(pool *websocket.GamePool, w http.ResponseWriter, r *http.Request) {
+func serveGameWs(pool *gamesocket.GamePool, w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Game WebSocket Endpoint Hit")
 
 	conn, err := websocket.Upgrade(w, r)
@@ -30,7 +32,7 @@ func serveGameWs(pool *websocket.GamePool, w http.ResponseWriter, r *http.Reques
 		fmt.Fprintf(w, "%+V\n", err)
 	}
 
-	client := websocket.NewGameClient(r, conn, pool)
+	client := gamesocket.NewGameClient(r, conn, pool)
 
 	pool.Register <- client
 
@@ -38,10 +40,10 @@ func serveGameWs(pool *websocket.GamePool, w http.ResponseWriter, r *http.Reques
 }
 
 func setupRoutes() {
-	chatPool := websocket.NewChatPool()
+	chatPool := chat.NewChatPool()
 	go chatPool.Start()
 
-	gamePool := websocket.NewGamePool()
+	gamePool := gamesocket.NewGamePool()
 	go gamePool.Start()
 
 	http.HandleFunc("/chatws", func(w http.ResponseWriter, r *http.Request) {

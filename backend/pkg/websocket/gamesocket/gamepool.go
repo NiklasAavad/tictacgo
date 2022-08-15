@@ -1,9 +1,10 @@
-package websocket
+package gamesocket
 
 import (
 	"fmt"
 
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
+	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket/chat"
 	"github.com/gorilla/websocket"
 )
 
@@ -25,11 +26,13 @@ func NewGamePool() *GamePool {
 	}
 }
 
+const GAME_INFO = "Game Info"
+
 func (p *GamePool) registerClient(c *GameClient) {
 	p.clients[c] = true // TODO  måske ændres til false for dem som ikke spiller
 
 	body := c.Name + " is ready to play!"
-	msg := Message{Type: websocket.TextMessage, Sender: GAME_INFO.String(), Body: body}
+	msg := chat.Message{Type: websocket.TextMessage, Sender: GAME_INFO, Body: body}
 	p.broadcastMessage(msg)
 }
 
@@ -37,11 +40,11 @@ func (p *GamePool) unregisterClient(c *GameClient) {
 	delete(p.clients, c)
 
 	body := c.Name + " will no longer play..."
-	msg := Message{Type: websocket.TextMessage, Sender: GAME_INFO.String(), Body: body}
+	msg := chat.Message{Type: websocket.TextMessage, Sender: GAME_INFO, Body: body}
 	p.broadcastMessage(msg)
 }
 
-func (p *GamePool) broadcastMessage(msg Message) error {
+func (p *GamePool) broadcastMessage(msg chat.Message) error {
 	for client := range p.clients {
 		if err := client.Conn.WriteJSON(msg); err != nil {
 			return err

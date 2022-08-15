@@ -1,11 +1,11 @@
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { EmptyString, SquareCharacter } from '../components/Content/Game/Square/Square';
+import { SquareCharacter } from '../components/Content/Game/Square/Square';
 import { Board, GameService, Result } from '../service/GameService';
 import { getEmptyBoard } from '../utility/GameServiceUtility';
 import { Position } from '../utility/Position';
 
 type GameContextType = {
-    board: (SquareCharacter | EmptyString)[],
+    board: Board,
     latestGameInfoMessage: GameInfoMessage,
     winningCombination: Position[] | undefined,
     isGameStarted: boolean,
@@ -49,7 +49,7 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
 
     const gameContextMutator = useMemo(() => {
         return { setBoard, setResult, setIsGameOver, setIsGameStarted }
-    }, [setBoard, setResult, setIsGameOver, setIsGameStarted]);
+    }, []);
 
     const gameService = useMemo(() => gameServiceProvider(gameContextMutator), [gameServiceProvider, gameContextMutator]);
 

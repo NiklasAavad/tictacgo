@@ -16,7 +16,7 @@ func NewGame() *Game {
 var _ GameService = new(Game) // check that Game implements GameService
 
 func newBoard() Board {
-	return [9]SquareCharacter{
+	return Board{
 		EMPTY, EMPTY, EMPTY,
 		EMPTY, EMPTY, EMPTY,
 		EMPTY, EMPTY, EMPTY,

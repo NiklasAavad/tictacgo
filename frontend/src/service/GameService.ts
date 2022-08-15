@@ -9,7 +9,7 @@ export type Result = {
 
 export type Board = (SquareCharacter | EmptyString)[];
 
-type SetBoardFunction = React.Dispatch<React.SetStateAction<(SquareCharacter | EmptyString)[]>>
+type SetBoardFunction = React.Dispatch<React.SetStateAction<Board>>
 type SetResultFunction = React.Dispatch<React.SetStateAction<Result | undefined>>
 type SetIsGameOverFunction = React.Dispatch<React.SetStateAction<boolean>>
 type SetIsGameStartedFunction = React.Dispatch<React.SetStateAction<boolean>>
@@ -21,8 +21,6 @@ export type GameContextMutator = {
     setIsGameStarted: SetIsGameStartedFunction,
 }
 
-// TODO hvis det er nødvendigt at sætte playerInTurn i GameContext, så skal den muligvis også med som parameter.
-// I så fald vil det måske give mening at lave en type GameContextMutator, som har begge funktioner på sig.
 export type GameService = (gameContextMutator: GameContextMutator) => {
     // reqired methods
     startGame: () => void,

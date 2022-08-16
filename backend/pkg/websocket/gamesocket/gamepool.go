@@ -78,8 +78,7 @@ func (pool *GamePool) executeMessage(message GameMessage) (game.Board, error) {
 	case START_GAME:
 		return pool.game.StartGame(), nil
 	case CHOOSE_SQUARE:
-		position := game.Position(message.Content)
-		return pool.game.ChooseSquare(position), nil
+		return pool.game.ChooseSquare(message.Content), nil
 	case GET_BOARD:
 		return pool.game.Board(), nil
 	}

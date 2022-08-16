@@ -14,11 +14,6 @@ type GameClient struct {
 	Pool *GamePool
 }
 
-type GameMessage struct {
-	Instruction GameInstruction `json:"instruction"`
-	Content     int             `json:"content"`
-}
-
 func NewGameClient(r *http.Request, conn *websocket.Conn, pool *GamePool) *GameClient {
 	clientName := r.URL.Query().Get("name")
 	if clientName == "" {

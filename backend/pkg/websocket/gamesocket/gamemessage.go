@@ -4,7 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
 )
+
+type GameMessage struct {
+	Instruction GameInstruction `json:"instruction"`
+	Content     game.Position   `json:"content"`
+}
 
 type GameInstruction uint8
 

@@ -77,9 +77,19 @@ func mockWinningBoard() Board {
 	}
 }
 
+func mockAlmostFullBoard() Board {
+	return [9]SquareCharacter{
+		X, X, O,
+		O, O, X,
+		EMPTY, EMPTY, EMPTY,
+	}
+}
+
 func TestGameOver(t *testing.T) {
 	g := NewGame()
+	assert.False(t, g.IsGameOver())
 
+	g.board = mockAlmostFullBoard()
 	assert.False(t, g.IsGameOver())
 
 	g.board = mockWinningBoard()
@@ -121,4 +131,12 @@ func TestShouldBeEmptyResult(t *testing.T) {
 
 	expectedResult := Result{}
 	assert.Equal(t, expectedResult, g.GetResult())
+}
+
+func TestShouldGetBoard(t *testing.T) {
+	g := NewGame()
+
+	g.board = mockFullBoard()
+
+	assert.Equal(t, mockFullBoard(), g.Board())
 }

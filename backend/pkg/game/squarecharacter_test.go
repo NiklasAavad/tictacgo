@@ -25,6 +25,10 @@ func TestSquareCharacterString(t *testing.T) {
 			input:          SquareCharacter(3),
 			expectedResult: "",
 		},
+		{
+			input:          SquareCharacter(4),
+			expectedResult: "unknown",
+		},
 	} {
 		t.Run("Testing String method", func(t *testing.T) {
 			actualResult := testCase.input.String()

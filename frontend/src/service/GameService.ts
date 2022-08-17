@@ -22,7 +22,7 @@ export type GameContextMutator = {
 }
 
 export type GameService = (gameContextMutator: GameContextMutator) => {
-    // reqired methods
+    // required methods
     startGame: () => void,
     chooseSquare: (position: Position) => void,
 

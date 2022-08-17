@@ -7,7 +7,7 @@ import { Position } from '../utility/Position';
 type GameContextType = {
     board: Board,
     latestGameInfoMessage: GameInfoMessage,
-    winningCombination: Position[] | undefined,
+    result: Result | undefined,
     isGameStarted: boolean,
     chooseSquare: (position: Position) => void,
     startGame: () => void
@@ -42,7 +42,6 @@ const TIMEOUT_PERIOD = 2500; // ms!
 export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildren<GameProviderProps>) => {
     const [board, setBoard] = useState<Board>(getEmptyBoard());
     const [latestGameInfoMessage, setLatestGameInfoMessage] = useState<GameInfoMessage>(GameInfoMessage.START_NEW_GAME);
-    const [winningCombination, setWinningCombination] = useState<Position[] | undefined>(undefined)
     const [isGameStarted, setIsGameStarted] = useState(false);
     const [result, setResult] = useState<Result | undefined>(undefined);
     const [isGameOver, setIsGameOver] = useState<boolean>(false);
@@ -57,7 +56,6 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
         gameService.startGame();
         setBoard(getEmptyBoard());
         setLatestGameInfoMessage(GameInfoMessage.NEW_GAME_STARTED);
-        setWinningCombination(undefined);
         setIsGameStarted(true);
         setResult(undefined);
         setIsGameOver(false);
@@ -81,7 +79,6 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
         if (result) {
             const newGameMessage = getWinningMessage(result);
             setLatestGameInfoMessage(newGameMessage);
-            setWinningCombination(result.winningCombination)
         } else {
             setLatestGameInfoMessage(GameInfoMessage.TIE);
         }
@@ -103,7 +100,7 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
     const exposedValues = {
         board,
         latestGameInfoMessage,
-        winningCombination,
+        result,
         isGameStarted,
         startGame,
         chooseSquare

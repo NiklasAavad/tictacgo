@@ -13,4 +13,5 @@ var WinningCombinations = [8][3]Position{
 
 	// Diagonal
 	{TOP_LEFT, CENTER, BOTTOM_RIGHT},
-	{BOTTOM_LEFT, CENTER, TOP_RIGHT}}
+	{BOTTOM_LEFT, CENTER, TOP_RIGHT},
+}

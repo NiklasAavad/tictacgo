@@ -1,5 +1,5 @@
-import { useGameContext } from "../../../../context/GameContext"
-import "./StartScreen.css"
+import { useGameContext } from "../../../../context/GameContext";
+import "./StartScreen.css";
 
 export const StartScreen: React.FC = () => {
     const { startGame } = useGameContext();

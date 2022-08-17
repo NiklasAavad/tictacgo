@@ -1,4 +1,4 @@
-import './SubHeader.css'
+import './SubHeader.css';
 
 export const SubHeader: React.FC = () => {
     const lobby = <a href="/lobby">Lobby</a>

@@ -1,8 +1,8 @@
-import { useEffect } from "react"
-import { useUserContext } from "../../context/UserContext"
-import { Chat } from "./Chat/Chat"
-import "./Content.css"
-import { Game } from "./Game/Game"
+import { useEffect } from "react";
+import { useUserContext } from "../../context/UserContext";
+import { Chat } from "./Chat/Chat";
+import "./Content.css";
+import { Game } from "./Game/Game";
 
 export const Content: React.FC = () => {
     const { name, setName } = useUserContext();

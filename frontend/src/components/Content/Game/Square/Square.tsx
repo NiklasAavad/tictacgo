@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react"
-import { useGameContext } from "../../../../context/GameContext"
-import { Position } from "../../../../utility/Position"
-import "./Square.css"
+import { useEffect, useMemo, useState } from "react";
+import { useGameContext } from "../../../../context/GameContext";
+import { Position } from "../../../../utility/Position";
+import "./Square.css";
 
 export type Border = {
     top?: boolean,
@@ -16,7 +16,7 @@ enum BorderClass {
     NO_LEFT = "no-left-border",
     NO_RIGHT = "no-right-border",
     TOP_RIGHT_BORDER_RADIUS = "top-right-border-radius",
-    BOTTOM_RIGHT_BORDER_RADIUS = "bottom-right-border-radius",
+    BOTTOM_RIGHT_BORDER_RADIUS = "bottomright-border-radius",
 }
 
 export enum SquareCharacter {

@@ -44,8 +44,10 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
     }
 
     const boardDidChange = (board: Board) => {
+        // TODO overvej om de tre nedenstående metoder skal trækkes over i en "gameDidStart" command. 
         gameContextMutator.setIsGameStarted(true);
         gameContextMutator.setIsGameOver(false);
+        gameContextMutator.setResult(undefined);
 
         gameContextMutator.setBoard(board);
     }

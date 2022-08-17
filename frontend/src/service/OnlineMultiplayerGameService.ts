@@ -1,9 +1,8 @@
-import { adaptBoard, adaptWinningCharacter, BackendSquareChacter } from "../adapter/Adapter";
 import { GameCommand, JSONResult } from "../api/BackendApi";
 import { GameInstruction } from "../api/FrontendApi";
 import { Position } from "../utility/Position";
 import { GAME_WS_URL } from './../api/BackendApi';
-import { GameContextMutator, GameService } from "./GameService";
+import { Board, GameContextMutator, GameService } from "./GameService";
 
 const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameContextMutator) => {
     const socket = new WebSocket(GAME_WS_URL);
@@ -34,7 +33,7 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
         }
 
         const winningCombination = jsonResult.WinningCombination;
-        const winningCharacter = adaptWinningCharacter(jsonResult.WinningCharacter);
+        const winningCharacter = jsonResult.WinningCharacter;
         const result = { winningCombination, winningCharacter };
 
         gameContextMutator.setResult(result);
@@ -44,12 +43,11 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
         gameContextMutator.setIsGameOver(true);
     }
 
-    const boardDidChange = (board: BackendSquareChacter[]) => {
+    const boardDidChange = (board: Board) => {
         gameContextMutator.setIsGameStarted(true);
         gameContextMutator.setIsGameOver(false);
 
-        const adaptedBoard = adaptBoard(board);
-        gameContextMutator.setBoard(adaptedBoard);
+        gameContextMutator.setBoard(board);
     }
 
     const sendGameMessage = (instruction: GameInstruction, content?: Position) => {

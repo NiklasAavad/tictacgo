@@ -1,9 +1,13 @@
 package game
 
-type SquareCharacter int
+import "encoding/json"
+
+type SquareCharacter uint8
+
+var _ json.Marshaler = new(SquareCharacter)
 
 const (
-	X SquareCharacter = iota
+	X SquareCharacter = iota + 1
 	O
 	EMPTY
 )
@@ -18,4 +22,8 @@ func (s SquareCharacter) String() string {
 		return ""
 	}
 	return "unknown"
+}
+
+func (c SquareCharacter) MarshalJSON() ([]byte, error) {
+	return json.Marshal(c.String())
 }

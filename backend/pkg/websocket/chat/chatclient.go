@@ -4,16 +4,15 @@ import (
 	"fmt"
 	"log"
 
-	ws "github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
-	"github.com/gorilla/websocket"
+	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 )
 
-var _ ws.Client = new(ChatClient)
+var _ websocket.Client = new(ChatClient)
 
 type ChatClient struct {
 	ID   string
 	name string
-	conn *websocket.Conn
+	conn websocket.Conn
 	Pool *ChatPool
 }
 
@@ -23,7 +22,7 @@ type Message struct {
 	Body   string `json:"body"`
 }
 
-func (c *ChatClient) Conn() *websocket.Conn {
+func (c *ChatClient) Conn() websocket.Conn {
 	return c.conn
 }
 

@@ -1,9 +1,7 @@
 package websocket
 
-import "github.com/gorilla/websocket"
-
 type Client interface {
-	Conn() *websocket.Conn
+	Conn() Conn
 	Name() string
 	Read()
 }

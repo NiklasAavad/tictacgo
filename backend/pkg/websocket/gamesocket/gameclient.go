@@ -3,20 +3,19 @@ package gamesocket
 import (
 	"fmt"
 
-	ws "github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
-	"github.com/gorilla/websocket"
+	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 )
 
 type GameClient struct {
 	ID   string
 	name string
-	conn *websocket.Conn
+	conn websocket.Conn
 	Pool *GamePool
 }
 
-var _ ws.Client = new(GameClient)
+var _ websocket.Client = new(GameClient)
 
-func (c *GameClient) Conn() *websocket.Conn {
+func (c *GameClient) Conn() websocket.Conn {
 	return c.conn
 }
 

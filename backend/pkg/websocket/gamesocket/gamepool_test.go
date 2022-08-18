@@ -2,25 +2,21 @@ package gamesocket
 
 import (
 	"testing"
+
+	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 )
 
-func setupTest(t *testing.T) (func(t *testing.T), string) {
+func setupTest(t *testing.T) (func(t *testing.T), websocket.Pool) {
 	t.Log("Setting up testing")
 
-	// gamePool := NewGamePool()
-	// lav client. Der findes mock metode til request. Kan vi finder en til writer?
+	gamePool := NewGamePool()
 
 	return func(t *testing.T) {
 		t.Log("Tearing down testing")
-	}, "HEJ"
+	}, gamePool
 }
 
 func TestRegisterCharacter(t *testing.T) {
-	teardown, test := setupTest(t)
+	teardown, _ := setupTest(t)
 	defer teardown(t)
-
-	if test != "HEJ" {
-		t.Errorf("expected test to be LOL, but got %s", test)
-	}
-
 }

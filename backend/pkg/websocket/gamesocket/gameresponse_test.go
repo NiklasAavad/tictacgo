@@ -32,3 +32,9 @@ func TestCommandString(t *testing.T) {
 		})
 	}
 }
+
+func TestCommandMarshal(t *testing.T) {
+	if _, err := BOARD.MarshalJSON(); err != nil {
+		t.Fatal(err)
+	}
+}

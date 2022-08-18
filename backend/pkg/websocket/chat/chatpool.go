@@ -4,34 +4,38 @@ import (
 	"fmt"
 	"net/http"
 
-	ws "github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
-	"github.com/gorilla/websocket"
+	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 )
 
 type ChatPool struct {
-	register   chan ws.Client
-	Unregister chan ws.Client
-	clients    map[ws.Client]bool
+	register   chan websocket.Client
+	Unregister chan websocket.Client
+	clients    map[websocket.Client]bool
 	Broadcast  chan Message
 }
 
-var _ ws.Pool = new(ChatPool)
+var _ websocket.Pool = new(ChatPool)
 
 func NewChatPool() *ChatPool {
 	return &ChatPool{
-		register:   make(chan ws.Client),
-		Unregister: make(chan ws.Client),
-		clients:    make(map[ws.Client]bool),
+		register:   make(chan websocket.Client),
+		Unregister: make(chan websocket.Client),
+		clients:    make(map[websocket.Client]bool),
 		Broadcast:  make(chan Message),
 	}
 }
 
 const CHAT_INFO = "Chat Info"
 
-func (p *ChatPool) NewClient(r *http.Request, conn *websocket.Conn) ws.Client {
+func (p *ChatPool) NewClient(w http.ResponseWriter, r *http.Request) websocket.Client {
 	clientName := r.URL.Query().Get("name")
 	if clientName == "" {
 		clientName = "Unknown"
+	}
+
+	conn, err := websocket.Upgrade(w, r)
+	if err != nil {
+		fmt.Fprintf(w, "%+V\n", err)
 	}
 
 	client := &ChatClient{
@@ -43,11 +47,11 @@ func (p *ChatPool) NewClient(r *http.Request, conn *websocket.Conn) ws.Client {
 	return client
 }
 
-func (p *ChatPool) Register(c ws.Client) {
+func (p *ChatPool) Register(c websocket.Client) {
 	p.register <- c
 }
 
-func (p *ChatPool) registerClient(c ws.Client) {
+func (p *ChatPool) registerClient(c websocket.Client) {
 	p.clients[c] = true
 
 	body := c.Name() + " just joined!"
@@ -55,7 +59,7 @@ func (p *ChatPool) registerClient(c ws.Client) {
 	p.broadcastMessage(msg)
 }
 
-func (p *ChatPool) unregisterClient(c ws.Client) {
+func (p *ChatPool) unregisterClient(c websocket.Client) {
 	delete(p.clients, c)
 
 	body := c.Name() + " just left..."

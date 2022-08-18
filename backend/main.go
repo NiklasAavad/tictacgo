@@ -10,16 +10,8 @@ import (
 )
 
 func serveWs(pool websocket.Pool, w http.ResponseWriter, r *http.Request) {
-	fmt.Println("WebSocket Endpoint Hit")
-
-	conn, err := websocket.Upgrade(w, r)
-	if err != nil {
-		fmt.Fprintf(w, "%+V\n", err)
-	}
-
-	client := pool.NewClient(r, conn)
+	client := pool.NewClient(w, r)
 	pool.Register(client)
-
 	client.Read()
 }
 

@@ -8,6 +8,9 @@ import (
 )
 
 // overvej at lave flere metoder / konstanter, så vi ikke behøver at importere gorilla andre steder end her.
+const (
+	TextMessage = 1
+)
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,

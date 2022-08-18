@@ -5,35 +5,38 @@ import (
 	"net/http"
 
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
-	ws "github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
-	"github.com/gorilla/websocket"
+	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 )
 
 type GamePool struct {
-	register   chan ws.Client
-	Unregister chan ws.Client
-	clients    map[ws.Client]game.SquareCharacter
+	register   chan websocket.Client
+	Unregister chan websocket.Client
+	clients    map[websocket.Client]game.SquareCharacter
 	Broadcast  chan GameMessage
 	game       game.GameService
 }
 
-var _ ws.Pool = new(GamePool)
+var _ websocket.Pool = new(GamePool)
 
 func NewGamePool() *GamePool {
 	return &GamePool{
-		register:   make(chan ws.Client),
-		Unregister: make(chan ws.Client),
-		clients:    make(map[ws.Client]game.SquareCharacter),
+		register:   make(chan websocket.Client),
+		Unregister: make(chan websocket.Client),
+		clients:    make(map[websocket.Client]game.SquareCharacter),
 		Broadcast:  make(chan GameMessage),
 		game:       game.NewGame(),
 	}
 }
 
-func (p *GamePool) NewClient(r *http.Request, conn *websocket.Conn) ws.Client {
-
+func (p *GamePool) NewClient(w http.ResponseWriter, r *http.Request) websocket.Client {
 	clientName := r.URL.Query().Get("name")
 	if clientName == "" {
 		clientName = "Unknown"
+	}
+
+	conn, err := websocket.Upgrade(w, r)
+	if err != nil {
+		fmt.Fprintf(w, "%+V\n", err)
 	}
 
 	client := &GameClient{
@@ -45,7 +48,7 @@ func (p *GamePool) NewClient(r *http.Request, conn *websocket.Conn) ws.Client {
 	return client
 }
 
-func (p *GamePool) Register(c ws.Client) {
+func (p *GamePool) Register(c websocket.Client) {
 	p.register <- c
 }
 

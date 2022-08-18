@@ -4,14 +4,12 @@ import (
 	"fmt"
 
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
-	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket/chat"
-	"github.com/gorilla/websocket"
 )
 
 type GamePool struct {
 	Register   chan *GameClient
 	Unregister chan *GameClient
-	clients    map[*GameClient]bool
+	clients    map[*GameClient]game.SquareCharacter
 	Broadcast  chan GameMessage
 	game       game.GameService
 }
@@ -20,36 +18,17 @@ func NewGamePool() *GamePool {
 	return &GamePool{
 		Register:   make(chan *GameClient),
 		Unregister: make(chan *GameClient),
-		clients:    make(map[*GameClient]bool),
+		clients:    make(map[*GameClient]game.SquareCharacter),
 		Broadcast:  make(chan GameMessage),
 		game:       game.NewGame(),
 	}
 }
 
-const GAME_INFO = "Game Info"
+// TODO lav funktion for at tjekke om value er optaget
 
-func (p *GamePool) registerClient(c *GameClient) {
-	p.clients[c] = true // TODO  måske ændres til false for dem som ikke spiller
-
-	body := c.Name + " is ready to play!"
-	msg := chat.Message{Type: websocket.TextMessage, Sender: GAME_INFO, Body: body}
-	p.broadcastMessage(msg)
-}
-
-func (p *GamePool) unregisterClient(c *GameClient) {
-	delete(p.clients, c)
-
-	body := c.Name + " will no longer play..."
-	msg := chat.Message{Type: websocket.TextMessage, Sender: GAME_INFO, Body: body}
-	p.broadcastMessage(msg)
-}
-
-func (p *GamePool) broadcastMessage(msg chat.Message) error {
-	for client := range p.clients {
-		if err := client.Conn.WriteJSON(msg); err != nil {
-			return err
-		}
-	}
+func (g *GamePool) registerCharacter(client *GameClient, character game.SquareCharacter) error {
+	// TODO når test miljø er sat op, så lav tdd på denne. Start med bare at ændre værdien til client key i clients mappet.
+	// efterfølgende, så lav et tjek på, om værdien er optaget.
 	return nil
 }
 
@@ -62,7 +41,6 @@ func (p *GamePool) broadcastResponse(response GameResponse) error {
 	return nil
 }
 
-// TODO This response is not received by all clients..
 func (pool *GamePool) broadcastGameIsOver() {
 	gameOverResponse := GameResponse{GAME_OVER, true}
 
@@ -73,7 +51,7 @@ func (pool *GamePool) broadcastGameIsOver() {
 	pool.broadcastResponse(resultResponse)
 }
 
-func (pool *GamePool) executeMessage(message GameMessage) (game.Board, error) {
+func (pool *GamePool) executeMessage(message GameMessage) (game.Board, error) { // TODO implementer Marshaler i Board og brug derefter Marshaler som returtype
 	switch message.Instruction {
 	case START_GAME:
 		return pool.game.StartGame(), nil
@@ -108,9 +86,9 @@ func (pool *GamePool) Start() {
 	for {
 		select {
 		case client := <-pool.Register:
-			pool.registerClient(client)
+			pool.clients[client] = game.EMPTY
 		case client := <-pool.Unregister:
-			pool.unregisterClient(client)
+			delete(pool.clients, client)
 		case message := <-pool.Broadcast:
 			if err := pool.respond(message); err != nil {
 				fmt.Println(err)

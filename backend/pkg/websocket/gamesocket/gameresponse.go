@@ -15,6 +15,7 @@ const (
 	BOARD Command = iota + 1
 	GAME_OVER
 	RESULT
+	NEW_MESSAGE
 )
 
 var (
@@ -22,11 +23,13 @@ var (
 		1: "board",
 		2: "game over",
 		3: "result",
+		4: "new message",
 	}
 	CommandValue = map[string]uint8{
-		"board":     1,
-		"game over": 2,
-		"result":    3,
+		"board":       1,
+		"game over":   2,
+		"result":      3,
+		"new message": 4,
 	}
 )
 

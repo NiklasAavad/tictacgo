@@ -5,7 +5,7 @@ import { GAME_WS_URL } from './../api/BackendApi';
 import { Board, GameContextMutator, GameService } from "./GameService";
 
 const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameContextMutator) => {
-    const socket = new WebSocket(GAME_WS_URL);
+    const socket = new WebSocket(GAME_WS_URL); // TOOD husk at brug username.
 
     socket.onopen = () => {
         sendGameMessage(GameInstruction.GET_BOARD);
@@ -22,6 +22,9 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
                 return gameDidEnd();
             case GameCommand.BOARD:
                 return boardDidChange(body);
+            case GameCommand.NEW_MESSAGE:
+                return newGameMessageReceived(body);
+
         }
         throw new Error("No command matched the received message: " + JSON.stringify(msg));
     };
@@ -50,6 +53,10 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
         gameContextMutator.setResult(undefined);
 
         gameContextMutator.setBoard(board);
+    }
+
+    const newGameMessageReceived = (message: string) => {
+        console.log("New game message received", message);
     }
 
     const sendGameMessage = (instruction: GameInstruction, content?: Position) => {

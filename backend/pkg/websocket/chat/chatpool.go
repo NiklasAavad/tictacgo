@@ -2,47 +2,70 @@ package chat
 
 import (
 	"fmt"
+	"net/http"
 
+	ws "github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 	"github.com/gorilla/websocket"
 )
 
 type ChatPool struct {
-	Register   chan *Client
-	Unregister chan *Client
-	clients    map[*Client]bool
+	register   chan ws.Client
+	Unregister chan ws.Client
+	clients    map[ws.Client]bool
 	Broadcast  chan Message
 }
 
+var _ ws.Pool = new(ChatPool)
+
 func NewChatPool() *ChatPool {
 	return &ChatPool{
-		Register:   make(chan *Client),
-		Unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
+		register:   make(chan ws.Client),
+		Unregister: make(chan ws.Client),
+		clients:    make(map[ws.Client]bool),
 		Broadcast:  make(chan Message),
 	}
 }
 
 const CHAT_INFO = "Chat Info"
 
-func (p *ChatPool) registerClient(c *Client) {
+func (p *ChatPool) NewClient(r *http.Request, conn *websocket.Conn) ws.Client {
+	clientName := r.URL.Query().Get("name")
+	if clientName == "" {
+		clientName = "Unknown"
+	}
+
+	client := &ChatClient{
+		name: clientName,
+		conn: conn,
+		Pool: p,
+	}
+
+	return client
+}
+
+func (p *ChatPool) Register(c ws.Client) {
+	p.register <- c
+}
+
+func (p *ChatPool) registerClient(c ws.Client) {
 	p.clients[c] = true
 
-	body := c.Name + " just joined!"
+	body := c.Name() + " just joined!"
 	msg := Message{Type: websocket.TextMessage, Sender: CHAT_INFO, Body: body}
 	p.broadcastMessage(msg)
 }
 
-func (p *ChatPool) unregisterClient(c *Client) {
+func (p *ChatPool) unregisterClient(c ws.Client) {
 	delete(p.clients, c)
 
-	body := c.Name + " just left..."
+	body := c.Name() + " just left..."
 	msg := Message{Type: websocket.TextMessage, Sender: CHAT_INFO, Body: body}
 	p.broadcastMessage(msg)
 }
 
 func (p *ChatPool) broadcastMessage(msg Message) error {
 	for client := range p.clients {
-		if err := client.Conn.WriteJSON(msg); err != nil {
+		if err := client.Conn().WriteJSON(msg); err != nil {
 			return err
 		}
 	}
@@ -52,7 +75,7 @@ func (p *ChatPool) broadcastMessage(msg Message) error {
 func (pool *ChatPool) Start() {
 	for {
 		select {
-		case client := <-pool.Register:
+		case client := <-pool.register:
 			pool.registerClient(client)
 			break
 		case client := <-pool.Unregister:

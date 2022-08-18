@@ -3,15 +3,17 @@ package chat
 import (
 	"fmt"
 	"log"
-	"net/http"
 
+	ws "github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 	"github.com/gorilla/websocket"
 )
 
-type Client struct {
+var _ ws.Client = new(ChatClient)
+
+type ChatClient struct {
 	ID   string
-	Name string
-	Conn *websocket.Conn
+	name string
+	conn *websocket.Conn
 	Pool *ChatPool
 }
 
@@ -21,37 +23,30 @@ type Message struct {
 	Body   string `json:"body"`
 }
 
-func NewClient(r *http.Request, conn *websocket.Conn, pool *ChatPool) *Client {
-	clientName := r.URL.Query().Get("name")
-	if clientName == "" {
-		clientName = "Unknown"
-	}
-
-	client := &Client{
-		Name: clientName,
-		Conn: conn,
-		Pool: pool,
-	}
-
-	return client
+func (c *ChatClient) Conn() *websocket.Conn {
+	return c.conn
 }
 
-func (c *Client) closeConn() {
+func (c *ChatClient) Name() string {
+	return c.name
+}
+
+func (c *ChatClient) closeConn() {
 	c.Pool.Unregister <- c
-	c.Conn.Close()
+	c.Conn().Close()
 }
 
-func (c *Client) Read() {
+func (c *ChatClient) Read() {
 	defer c.closeConn()
 
 	for {
-		messageType, p, err := c.Conn.ReadMessage()
+		messageType, p, err := c.Conn().ReadMessage()
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
-		message := Message{Type: messageType, Sender: c.Name, Body: string(p)}
+		message := Message{Type: messageType, Sender: c.name, Body: string(p)}
 		c.Pool.Broadcast <- message
 		fmt.Printf("Message Received: %+v\n", message)
 	}

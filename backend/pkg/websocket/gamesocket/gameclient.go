@@ -9,7 +9,7 @@ import (
 
 type GameClient struct {
 	ID   string
-	Name string
+	name string
 	conn *websocket.Conn
 	Pool *GamePool
 }
@@ -18,6 +18,10 @@ var _ ws.Client = new(GameClient)
 
 func (c *GameClient) Conn() *websocket.Conn {
 	return c.conn
+}
+
+func (c *GameClient) Name() string {
+	return c.name
 }
 
 func (c *GameClient) closeConn() {

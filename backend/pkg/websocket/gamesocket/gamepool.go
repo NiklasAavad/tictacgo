@@ -37,7 +37,7 @@ func (p *GamePool) NewClient(r *http.Request, conn *websocket.Conn) ws.Client {
 	}
 
 	client := &GameClient{
-		Name: clientName,
+		name: clientName,
 		conn: conn,
 		Pool: p,
 	}

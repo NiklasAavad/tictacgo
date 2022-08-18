@@ -10,7 +10,7 @@ import (
 
 type GamePool struct {
 	register   chan websocket.Client
-	Unregister chan websocket.Client
+	unregister chan websocket.Client
 	clients    map[websocket.Client]game.SquareCharacter
 	Broadcast  chan GameMessage
 	game       game.GameService
@@ -21,7 +21,7 @@ var _ websocket.Pool = new(GamePool)
 func NewGamePool() *GamePool {
 	return &GamePool{
 		register:   make(chan websocket.Client),
-		Unregister: make(chan websocket.Client),
+		unregister: make(chan websocket.Client),
 		clients:    make(map[websocket.Client]game.SquareCharacter),
 		Broadcast:  make(chan GameMessage),
 		game:       game.NewGame(),
@@ -50,6 +50,14 @@ func (p *GamePool) NewClient(w http.ResponseWriter, r *http.Request) websocket.C
 
 func (p *GamePool) Register(c websocket.Client) {
 	p.register <- c
+}
+
+func (p *GamePool) Unregister(c websocket.Client) {
+	p.unregister <- c
+}
+
+func (p *GamePool) Clients() map[websocket.Client]game.SquareCharacter {
+	return p.clients
 }
 
 // TODO lav funktion for at tjekke om value er optaget
@@ -115,8 +123,12 @@ func (pool *GamePool) Start() {
 		select {
 		case client := <-pool.register:
 			pool.clients[client] = game.EMPTY
-		case client := <-pool.Unregister:
+		case client := <-pool.unregister:
 			delete(pool.clients, client)
+			poolIsEmpty := len(pool.clients) == 0
+			if poolIsEmpty {
+				return
+			}
 		case message := <-pool.Broadcast:
 			if err := pool.respond(message); err != nil {
 				fmt.Println(err)

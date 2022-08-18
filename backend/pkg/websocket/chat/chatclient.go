@@ -31,7 +31,7 @@ func (c *ChatClient) Name() string {
 }
 
 func (c *ChatClient) closeConn() {
-	c.Pool.Unregister <- c
+	c.Pool.Unregister(c)
 	c.Conn().Close()
 }
 

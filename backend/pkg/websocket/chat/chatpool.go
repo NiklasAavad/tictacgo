@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 )
 
 type ChatPool struct {
 	register   chan websocket.Client
-	Unregister chan websocket.Client
-	clients    map[websocket.Client]bool
+	unregister chan websocket.Client
+	clients    map[websocket.Client]game.SquareCharacter
 	Broadcast  chan Message
 }
 
@@ -19,8 +20,8 @@ var _ websocket.Pool = new(ChatPool)
 func NewChatPool() *ChatPool {
 	return &ChatPool{
 		register:   make(chan websocket.Client),
-		Unregister: make(chan websocket.Client),
-		clients:    make(map[websocket.Client]bool),
+		unregister: make(chan websocket.Client),
+		clients:    make(map[websocket.Client]game.SquareCharacter),
 		Broadcast:  make(chan Message),
 	}
 }
@@ -51,8 +52,16 @@ func (p *ChatPool) Register(c websocket.Client) {
 	p.register <- c
 }
 
+func (p *ChatPool) Unregister(c websocket.Client) {
+	p.unregister <- c
+}
+
+func (p *ChatPool) Clients() map[websocket.Client]game.SquareCharacter {
+	return p.clients
+}
+
 func (p *ChatPool) registerClient(c websocket.Client) {
-	p.clients[c] = true
+	p.clients[c] = game.EMPTY
 
 	body := c.Name() + " just joined!"
 	msg := Message{Type: websocket.TextMessage, Sender: CHAT_INFO, Body: body}
@@ -82,7 +91,7 @@ func (pool *ChatPool) Start() {
 		case client := <-pool.register:
 			pool.registerClient(client)
 			break
-		case client := <-pool.Unregister:
+		case client := <-pool.unregister:
 			pool.unregisterClient(client)
 			break
 		case message := <-pool.Broadcast:

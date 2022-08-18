@@ -24,7 +24,7 @@ func (c *GameClient) Name() string {
 }
 
 func (c *GameClient) closeConn() {
-	c.Pool.Unregister <- c
+	c.Pool.Unregister(c)
 	c.Conn().Close()
 }
 

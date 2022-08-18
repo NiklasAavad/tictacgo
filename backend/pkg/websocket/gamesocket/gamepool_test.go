@@ -4,19 +4,43 @@ import (
 	"testing"
 
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
+	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket/testutils"
 )
 
 func setupTest(t *testing.T) (func(t *testing.T), websocket.Pool) {
 	t.Log("Setting up testing")
 
-	gamePool := NewGamePool()
+	pool := NewGamePool()
+	go pool.Start()
 
 	return func(t *testing.T) {
 		t.Log("Tearing down testing")
-	}, gamePool
+	}, pool
 }
 
-func TestRegisterCharacter(t *testing.T) {
-	teardown, _ := setupTest(t)
+func createNewClient(p websocket.Pool) websocket.Client {
+	client := testutils.NewClientMock()
+	p.Register(client)
+	return client
+}
+
+func forceClosePool(p websocket.Pool) {
+
+}
+
+func TestRegisterClient(t *testing.T) {
+	teardown, pool := setupTest(t)
 	defer teardown(t)
+
+	clientsInPool := len(pool.Clients())
+	if clientsInPool != 0 {
+		t.Fatalf("Expected no clients in pool, got %d", clientsInPool)
+	}
+
+	createNewClient(pool)
+
+	clientsInPool = len(pool.Clients())
+	if clientsInPool != 1 {
+		t.Fatalf("Expected 1 client in pool, got %d", clientsInPool)
+	}
 }

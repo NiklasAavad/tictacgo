@@ -2,26 +2,51 @@ package gamesocket
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
+	ws "github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
+	"github.com/gorilla/websocket"
 )
 
 type GamePool struct {
-	Register   chan *GameClient
-	Unregister chan *GameClient
-	clients    map[*GameClient]game.SquareCharacter
+	register   chan ws.Client
+	Unregister chan ws.Client
+	clients    map[ws.Client]game.SquareCharacter
 	Broadcast  chan GameMessage
 	game       game.GameService
 }
 
+var _ ws.Pool = new(GamePool)
+
 func NewGamePool() *GamePool {
 	return &GamePool{
-		Register:   make(chan *GameClient),
-		Unregister: make(chan *GameClient),
-		clients:    make(map[*GameClient]game.SquareCharacter),
+		register:   make(chan ws.Client),
+		Unregister: make(chan ws.Client),
+		clients:    make(map[ws.Client]game.SquareCharacter),
 		Broadcast:  make(chan GameMessage),
 		game:       game.NewGame(),
 	}
+}
+
+func (p *GamePool) NewClient(r *http.Request, conn *websocket.Conn) ws.Client {
+
+	clientName := r.URL.Query().Get("name")
+	if clientName == "" {
+		clientName = "Unknown"
+	}
+
+	client := &GameClient{
+		Name: clientName,
+		conn: conn,
+		Pool: p,
+	}
+
+	return client
+}
+
+func (p *GamePool) Register(c ws.Client) {
+	p.register <- c
 }
 
 // TODO lav funktion for at tjekke om value er optaget
@@ -34,7 +59,7 @@ func (g *GamePool) registerCharacter(client *GameClient, character game.SquareCh
 
 func (p *GamePool) broadcastResponse(response GameResponse) error {
 	for client := range p.clients {
-		if err := client.Conn.WriteJSON(response); err != nil {
+		if err := client.Conn().WriteJSON(response); err != nil {
 			return err
 		}
 	}
@@ -85,7 +110,7 @@ func (pool *GamePool) respond(message GameMessage) error {
 func (pool *GamePool) Start() {
 	for {
 		select {
-		case client := <-pool.Register:
+		case client := <-pool.register:
 			pool.clients[client] = game.EMPTY
 		case client := <-pool.Unregister:
 			delete(pool.clients, client)

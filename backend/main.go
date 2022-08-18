@@ -24,7 +24,7 @@ func serveChatWs(pool *chat.ChatPool, w http.ResponseWriter, r *http.Request) {
 	client.Read()
 }
 
-func serveGameWs(pool *gamesocket.GamePool, w http.ResponseWriter, r *http.Request) {
+func serveGameWs(pool websocket.Pool, w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Game WebSocket Endpoint Hit")
 
 	conn, err := websocket.Upgrade(w, r)
@@ -32,9 +32,8 @@ func serveGameWs(pool *gamesocket.GamePool, w http.ResponseWriter, r *http.Reque
 		fmt.Fprintf(w, "%+V\n", err)
 	}
 
-	client := gamesocket.NewGameClient(r, conn, pool)
-
-	pool.Register <- client
+	client := pool.NewClient(r, conn)
+	pool.Register(client)
 
 	client.Read()
 }

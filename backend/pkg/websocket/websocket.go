@@ -7,6 +7,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// overvej at lave flere metoder / konstanter, så vi ikke behøver at importere gorilla andre steder end her.
+
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,

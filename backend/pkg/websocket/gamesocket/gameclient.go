@@ -2,36 +2,27 @@ package gamesocket
 
 import (
 	"fmt"
-	"net/http"
 
+	ws "github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 	"github.com/gorilla/websocket"
 )
 
 type GameClient struct {
 	ID   string
 	Name string
-	Conn *websocket.Conn
+	conn *websocket.Conn
 	Pool *GamePool
 }
 
-func NewGameClient(r *http.Request, conn *websocket.Conn, pool *GamePool) *GameClient {
-	clientName := r.URL.Query().Get("name")
-	if clientName == "" {
-		clientName = "Unknown"
-	}
+var _ ws.Client = new(GameClient)
 
-	client := &GameClient{
-		Name: clientName,
-		Conn: conn,
-		Pool: pool,
-	}
-
-	return client
+func (c *GameClient) Conn() *websocket.Conn {
+	return c.conn
 }
 
 func (c *GameClient) closeConn() {
 	c.Pool.Unregister <- c
-	c.Conn.Close()
+	c.Conn().Close()
 }
 
 func (c *GameClient) Read() {
@@ -39,7 +30,7 @@ func (c *GameClient) Read() {
 
 	for {
 		var message GameMessage
-		if err := c.Conn.ReadJSON(&message); err != nil {
+		if err := c.Conn().ReadJSON(&message); err != nil {
 			fmt.Println(err)
 			return
 		}

@@ -89,3 +89,39 @@ func TestParseShouldThrowError(t *testing.T) {
 		t.Errorf("expected error, got nil")
 	}
 }
+
+func TestUnmarshalSucces(t *testing.T) {
+	var gi GameInstruction
+
+	input := []byte("\"start game\"")
+
+	if err := gi.UnmarshalJSON(input); err != nil {
+		t.Fatal(err)
+	}
+
+	if gi != START_GAME {
+		t.Errorf("expected START_GAME, got %v", gi)
+	}
+}
+
+func TestUnmarshalFailure(t *testing.T) {
+	var gi GameInstruction
+
+	input := []byte("Cannot unmarshal this")
+
+	err := gi.UnmarshalJSON(input)
+	if err == nil {
+		t.Errorf("expected error, got nil")
+	}
+}
+
+func TestUnmarshalFailureParsing(t *testing.T) {
+	var gi GameInstruction
+
+	input := []byte("\"wrong string\"")
+
+	err := gi.UnmarshalJSON(input)
+	if err == nil {
+		t.Errorf("expected error, got nil")
+	}
+}

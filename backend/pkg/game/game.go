@@ -1,5 +1,7 @@
 package game
 
+import "fmt"
+
 // TODO bør nok have info om hvilke clients der er hvem
 type Game struct {
 	board        Board
@@ -97,13 +99,15 @@ func (g *Game) isChoiceValid(p Position) bool {
 	return g.board[p] == EMPTY
 }
 
-func (g *Game) ChooseSquare(p Position) Board { // TODO overvej at returnere en error, hvis der ikke er valgt en square.
-	if g.isChoiceValid(p) {
-		g.board[p] = g.playerInTurn
-		g.changePlayerInTurn()
+func (g *Game) ChooseSquare(p Position) (Board, error) {
+	if !g.isChoiceValid(p) {
+		return Board{}, fmt.Errorf("Choice was not valid")
 	}
 
-	return g.board
+	g.board[p] = g.playerInTurn
+	g.changePlayerInTurn()
+
+	return g.board, nil
 }
 
 func (g *Game) changePlayerInTurn() SquareCharacter {

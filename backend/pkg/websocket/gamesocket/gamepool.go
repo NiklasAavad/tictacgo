@@ -127,7 +127,10 @@ func (pool *GamePool) respondChooseSquare(message GameMessage) (GameResponse, er
 		return response, err
 	}
 
-	board := pool.game.ChooseSquare(position)
+	board, err := pool.game.ChooseSquare(position)
+	if err != nil {
+		return response, err
+	}
 
 	response.Command = BOARD
 	response.Body = board

@@ -93,7 +93,7 @@ func (g *Game) isChoiceValid(p Position) bool {
 	return g.board[p] == EMPTY
 }
 
-func (g *Game) ChooseSquare(p Position) Board {
+func (g *Game) ChooseSquare(p Position) Board { // TODO overvej at returnere en error, hvis der ikke er valgt en square.
 	if g.isChoiceValid(p) {
 		g.board[p] = g.playerInTurn
 		g.changePlayerInTurn()

@@ -75,11 +75,12 @@ func (p *GamePool) isCharacterTaken(character game.SquareCharacter) bool {
 	return false
 }
 
-func (g *GamePool) registerCharacter(client websocket.Client, character game.SquareCharacter) { // TODO tilføj error!
+func (g *GamePool) registerCharacter(client websocket.Client, character game.SquareCharacter) (game.SquareCharacter, error) {
 	if g.isCharacterTaken(character) {
-		return
+		return game.EMPTY, fmt.Errorf("Character %v is already taken", character)
 	}
 	g.clients[client] = character
+	return character, nil
 }
 
 func (p *GamePool) broadcastResponse(response GameResponse) error {
@@ -101,40 +102,85 @@ func (pool *GamePool) broadcastGameIsOver() {
 	pool.broadcastResponse(resultResponse)
 }
 
-func (pool *GamePool) executeMessage(message GameMessage) (game.Board, error) { // TODO implementer Marshaler i Board og brug derefter Marshaler som returtype
-	switch message.Instruction {
-	case START_GAME:
-		return pool.game.StartGame(), nil
-	case CHOOSE_SQUARE:
-		position, err := game.ParsePosition(message.Content)
-		if err != nil {
-			return game.Board{}, err
-		}
-		return pool.game.ChooseSquare(position), nil
-	case GET_BOARD:
-		return pool.game.Board(), nil
-	case SELECT_CHARACTER:
-		client := message.Client
-		character, err := game.ParseSquareCharacter(message.Content)
-		if err != nil {
-			return game.Board{}, err
-		}
-		pool.registerCharacter(client, character)
-		return pool.game.Board(), nil // TODO ændr returværdi
+func (pool *GamePool) respondStartGame() (GameResponse, error) {
+	var response GameResponse
+
+	board := pool.game.StartGame()
+
+	response.Command = BOARD
+	response.Body = board
+
+	return response, nil
+}
+
+func (pool *GamePool) respondChooseSquare(message GameMessage) (GameResponse, error) {
+	var response GameResponse
+
+	position, err := game.ParsePosition(message.Content)
+	if err != nil {
+		return response, err
 	}
 
-	return game.Board{}, fmt.Errorf("GameInstruction could not be found: %v", message.Instruction)
+	board := pool.game.ChooseSquare(position)
+
+	response.Command = BOARD
+	response.Body = board
+
+	return response, nil
+}
+
+func (pool *GamePool) respondGetBoard() (GameResponse, error) {
+	var response GameResponse
+
+	board := pool.game.Board()
+
+	response.Command = BOARD
+	response.Body = board
+
+	return response, nil
+}
+
+func (pool *GamePool) respondSelectCharacter(message GameMessage) (GameResponse, error) {
+	var response GameResponse
+
+	client := message.Client
+	character, err := game.ParseSquareCharacter(message.Content)
+	if err != nil {
+		return response, err
+	}
+
+	if _, err := pool.registerCharacter(client, character); err != nil {
+		return response, err
+	}
+
+	response.Command = CHARACTER_SELECTED
+	response.Body = character
+
+	return response, nil
+}
+
+func (pool *GamePool) executeMessage(message GameMessage) (GameResponse, error) {
+	switch message.Instruction {
+	case START_GAME:
+		return pool.respondStartGame()
+	case CHOOSE_SQUARE:
+		return pool.respondChooseSquare(message)
+	case GET_BOARD:
+		return pool.respondGetBoard()
+	case SELECT_CHARACTER:
+		return pool.respondSelectCharacter(message)
+	}
+
+	return GameResponse{}, fmt.Errorf("GameInstruction could not be found: %v", message.Instruction)
 }
 
 func (pool *GamePool) respond(message GameMessage) error {
-	command := BOARD
-	body, err := pool.executeMessage(message)
+	response, err := pool.executeMessage(message)
 
 	if err != nil {
 		return err
 	}
 
-	response := GameResponse{command, body}
 	pool.broadcastResponse(response)
 
 	if pool.game.IsGameOver() {

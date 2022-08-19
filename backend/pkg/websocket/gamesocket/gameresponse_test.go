@@ -29,6 +29,10 @@ func TestCommandString(t *testing.T) {
 			input:          Command(4),
 			expectedResult: "new message",
 		},
+		{
+			input:          Command(5),
+			expectedResult: "character selected",
+		},
 	} {
 		t.Run("Testing String method", func(t *testing.T) {
 			actualResult := testCase.input.String()

@@ -21,15 +21,29 @@ const (
 	BOTTOM_RIGHT
 )
 
-func ParsePosition(p any) (Position, error) {
-	if p, ok := p.(int); !ok {
-		return Position(0), fmt.Errorf("invalid type for position, expected int: %v", p)
-	} else {
-		if p < 0 || 8 < p {
-			return Position(0), fmt.Errorf("Position must be between 0 and 8")
-		}
-		return Position(p), nil
+func castToFloat(input any) (float64, bool) {
+	switch k := input.(type) {
+	case float64:
+		return k, true
+	case int:
+		return float64(k), true
+	default:
+		return -1, false
 	}
+}
+
+func ParsePosition(input any) (Position, error) {
+	p, ok := castToFloat(input)
+
+	if !ok {
+		return Position(0), fmt.Errorf("invalid type for position, expected number: %v", input)
+	}
+
+	if p < 0 || 8 < p {
+		return Position(0), fmt.Errorf("Position must be between 0 and 8")
+	}
+
+	return Position(int(p)), nil
 }
 
 // TODO slet eventuelt, hvis en GameMessage ikke længere indeholder en Position, men kan være hvad som helst.

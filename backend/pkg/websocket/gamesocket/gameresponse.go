@@ -16,6 +16,7 @@ const (
 	GAME_OVER
 	RESULT
 	NEW_MESSAGE
+	CHARACTER_SELECTED
 )
 
 var (
@@ -24,12 +25,14 @@ var (
 		2: "game over",
 		3: "result",
 		4: "new message",
+		5: "character selected",
 	}
 	CommandValue = map[string]uint8{
-		"board":       1,
-		"game over":   2,
-		"result":      3,
-		"new message": 4,
+		"board":              1,
+		"game over":          2,
+		"result":             3,
+		"new message":        4,
+		"character selected": 5,
 	}
 )
 

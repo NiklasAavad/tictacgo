@@ -66,12 +66,20 @@ func (p *GamePool) Clients() map[websocket.Client]game.SquareCharacter {
 	return p.clients
 }
 
-// TODO lav funktion for at tjekke om value er optaget
+func (p *GamePool) isCharacterTaken(character game.SquareCharacter) bool {
+	for _, v := range p.clients {
+		if v == character {
+			return true
+		}
+	}
+	return false
+}
 
-func (g *GamePool) registerCharacter(client *GameClient, character game.SquareCharacter) error {
-	// TODO når test miljø er sat op, så lav tdd på denne. Start med bare at ændre værdien til client key i clients mappet.
-	// efterfølgende, så lav et tjek på, om værdien er optaget.
-	return nil
+func (g *GamePool) registerCharacter(client websocket.Client, character game.SquareCharacter) { // TODO tilføj error!
+	if g.isCharacterTaken(character) {
+		return
+	}
+	g.clients[client] = character
 }
 
 func (p *GamePool) broadcastResponse(response GameResponse) error {
@@ -105,6 +113,14 @@ func (pool *GamePool) executeMessage(message GameMessage) (game.Board, error) { 
 		return pool.game.ChooseSquare(position), nil
 	case GET_BOARD:
 		return pool.game.Board(), nil
+	case SELECT_CHARACTER:
+		client := message.Client
+		character, err := game.ParseSquareCharacter(message.Content)
+		if err != nil {
+			return game.Board{}, err
+		}
+		pool.registerCharacter(client, character)
+		return pool.game.Board(), nil // TODO ændr returværdi
 	}
 
 	return game.Board{}, fmt.Errorf("GameInstruction could not be found: %v", message.Instruction)

@@ -23,7 +23,7 @@ const (
 
 func ParsePosition(p any) (Position, error) {
 	if p, ok := p.(int); !ok {
-		return Position(0), fmt.Errorf("invalid position: %v", p)
+		return Position(0), fmt.Errorf("invalid type for position, expected int: %v", p)
 	} else {
 		if p < 0 || 8 < p {
 			return Position(0), fmt.Errorf("Position must be between 0 and 8")

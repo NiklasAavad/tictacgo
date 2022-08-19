@@ -3,6 +3,7 @@ package gamesocket
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
@@ -194,6 +195,7 @@ func (pool *GamePool) respond(message GameMessage) error {
 
 	if pool.game.IsGameOver() {
 		pool.broadcastGameIsOver()
+		time.Sleep(2500) // Sleep 2.5 seconds to await game ending on client side
 	}
 
 	return nil

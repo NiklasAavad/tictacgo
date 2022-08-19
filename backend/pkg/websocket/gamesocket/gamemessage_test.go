@@ -25,6 +25,10 @@ func TestGameInstructionString(t *testing.T) {
 			input:          GameInstruction(3),
 			expectedResult: "get board",
 		},
+		{
+			input:          GameInstruction(4),
+			expectedResult: "select character",
+		},
 	} {
 		t.Run("Testing String method", func(t *testing.T) {
 			actualResult := testCase.input.String()

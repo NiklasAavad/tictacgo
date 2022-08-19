@@ -8,10 +8,14 @@ type ClientMock struct {
 
 var _ websocket.Client = new(ClientMock)
 
-func NewClientMock() *ClientMock {
-	return &ClientMock{
+func NewClientMock(pool websocket.Pool) *ClientMock {
+	client := &ClientMock{
 		conn: NewConnMock(),
 	}
+
+	pool.Register(client)
+
+	return client
 }
 
 // Conn implements websocket.Client

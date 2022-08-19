@@ -38,7 +38,10 @@ func (c *GameClient) Read() {
 			return
 		}
 
-		c.Pool.Broadcast <- message
+		message.Client = c
+
+		c.Pool.Broadcast(message)
+
 		fmt.Printf("Message Received: %+v\n", message)
 	}
 }

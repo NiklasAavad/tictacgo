@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
+	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 )
 
 type GameMessage struct {
 	Instruction GameInstruction `json:"instruction"`
-	Content     game.Position   `json:"content"`
+	Content     any             `json:"content"`
+	Client      websocket.Client
 }
 
 type GameInstruction uint8
@@ -21,6 +22,7 @@ const (
 	START_GAME GameInstruction = iota + 1
 	CHOOSE_SQUARE
 	GET_BOARD
+	SELECT_CHARACTER
 )
 
 var (
@@ -28,11 +30,13 @@ var (
 		1: "start game",
 		2: "choose square",
 		3: "get board",
+		4: "select character",
 	}
 	GameInstructionValue = map[string]uint8{
-		"start game":    1,
-		"choose square": 2,
-		"get board":     3,
+		"start game":       1,
+		"choose square":    2,
+		"get board":        3,
+		"select character": 4,
 	}
 )
 

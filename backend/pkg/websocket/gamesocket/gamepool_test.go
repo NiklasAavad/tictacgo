@@ -10,8 +10,7 @@ import (
 func setupTest(t *testing.T) (func(t *testing.T), websocket.Pool) {
 	t.Log("Setting up testing")
 
-	pool := NewGamePool()
-	go pool.Start()
+	pool := NewGamePool(NewSequentialChannelStrategy())
 
 	return func(t *testing.T) {
 		t.Log("Tearing down testing")
@@ -24,10 +23,6 @@ func createNewClient(p websocket.Pool) websocket.Client {
 	return client
 }
 
-func forceClosePool(p websocket.Pool) {
-
-}
-
 func TestRegisterClient(t *testing.T) {
 	teardown, pool := setupTest(t)
 	defer teardown(t)
@@ -38,9 +33,31 @@ func TestRegisterClient(t *testing.T) {
 	}
 
 	createNewClient(pool)
-
 	clientsInPool = len(pool.Clients())
 	if clientsInPool != 1 {
 		t.Fatalf("Expected 1 client in pool, got %d", clientsInPool)
+	}
+
+	createNewClient(pool)
+	clientsInPool = len(pool.Clients())
+	if clientsInPool != 2 {
+		t.Log(pool.Clients())
+		t.Fatalf("Expected 2 clients in pool, got %d", clientsInPool)
+	}
+}
+
+func TestUnregisterClient(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	createNewClient(pool)
+	createNewClient(pool)
+
+	clientToUnregister := createNewClient(pool)
+	pool.Unregister(clientToUnregister)
+
+	clientsInPool := len(pool.Clients())
+	if clientsInPool != 2 {
+		t.Fatalf("Expected 2 clients in pool, got %d", clientsInPool)
 	}
 }

@@ -4,7 +4,6 @@ import "github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 
 type ClientMock struct {
 	conn websocket.Conn
-	name string
 }
 
 var _ websocket.Client = new(ClientMock)
@@ -22,7 +21,7 @@ func (c *ClientMock) Conn() websocket.Conn {
 
 // Name implements websocket.Client
 func (c *ClientMock) Name() string {
-	return c.name
+	panic("unimplemented")
 }
 
 // Read implements websocket.Client

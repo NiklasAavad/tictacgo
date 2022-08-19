@@ -9,22 +9,24 @@ import (
 )
 
 type GamePool struct {
-	register   chan websocket.Client
-	unregister chan websocket.Client
-	clients    map[websocket.Client]game.SquareCharacter
-	Broadcast  chan GameMessage
-	game       game.GameService
+	register        chan websocket.Client
+	unregister      chan websocket.Client
+	clients         map[websocket.Client]game.SquareCharacter
+	Broadcast       chan GameMessage
+	game            game.GameService
+	channelStrategy ChannelStrategy
 }
 
 var _ websocket.Pool = new(GamePool)
 
-func NewGamePool() *GamePool {
+func NewGamePool(cs ChannelStrategy) *GamePool {
 	return &GamePool{
-		register:   make(chan websocket.Client),
-		unregister: make(chan websocket.Client),
-		clients:    make(map[websocket.Client]game.SquareCharacter),
-		Broadcast:  make(chan GameMessage),
-		game:       game.NewGame(),
+		register:        make(chan websocket.Client),
+		unregister:      make(chan websocket.Client),
+		clients:         make(map[websocket.Client]game.SquareCharacter),
+		Broadcast:       make(chan GameMessage),
+		game:            game.NewGame(),
+		channelStrategy: cs,
 	}
 }
 
@@ -49,11 +51,11 @@ func (p *GamePool) NewClient(w http.ResponseWriter, r *http.Request) websocket.C
 }
 
 func (p *GamePool) Register(c websocket.Client) {
-	p.register <- c
+	p.channelStrategy.register(p, c)
 }
 
 func (p *GamePool) Unregister(c websocket.Client) {
-	p.unregister <- c
+	p.channelStrategy.unregister(p, c)
 }
 
 func (p *GamePool) Clients() map[websocket.Client]game.SquareCharacter {
@@ -125,10 +127,6 @@ func (pool *GamePool) Start() {
 			pool.clients[client] = game.EMPTY
 		case client := <-pool.unregister:
 			delete(pool.clients, client)
-			poolIsEmpty := len(pool.clients) == 0
-			if poolIsEmpty {
-				return
-			}
 		case message := <-pool.Broadcast:
 			if err := pool.respond(message); err != nil {
 				fmt.Println(err)

@@ -25,6 +25,9 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
                 return boardDidChange(body);
             case GameCommand.NEW_MESSAGE:
                 return newGameMessageReceived(body);
+            case GameCommand.CHARACTER_SELECTED:
+                return characterHasBeenSelected(body);
+
 
         }
         throw new Error("No command matched the received message: " + JSON.stringify(msg));
@@ -58,6 +61,10 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
 
     const newGameMessageReceived = (message: string) => {
         console.log("New game message received", message);
+    }
+
+    const characterHasBeenSelected = (character: SquareCharacter) => {
+        console.log("Character has been selected from the backend", character);
     }
 
     const sendGameMessage = (instruction: GameInstruction, content?: Position | SquareCharacter) => {

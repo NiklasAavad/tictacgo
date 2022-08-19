@@ -1,5 +1,6 @@
 import React from "react";
 import { EmptyString, SquareCharacter } from "../components/Content/Game/Square/Square";
+import { GameInfoMessage } from "../context/GameContext";
 import { Position } from "../utility/Position";
 
 export type Result = {
@@ -13,12 +14,14 @@ type SetBoardFunction = React.Dispatch<React.SetStateAction<Board>>
 type SetResultFunction = React.Dispatch<React.SetStateAction<Result | undefined>>
 type SetIsGameOverFunction = React.Dispatch<React.SetStateAction<boolean>>
 type SetIsGameStartedFunction = React.Dispatch<React.SetStateAction<boolean>>
+type SetLatestGameInfoMessageFunction = React.Dispatch<React.SetStateAction<GameInfoMessage>>
 
 export type GameContextMutator = {
     setBoard: SetBoardFunction,
     setResult: SetResultFunction,
     setIsGameOver: SetIsGameOverFunction,
     setIsGameStarted: SetIsGameStartedFunction,
+    setLatestGameInfoMessage: SetLatestGameInfoMessageFunction,
 }
 
 export type GameService = (gameContextMutator: GameContextMutator) => {

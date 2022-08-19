@@ -1,5 +1,6 @@
 import { GameCommand, JSONResult } from "../api/BackendApi";
 import { GameInstruction } from "../api/FrontendApi";
+import { GameInfoMessage } from "../context/GameContext";
 import { Position } from "../utility/Position";
 import { GAME_WS_URL } from './../api/BackendApi';
 import { SquareCharacter } from './../components/Content/Game/Square/Square';
@@ -64,7 +65,11 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
     }
 
     const characterHasBeenSelected = (character: SquareCharacter) => {
-        console.log("Character has been selected from the backend", character);
+        if (character === SquareCharacter.X) {
+            gameContextMutator.setLatestGameInfoMessage(GameInfoMessage.X_SELECTED);
+        } else {
+            gameContextMutator.setLatestGameInfoMessage(GameInfoMessage.O_SELECTED);
+        }
     }
 
     const sendGameMessage = (instruction: GameInstruction, content?: Position | SquareCharacter) => {

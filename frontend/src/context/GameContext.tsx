@@ -26,12 +26,14 @@ export const useGameContext = () => {
     return context;
 }
 
-enum GameInfoMessage {
+export enum GameInfoMessage {
     X_WON = "The game has been won by X!",
     O_WON = "The game has been won by O!",
     TIE = "The game has been tied...",
     START_NEW_GAME = "Click on the 'New Game' button to begin!",
-    NEW_GAME_STARTED = "A new game has just begun! X begins."
+    NEW_GAME_STARTED = "A new game has just begun! X begins.",
+    X_SELECTED = "X has been selected",
+    O_SELECTED = "O has been selected",
 }
 
 type GameProviderProps = {
@@ -48,7 +50,7 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
     const [isGameOver, setIsGameOver] = useState<boolean>(false);
 
     const gameContextMutator = useMemo(() => {
-        return { setBoard, setResult, setIsGameOver, setIsGameStarted }
+        return { setBoard, setResult, setIsGameOver, setIsGameStarted, setLatestGameInfoMessage }
     }, []);
 
     const gameService = useMemo(() => gameServiceProvider(gameContextMutator), [gameServiceProvider, gameContextMutator]);

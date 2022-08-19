@@ -117,13 +117,18 @@ const OfflineSingleplayerGameService: GameService = (gameContextMutator: GameCon
         decoratee.changePlayerInTurn();
     };
 
+    const selectCharacter = (character: SquareCharacter): void => {
+        decoratee.selectCharacter(character);
+    }
+
     return {
         startGame,
         getResult,
         isGameOver,
         isChoiceValid,
         chooseSquare,
-        changePlayerInTurn
+        changePlayerInTurn,
+        selectCharacter
     }
 }
 

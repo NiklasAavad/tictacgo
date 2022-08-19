@@ -10,7 +10,8 @@ type GameContextType = {
     result: Result | undefined,
     isGameStarted: boolean,
     chooseSquare: (position: Position) => void,
-    startGame: () => void
+    startGame: () => void,
+    selectCharacter: (character: SquareCharacter) => void
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -65,6 +66,10 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
         gameService.chooseSquare(position);
     }
 
+    const selectCharacter = (character: SquareCharacter) => {
+        gameService.selectCharacter(character);
+    }
+
     const getWinningMessage = useCallback((result: Result): GameInfoMessage => {
         const xWon = result.winningCharacter === SquareCharacter.X;
         if (xWon) {
@@ -103,7 +108,8 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
         result,
         isGameStarted,
         startGame,
-        chooseSquare
+        chooseSquare,
+        selectCharacter
     }
 
     return <GameContext.Provider value={exposedValues}>

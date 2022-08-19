@@ -2,6 +2,7 @@ import { GameCommand, JSONResult } from "../api/BackendApi";
 import { GameInstruction } from "../api/FrontendApi";
 import { Position } from "../utility/Position";
 import { GAME_WS_URL } from './../api/BackendApi';
+import { SquareCharacter } from './../components/Content/Game/Square/Square';
 import { Board, GameContextMutator, GameService } from "./GameService";
 
 const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameContextMutator) => {
@@ -59,7 +60,7 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
         console.log("New game message received", message);
     }
 
-    const sendGameMessage = (instruction: GameInstruction, content?: Position) => {
+    const sendGameMessage = (instruction: GameInstruction, content?: Position | SquareCharacter) => {
         const jsonMessage = JSON.stringify({ instruction, content })
         socket.send(jsonMessage);
     }
@@ -72,9 +73,14 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
         sendGameMessage(GameInstruction.CHOOSE_SQUARE, position);
     };
 
+    const selectCharacter = (character: SquareCharacter): void => {
+        sendGameMessage(GameInstruction.SELECT_CHARACTER, character);
+    }
+
     return {
         startGame,
         chooseSquare,
+        selectCharacter
     }
 }
 

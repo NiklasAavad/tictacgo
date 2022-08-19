@@ -25,6 +25,7 @@ export type GameService = (gameContextMutator: GameContextMutator) => {
     // required methods
     startGame: () => void,
     chooseSquare: (position: Position) => void,
+    selectCharacter: (character: SquareCharacter) => void,
 
     // optional methods, used for offline services.
     getResult?: () => Result | undefined,

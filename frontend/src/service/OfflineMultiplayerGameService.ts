@@ -96,13 +96,18 @@ const OfflineMultiplayerGameService: GameService = (gameContextMutator: GameCont
         }
     };
 
+    const selectCharacter = (character: SquareCharacter): void => {
+        console.log("Character was selected", character);
+    }
+
     return {
         startGame,
         getResult,
         isGameOver,
         isChoiceValid,
         chooseSquare,
-        changePlayerInTurn
+        changePlayerInTurn,
+        selectCharacter
     }
 }
 

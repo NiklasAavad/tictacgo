@@ -13,5 +13,18 @@
 }
 
 .new-game-button {
-    font-size: 40px;
+    font-size: 41px;
+    padding: 8px;
+}
+
+.select-character {
+    font-size: 20px;
+    padding: 8px;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.divider {
+    margin-top: 16px;
+    margin-bottom: 16px;
 }

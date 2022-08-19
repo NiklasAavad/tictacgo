@@ -111,3 +111,41 @@ func TestShouldNotChangeCharacterIfCharacterIsAlreadyTaken(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 }
+
+func TestGameShouldNotStartWhenNoCharactersSelected(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	if pool.game.IsStarted() {
+		t.Fatal("Game should not have started yet")
+	}
+
+	client := testutils.NewClientMock(pool)
+
+	message := GameMessage{START_GAME, 0, client}
+	pool.Broadcast(message)
+
+	if pool.game.IsStarted() {
+		t.Errorf("Game should still not have started, despite the Start Game message, since both characters must've been selected")
+	}
+}
+
+func TestGameShouldBeAbleToStartWhenBothCharactersAreSelected(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	client1 := testutils.NewClientMock(pool)
+	message1 := GameMessage{SELECT_CHARACTER, game.X.String(), client1}
+	pool.Broadcast(message1)
+
+	client2 := testutils.NewClientMock(pool)
+	message2 := GameMessage{SELECT_CHARACTER, game.O.String(), client2}
+	pool.Broadcast(message2)
+
+	message := GameMessage{START_GAME, 0, client1}
+	pool.Broadcast(message)
+
+	if !pool.game.IsStarted() {
+		t.Errorf("Game should be started")
+	}
+}

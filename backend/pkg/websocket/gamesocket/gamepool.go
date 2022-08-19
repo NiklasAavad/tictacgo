@@ -105,6 +105,11 @@ func (pool *GamePool) broadcastGameIsOver() {
 func (pool *GamePool) respondStartGame() (GameResponse, error) {
 	var response GameResponse
 
+	bothCharactersSelected := pool.isCharacterTaken(game.X) && pool.isCharacterTaken(game.O)
+	if !bothCharactersSelected {
+		return response, fmt.Errorf("Both characters must be selected, before a game can start")
+	}
+
 	board := pool.game.StartGame()
 
 	response.Command = BOARD
@@ -131,6 +136,10 @@ func (pool *GamePool) respondChooseSquare(message GameMessage) (GameResponse, er
 
 func (pool *GamePool) respondGetBoard() (GameResponse, error) {
 	var response GameResponse
+
+	if !pool.game.IsStarted() {
+		return response, fmt.Errorf("game is not started yet")
+	}
 
 	board := pool.game.Board()
 
@@ -200,7 +209,6 @@ func (pool *GamePool) Start() {
 		case message := <-pool.broadcast:
 			if err := pool.respond(message); err != nil {
 				fmt.Println(err)
-				return
 			}
 		}
 	}

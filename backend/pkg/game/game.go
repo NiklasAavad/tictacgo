@@ -4,12 +4,14 @@ package game
 type Game struct {
 	board        Board
 	playerInTurn SquareCharacter
+	isStarted    bool
 }
 
 func NewGame() *Game {
 	return &Game{
 		board:        newBoard(),
 		playerInTurn: X,
+		isStarted:    false,
 	}
 }
 
@@ -26,6 +28,7 @@ func newBoard() Board {
 func (g *Game) StartGame() Board {
 	g.board = newBoard()
 	g.playerInTurn = X
+	g.isStarted = true
 	return g.board
 }
 
@@ -78,11 +81,12 @@ func (g *Game) IsGameOver() bool {
 		return false
 	}
 
-	if g.isBoardFull() {
+	if g.isBoardFull() || g.hasWinner() {
+		g.isStarted = false
 		return true
 	}
 
-	return g.hasWinner()
+	return false
 }
 
 func (g *Game) isChoiceValid(p Position) bool {
@@ -114,4 +118,8 @@ func (g *Game) changePlayerInTurn() SquareCharacter {
 
 func (g *Game) Board() Board {
 	return g.board
+}
+
+func (g *Game) IsStarted() bool {
+	return g.isStarted
 }

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
+	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket/testutils"
 )
 
@@ -15,6 +16,26 @@ func setupTest(t *testing.T) (func(t *testing.T), *GamePool) {
 	return func(t *testing.T) {
 		t.Log("Tearing down testing")
 	}, pool
+}
+
+func startGame(pool *GamePool) (websocket.Client, websocket.Client) {
+	clientX, clientO := testutils.NewClientMock(pool), testutils.NewClientMock(pool)
+
+	messageX := GameMessage{SELECT_CHARACTER, game.X.String(), clientX}
+	messageO := GameMessage{SELECT_CHARACTER, game.O.String(), clientO}
+
+	pool.Broadcast(messageX)
+	pool.Broadcast(messageO)
+
+	message := GameMessage{START_GAME, 0, clientX}
+	pool.Broadcast(message)
+
+	return clientX, clientO
+}
+
+func chooseSquare(pool *GamePool, c websocket.Client, position game.Position) {
+	message := GameMessage{CHOOSE_SQUARE, position, c}
+	pool.Broadcast(message)
 }
 
 func TestRegisterClient(t *testing.T) {
@@ -147,5 +168,43 @@ func TestGameShouldBeAbleToStartWhenBothCharactersAreSelected(t *testing.T) {
 
 	if !pool.game.IsStarted() {
 		t.Errorf("Game should be started")
+	}
+}
+
+func TestOCannotChooseSquareWhenItIsX(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	_, clientO := startGame(pool)
+
+	originalBoard := pool.game.Board()
+
+	chooseSquare(pool, clientO, game.CENTER)
+
+	want := originalBoard
+	got := pool.game.Board()
+
+	if want != got {
+		t.Errorf("Wanted %v, got %v", want, got)
+	}
+}
+
+func TestXCannotChooseSquareWhenItIsO(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	clientX, _ := startGame(pool)
+
+	chooseSquare(pool, clientX, game.CENTER)
+
+	boardAfterFirstPlay := pool.game.Board()
+
+	chooseSquare(pool, clientX, game.BOTTOM_CENTER)
+
+	want := boardAfterFirstPlay
+	got := pool.game.Board()
+
+	if want != got {
+		t.Errorf("Wanted %v, got %v", want, got)
 	}
 }

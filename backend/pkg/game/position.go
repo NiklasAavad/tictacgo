@@ -27,6 +27,8 @@ func castToFloat(input any) (float64, bool) {
 		return k, true
 	case int:
 		return float64(k), true
+	case Position:
+		return float64(k), true
 	default:
 		return -1, false
 	}

@@ -18,4 +18,5 @@ type GameService interface {
 	changePlayerInTurn() SquareCharacter
 	Board() Board
 	IsStarted() bool
+	PlayerInTurn() SquareCharacter
 }

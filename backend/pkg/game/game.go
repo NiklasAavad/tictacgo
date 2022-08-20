@@ -127,3 +127,7 @@ func (g *Game) Board() Board {
 func (g *Game) IsStarted() bool {
 	return g.isStarted
 }
+
+func (g *Game) PlayerInTurn() SquareCharacter {
+	return g.playerInTurn
+}

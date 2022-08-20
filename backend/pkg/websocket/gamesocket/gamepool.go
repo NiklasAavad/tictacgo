@@ -122,6 +122,11 @@ func (pool *GamePool) respondStartGame() (GameResponse, error) {
 func (pool *GamePool) respondChooseSquare(message GameMessage) (GameResponse, error) {
 	var response GameResponse
 
+	isClientInTurn := pool.clients[message.Client] == pool.game.PlayerInTurn()
+	if !isClientInTurn {
+		return response, fmt.Errorf("It was not this client's turn to play")
+	}
+
 	position, err := game.ParsePosition(message.Content)
 	if err != nil {
 		return response, err

@@ -31,8 +31,6 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
                 return characterHasBeenSelected(body);
             case ResponseType.GAME_STARTED:
                 return gameDidStart();
-
-
         }
         throw new Error("No command matched the received message: " + JSON.stringify(msg));
     };

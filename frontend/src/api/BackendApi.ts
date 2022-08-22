@@ -11,6 +11,7 @@ export enum GameCommand {
     BOARD = "board",
     NEW_MESSAGE = "new message",
     CHARACTER_SELECTED = "character selected",
+    GAME_STARTED = "game started",
 };
 
 export type JSONResult = {

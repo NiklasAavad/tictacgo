@@ -4,6 +4,7 @@ import { GameInfoMessage } from "../context/GameContext";
 import { Position } from "../utility/Position";
 import { GAME_WS_URL } from './../api/BackendApi';
 import { SquareCharacter } from './../components/Content/Game/Square/Square';
+import { getEmptyBoard } from './../utility/GameServiceUtility';
 import { Board, GameContextMutator, GameService } from "./GameService";
 
 const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameContextMutator) => {
@@ -28,6 +29,8 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
                 return newGameMessageReceived(body);
             case GameCommand.CHARACTER_SELECTED:
                 return characterHasBeenSelected(body);
+            case GameCommand.GAME_STARTED:
+                return gameDidStart();
 
 
         }
@@ -70,6 +73,14 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
         } else {
             gameContextMutator.setLatestGameInfoMessage(GameInfoMessage.O_SELECTED);
         }
+    }
+
+    const gameDidStart = () => {
+        gameContextMutator.setBoard(getEmptyBoard());
+        gameContextMutator.setLatestGameInfoMessage(GameInfoMessage.NEW_GAME_STARTED);
+        gameContextMutator.setIsGameStarted(true);
+        gameContextMutator.setResult(undefined);
+        gameContextMutator.setIsGameOver(false);
     }
 
     const sendGameMessage = (instruction: GameInstruction, content?: Position | SquareCharacter) => {

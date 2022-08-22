@@ -57,11 +57,6 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
 
     const startGame = () => {
         gameService.startGame();
-        setBoard(getEmptyBoard());
-        setLatestGameInfoMessage(GameInfoMessage.NEW_GAME_STARTED);
-        setIsGameStarted(true);
-        setResult(undefined);
-        setIsGameOver(false);
     }
 
     const chooseSquare = (position: Position) => {

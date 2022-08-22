@@ -1,4 +1,4 @@
-import { GameCommand, JSONResult } from "../api/BackendApi";
+import { JSONResult, ResponseType } from "../api/BackendApi";
 import { GameInstruction } from "../api/FrontendApi";
 import { GameInfoMessage } from "../context/GameContext";
 import { Position } from "../utility/Position";
@@ -19,17 +19,17 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
         console.log(msg);
         const { responseType, body } = JSON.parse(msg.data);
         switch (responseType) {
-            case GameCommand.RESULT:
+            case ResponseType.RESULT:
                 return resultDidChange(body)
-            case GameCommand.GAME_OVER:
+            case ResponseType.GAME_OVER:
                 return gameDidEnd();
-            case GameCommand.BOARD:
+            case ResponseType.BOARD:
                 return boardDidChange(body);
-            case GameCommand.NEW_MESSAGE:
+            case ResponseType.NEW_MESSAGE:
                 return newGameMessageReceived(body);
-            case GameCommand.CHARACTER_SELECTED:
+            case ResponseType.CHARACTER_SELECTED:
                 return characterHasBeenSelected(body);
-            case GameCommand.GAME_STARTED:
+            case ResponseType.GAME_STARTED:
                 return gameDidStart();
 
 

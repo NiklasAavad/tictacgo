@@ -51,8 +51,8 @@ func (c *StartGameCommand) execute() (GameResponse, error) {
 }
 
 type ChooseSquareCommand struct {
-	client  *GameClient
-	content any
+	client   *GameClient
+	position any
 }
 
 func (c *ChooseSquareCommand) execute() (GameResponse, error) {
@@ -63,7 +63,7 @@ func (c *ChooseSquareCommand) execute() (GameResponse, error) {
 		return response, fmt.Errorf("It was not this client's turn to play")
 	}
 
-	position, err := game.ParsePosition(c.content)
+	position, err := game.ParsePosition(c.position)
 	if err != nil {
 		return response, err
 	}
@@ -99,14 +99,14 @@ func (c *GetBoardCommand) execute() (GameResponse, error) {
 }
 
 type SelectCharacterCommand struct {
-	client  *GameClient
-	content any
+	client    *GameClient
+	character any
 }
 
 func (c *SelectCharacterCommand) execute() (GameResponse, error) {
 	var response GameResponse
 
-	character, err := game.ParseSquareCharacter(c.content)
+	character, err := game.ParseSquareCharacter(c.character)
 	if err != nil {
 		return response, err
 	}

@@ -6,31 +6,31 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCommandString(t *testing.T) {
+func TestResponseTypeString(t *testing.T) {
 	type stringTestCases struct {
-		input          Command
+		input          ResponseType
 		expectedResult string
 	}
 
 	for _, testCase := range []stringTestCases{
 		{
-			input:          Command(1),
+			input:          ResponseType(1),
 			expectedResult: "board",
 		},
 		{
-			input:          Command(2),
+			input:          ResponseType(2),
 			expectedResult: "game over",
 		},
 		{
-			input:          Command(3),
+			input:          ResponseType(3),
 			expectedResult: "result",
 		},
 		{
-			input:          Command(4),
+			input:          ResponseType(4),
 			expectedResult: "new message",
 		},
 		{
-			input:          Command(5),
+			input:          ResponseType(5),
 			expectedResult: "character selected",
 		},
 	} {
@@ -41,7 +41,7 @@ func TestCommandString(t *testing.T) {
 	}
 }
 
-func TestCommandMarshal(t *testing.T) {
+func TestResponseTypeMarshall(t *testing.T) {
 	if _, err := BOARD.MarshalJSON(); err != nil {
 		t.Fatal(err)
 	}

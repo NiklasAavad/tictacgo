@@ -113,7 +113,7 @@ func (pool *GamePool) respondStartGame() (GameResponse, error) {
 
 	board := pool.game.StartGame()
 
-	response.Command = BOARD
+	response.ResponseType = BOARD
 	response.Body = board
 
 	return response, nil
@@ -137,7 +137,7 @@ func (pool *GamePool) respondChooseSquare(message GameMessage) (GameResponse, er
 		return response, err
 	}
 
-	response.Command = BOARD
+	response.ResponseType = BOARD
 	response.Body = board
 
 	return response, nil
@@ -152,7 +152,7 @@ func (pool *GamePool) respondGetBoard() (GameResponse, error) {
 
 	board := pool.game.Board()
 
-	response.Command = BOARD
+	response.ResponseType = BOARD
 	response.Body = board
 
 	return response, nil
@@ -171,7 +171,7 @@ func (pool *GamePool) respondSelectCharacter(message GameMessage) (GameResponse,
 		return response, err
 	}
 
-	response.Command = CHARACTER_SELECTED
+	response.ResponseType = CHARACTER_SELECTED
 	response.Body = character
 
 	return response, nil

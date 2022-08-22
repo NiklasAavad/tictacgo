@@ -51,14 +51,15 @@ func (p *GamePool) NewClient(w http.ResponseWriter, r *http.Request) websocket.C
 	return client
 }
 
-func (p *GamePool) Broadcast(m GameMessage) {
+func (p *GamePool) Broadcast(m GameMessage) error {
 	command, err := ParseCommand(m)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	p.channelStrategy.broadcast(p, command)
+
+	return nil
 }
 
 func (p *GamePool) Register(c websocket.Client) {

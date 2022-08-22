@@ -40,7 +40,10 @@ func (c *GameClient) Read() {
 
 		message.Client = c
 
-		c.Pool.Broadcast(message)
+		if err := c.Pool.Broadcast(message); err != nil {
+			fmt.Println(err)
+			return
+		}
 
 		fmt.Printf("Message Received: %+v\n", message)
 	}

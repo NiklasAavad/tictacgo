@@ -76,11 +76,11 @@ func (p *GamePool) isCharacterTaken(character game.SquareCharacter) bool {
 	return false
 }
 
-func (g *GamePool) registerCharacter(client websocket.Client, character game.SquareCharacter) error {
-	if g.isCharacterTaken(character) {
+func (p *GamePool) registerCharacter(client websocket.Client, character game.SquareCharacter) error {
+	if p.isCharacterTaken(character) {
 		return fmt.Errorf("Character %v is already taken", character)
 	}
-	g.clients[client] = character
+	p.clients[client] = character
 	return nil
 }
 

@@ -6,7 +6,7 @@ import (
 )
 
 type ChannelStrategy interface {
-	broadcast(p *GamePool, m GameMessage)
+	broadcast(p *GamePool, c Command)
 	register(p *GamePool, c websocket.Client)
 	unregister(p *GamePool, c websocket.Client)
 }
@@ -18,8 +18,8 @@ func NewConcurrentChannelStrategy() *ConcurrentChannelStrategy {
 }
 
 // broadcast implements ChannelStrategy
-func (*ConcurrentChannelStrategy) broadcast(p *GamePool, m GameMessage) {
-	p.broadcast <- m
+func (*ConcurrentChannelStrategy) broadcast(p *GamePool, c Command) {
+	p.broadcast <- c
 }
 
 // register implements ChannelStrategy
@@ -41,8 +41,8 @@ func NewSequentialChannelStrategy() ChannelStrategy {
 }
 
 // broadcast implements ChannelStrategy
-func (*SequentialChannelStrategy) broadcast(p *GamePool, m GameMessage) {
-	p.respond(m)
+func (*SequentialChannelStrategy) broadcast(p *GamePool, c Command) {
+	p.respond(c)
 }
 
 // register implements ChannelStrategy

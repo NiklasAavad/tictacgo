@@ -13,7 +13,7 @@ type GamePool struct {
 	register        chan websocket.Client
 	unregister      chan websocket.Client
 	clients         map[websocket.Client]game.SquareCharacter
-	broadcast       chan GameMessage
+	broadcast       chan Command
 	game            game.GameService
 	channelStrategy ChannelStrategy
 }
@@ -25,7 +25,7 @@ func NewGamePool(cs ChannelStrategy) *GamePool {
 		register:        make(chan websocket.Client),
 		unregister:      make(chan websocket.Client),
 		clients:         make(map[websocket.Client]game.SquareCharacter),
-		broadcast:       make(chan GameMessage),
+		broadcast:       make(chan Command),
 		game:            game.NewGame(),
 		channelStrategy: cs,
 	}
@@ -52,7 +52,13 @@ func (p *GamePool) NewClient(w http.ResponseWriter, r *http.Request) websocket.C
 }
 
 func (p *GamePool) Broadcast(m GameMessage) {
-	p.channelStrategy.broadcast(p, m)
+	command, err := ParseCommand(m)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	p.channelStrategy.broadcast(p, command)
 }
 
 func (p *GamePool) Register(c websocket.Client) {
@@ -103,97 +109,8 @@ func (pool *GamePool) broadcastGameIsOver() {
 	pool.broadcastResponse(resultResponse)
 }
 
-func (pool *GamePool) respondStartGame() (GameResponse, error) {
-	var response GameResponse
-
-	bothCharactersSelected := pool.isCharacterTaken(game.X) && pool.isCharacterTaken(game.O)
-	if !bothCharactersSelected {
-		return response, fmt.Errorf("Both characters must be selected, before a game can start")
-	}
-
-	board := pool.game.StartGame()
-
-	response.ResponseType = BOARD
-	response.Body = board
-
-	return response, nil
-}
-
-func (pool *GamePool) respondChooseSquare(message GameMessage) (GameResponse, error) {
-	var response GameResponse
-
-	isClientInTurn := pool.clients[message.Client] == pool.game.PlayerInTurn()
-	if !isClientInTurn {
-		return response, fmt.Errorf("It was not this client's turn to play")
-	}
-
-	position, err := game.ParsePosition(message.Content)
-	if err != nil {
-		return response, err
-	}
-
-	board, err := pool.game.ChooseSquare(position)
-	if err != nil {
-		return response, err
-	}
-
-	response.ResponseType = BOARD
-	response.Body = board
-
-	return response, nil
-}
-
-func (pool *GamePool) respondGetBoard() (GameResponse, error) {
-	var response GameResponse
-
-	if !pool.game.IsStarted() {
-		return response, fmt.Errorf("game is not started yet")
-	}
-
-	board := pool.game.Board()
-
-	response.ResponseType = BOARD
-	response.Body = board
-
-	return response, nil
-}
-
-func (pool *GamePool) respondSelectCharacter(message GameMessage) (GameResponse, error) {
-	var response GameResponse
-
-	client := message.Client
-	character, err := game.ParseSquareCharacter(message.Content)
-	if err != nil {
-		return response, err
-	}
-
-	if err := pool.registerCharacter(client, character); err != nil {
-		return response, err
-	}
-
-	response.ResponseType = CHARACTER_SELECTED
-	response.Body = character
-
-	return response, nil
-}
-
-func (pool *GamePool) executeMessage(message GameMessage) (GameResponse, error) {
-	switch message.Instruction {
-	case START_GAME:
-		return pool.respondStartGame()
-	case CHOOSE_SQUARE:
-		return pool.respondChooseSquare(message)
-	case GET_BOARD:
-		return pool.respondGetBoard()
-	case SELECT_CHARACTER:
-		return pool.respondSelectCharacter(message)
-	}
-
-	return GameResponse{}, fmt.Errorf("GameInstruction could not be found: %v", message.Instruction)
-}
-
-func (pool *GamePool) respond(message GameMessage) error {
-	response, err := pool.executeMessage(message)
+func (pool *GamePool) respond(command Command) error {
+	response, err := command.execute()
 
 	if err != nil {
 		return err
@@ -216,8 +133,8 @@ func (pool *GamePool) Start() {
 			pool.clients[client] = game.EMPTY
 		case client := <-pool.unregister:
 			delete(pool.clients, client)
-		case message := <-pool.broadcast:
-			if err := pool.respond(message); err != nil {
+		case command := <-pool.broadcast:
+			if err := pool.respond(command); err != nil {
 				fmt.Println(err)
 			}
 		}

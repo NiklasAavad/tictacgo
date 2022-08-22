@@ -10,7 +10,7 @@ type Result struct {
 }
 
 type GameService interface {
-	StartGame() Board
+	StartGame()
 	GetResult() Result
 	IsGameOver() bool
 	isChoiceValid(p Position) bool

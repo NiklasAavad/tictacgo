@@ -27,11 +27,10 @@ func newBoard() Board {
 	}
 }
 
-func (g *Game) StartGame() Board {
+func (g *Game) StartGame() {
 	g.board = newBoard()
 	g.playerInTurn = X
 	g.isStarted = true
-	return g.board
 }
 
 func (g *Game) GetResult() Result {

@@ -42,10 +42,9 @@ func (c *StartGameCommand) execute() (GameResponse, error) {
 		return response, fmt.Errorf("Both characters must be selected, before a game can start")
 	}
 
-	board := c.client.Pool.game.StartGame()
+	c.client.Pool.game.StartGame()
 
-	response.ResponseType = BOARD
-	response.Body = board
+	response.ResponseType = GAME_STARTED
 
 	return response, nil
 }

@@ -18,8 +18,19 @@ func setupTest(t *testing.T) (func(t *testing.T), *GamePool) {
 	}, pool
 }
 
+func createTestClient(pool *GamePool) *GameClient {
+	client := &GameClient{
+		Pool: pool,
+		conn: testutils.NewConnMock(),
+	}
+
+	pool.Register(client)
+
+	return client
+}
+
 func startGame(pool *GamePool) (websocket.Client, websocket.Client) {
-	clientX, clientO := testutils.NewClientMock(pool), testutils.NewClientMock(pool)
+	clientX, clientO := createTestClient(pool), createTestClient(pool)
 
 	messageX := GameMessage{SELECT_CHARACTER, game.X.String(), clientX}
 	messageO := GameMessage{SELECT_CHARACTER, game.O.String(), clientO}
@@ -47,13 +58,13 @@ func TestRegisterClient(t *testing.T) {
 		t.Fatalf("Expected no clients in pool, got %d", clientsInPool)
 	}
 
-	testutils.NewClientMock(pool)
+	createTestClient(pool)
 	clientsInPool = len(pool.Clients())
 	if clientsInPool != 1 {
 		t.Fatalf("Expected 1 client in pool, got %d", clientsInPool)
 	}
 
-	testutils.NewClientMock(pool)
+	createTestClient(pool)
 	clientsInPool = len(pool.Clients())
 	if clientsInPool != 2 {
 		t.Log(pool.Clients())
@@ -65,10 +76,10 @@ func TestUnregisterClient(t *testing.T) {
 	teardown, pool := setupTest(t)
 	defer teardown(t)
 
-	testutils.NewClientMock(pool)
-	testutils.NewClientMock(pool)
+	createTestClient(pool)
+	createTestClient(pool)
 
-	clientToUnregister := testutils.NewClientMock(pool)
+	clientToUnregister := createTestClient(pool)
 	pool.Unregister(clientToUnregister)
 
 	clientsInPool := len(pool.Clients())
@@ -81,7 +92,7 @@ func TestShouldBeCharacterX(t *testing.T) {
 	teardown, pool := setupTest(t)
 	defer teardown(t)
 
-	client := testutils.NewClientMock(pool)
+	client := createTestClient(pool)
 
 	message := GameMessage{SELECT_CHARACTER, game.X.String(), client}
 
@@ -99,7 +110,7 @@ func TestShouldBeCharacterO(t *testing.T) {
 	teardown, pool := setupTest(t)
 	defer teardown(t)
 
-	client := testutils.NewClientMock(pool)
+	client := createTestClient(pool)
 
 	message := GameMessage{SELECT_CHARACTER, game.O.String(), client}
 
@@ -117,11 +128,11 @@ func TestShouldNotChangeCharacterIfCharacterIsAlreadyTaken(t *testing.T) {
 	teardown, pool := setupTest(t)
 	defer teardown(t)
 
-	client1 := testutils.NewClientMock(pool)
+	client1 := createTestClient(pool)
 	message1 := GameMessage{SELECT_CHARACTER, game.X.String(), client1}
 	pool.Broadcast(message1)
 
-	client2 := testutils.NewClientMock(pool)
+	client2 := createTestClient(pool)
 	message2 := GameMessage{SELECT_CHARACTER, game.X.String(), client2}
 	pool.Broadcast(message2)
 
@@ -141,7 +152,7 @@ func TestGameShouldNotStartWhenNoCharactersSelected(t *testing.T) {
 		t.Fatal("Game should not have started yet")
 	}
 
-	client := testutils.NewClientMock(pool)
+	client := createTestClient(pool)
 
 	message := GameMessage{START_GAME, 0, client}
 	pool.Broadcast(message)
@@ -155,11 +166,11 @@ func TestGameShouldBeAbleToStartWhenBothCharactersAreSelected(t *testing.T) {
 	teardown, pool := setupTest(t)
 	defer teardown(t)
 
-	client1 := testutils.NewClientMock(pool)
+	client1 := createTestClient(pool)
 	message1 := GameMessage{SELECT_CHARACTER, game.X.String(), client1}
 	pool.Broadcast(message1)
 
-	client2 := testutils.NewClientMock(pool)
+	client2 := createTestClient(pool)
 	message2 := GameMessage{SELECT_CHARACTER, game.O.String(), client2}
 	pool.Broadcast(message2)
 

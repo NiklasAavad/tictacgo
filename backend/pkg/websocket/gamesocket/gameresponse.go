@@ -17,6 +17,7 @@ const (
 	RESULT
 	NEW_MESSAGE
 	CHARACTER_SELECTED
+	GAME_STARTED
 )
 
 var (
@@ -26,6 +27,7 @@ var (
 		3: "result",
 		4: "new message",
 		5: "character selected",
+		6: "game started",
 	}
 	ResponseTypeValue = map[string]uint8{
 		"board":              1,
@@ -33,6 +35,7 @@ var (
 		"result":             3,
 		"new message":        4,
 		"character selected": 5,
+		"game started":       6,
 	}
 )
 

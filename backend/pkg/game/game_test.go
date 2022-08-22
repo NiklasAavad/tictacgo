@@ -9,6 +9,8 @@ import (
 func TestStartGame(t *testing.T) {
 	g := NewGame()
 
+	g.StartGame()
+
 	expectedBoard := [9]SquareCharacter{
 		EMPTY, EMPTY, EMPTY,
 		EMPTY, EMPTY, EMPTY,

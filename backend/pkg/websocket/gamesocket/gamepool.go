@@ -127,7 +127,9 @@ func (pool *GamePool) respondToNewClient(client websocket.Client) error {
 		return err
 	}
 
-	client.Conn().WriteJSON(response)
+	if err := client.Conn().WriteJSON(response); err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -41,6 +41,11 @@ func (c *StartGameCommand) execute() (GameResponse, error) {
 		return response, fmt.Errorf("Both characters must be selected, before a game can start")
 	}
 
+	isClientPlaying := c.client.Pool.xClient == c.client || c.client.Pool.oClient == c.client
+	if !isClientPlaying {
+		return response, fmt.Errorf("Client must be playing to start the game, cannot be a spectator")
+	}
+
 	c.client.Pool.game.StartGame()
 
 	response.ResponseType = GAME_STARTED

@@ -213,3 +213,25 @@ func TestXCannotChooseSquareWhenItIsO(t *testing.T) {
 		t.Errorf("Wanted %v, got %v", want, got)
 	}
 }
+
+func TestSpectatorCannotStartGame(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	clientX := createTestClient(pool)
+	clientO := createTestClient(pool)
+	clientSpectator := createTestClient(pool)
+
+	messageX := GameMessage{SELECT_CHARACTER, game.X.String(), clientX}
+	messageO := GameMessage{SELECT_CHARACTER, game.O.String(), clientO}
+
+	pool.Broadcast(messageX)
+	pool.Broadcast(messageO)
+
+	startGameMessage := GameMessage{START_GAME, 0, clientSpectator}
+	pool.Broadcast(startGameMessage)
+
+	if pool.game.IsStarted() {
+		t.Errorf("Game should not have started, since it was started by the spectator")
+	}
+}

@@ -98,11 +98,8 @@ func TestShouldBeCharacterX(t *testing.T) {
 
 	pool.Broadcast(message)
 
-	want := game.X
-	got := pool.Clients()[client]
-
-	if want != got {
-		t.Errorf("got %v, want %v", got, want)
+	if pool.xClient != client {
+		t.Errorf("Expected client to be xClient, but got %v", pool.xClient)
 	}
 }
 
@@ -116,11 +113,8 @@ func TestShouldBeCharacterO(t *testing.T) {
 
 	pool.Broadcast(message)
 
-	want := game.O
-	got := pool.Clients()[client]
-
-	if want != got {
-		t.Errorf("got %v, want %v", got, want)
+	if pool.oClient != client {
+		t.Errorf("Expected client to be oClient, but got %v", pool.oClient)
 	}
 }
 

@@ -1,6 +1,10 @@
 package gamesocket
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
+)
 
 type GameResponse struct {
 	ResponseType ResponseType `json:"responseType"`
@@ -18,7 +22,15 @@ const (
 	NEW_MESSAGE
 	CHARACTER_SELECTED
 	GAME_STARTED
+	WELCOME
 )
+
+type WelcomeResponse struct {
+	IsGameStarted bool       `json:"isGameStarted"`
+	XClient       string     `json:"xClient"`
+	OClient       string     `json:"oClient"`
+	Board         game.Board `json:"board"`
+}
 
 var (
 	ResponseTypeName = map[uint8]string{
@@ -28,6 +40,7 @@ var (
 		4: "new message",
 		5: "character selected",
 		6: "game started",
+		7: "welcome",
 	}
 	ResponseTypeValue = map[string]uint8{
 		"board":              1,
@@ -36,6 +49,7 @@ var (
 		"new message":        4,
 		"character selected": 5,
 		"game started":       6,
+		"welcome":            7,
 	}
 )
 

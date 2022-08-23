@@ -1,3 +1,4 @@
+import { Board } from "../service/GameService";
 import { Position } from "../utility/Position";
 import { SquareCharacter } from './../components/Content/Game/Square/Square';
 
@@ -12,10 +13,18 @@ export enum ResponseType {
     NEW_MESSAGE = "new message",
     CHARACTER_SELECTED = "character selected",
     GAME_STARTED = "game started",
+    WELCOME = "welcome"
 };
 
 export type JSONResult = {
     WinningCombination: Position[],
     WinningCharacter: SquareCharacter,
     HasWinner: boolean
+}
+
+export type JSONWeclome = {
+    isGameStarted: boolean,
+    board: Board,
+    xClient: string,
+    oClient: string
 }

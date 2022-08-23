@@ -2,17 +2,13 @@ import { JSONResult, ResponseType } from "../api/BackendApi";
 import { GameInstruction } from "../api/FrontendApi";
 import { GameInfoMessage } from "../context/GameContext";
 import { Position } from "../utility/Position";
-import { GAME_WS_URL } from './../api/BackendApi';
+import { GAME_WS_URL, JSONWeclome } from './../api/BackendApi';
 import { SquareCharacter } from './../components/Content/Game/Square/Square';
 import { getEmptyBoard } from './../utility/GameServiceUtility';
 import { Board, GameContextMutator, GameService } from "./GameService";
 
 const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameContextMutator) => {
     const socket = new WebSocket(GAME_WS_URL); // TOOD husk at brug username.
-
-    socket.onopen = () => {
-        sendGameMessage(GameInstruction.GET_BOARD);
-    }
 
     // TODO validation!
     socket.onmessage = (msg: MessageEvent): void => {
@@ -31,6 +27,8 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
                 return characterHasBeenSelected(body);
             case ResponseType.GAME_STARTED:
                 return gameDidStart();
+            case ResponseType.WELCOME:
+                return welcomeMessageWasReceived(body);
         }
         throw new Error("No command matched the received message: " + JSON.stringify(msg));
     };
@@ -53,11 +51,6 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
     }
 
     const boardDidChange = (board: Board) => {
-        // TODO overvej om de tre nedenstående metoder skal trækkes over i en "gameDidStart" command. 
-        gameContextMutator.setIsGameStarted(true);
-        gameContextMutator.setIsGameOver(false);
-        gameContextMutator.setResult(undefined);
-
         gameContextMutator.setBoard(board);
     }
 
@@ -79,6 +72,23 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
         gameContextMutator.setIsGameStarted(true);
         gameContextMutator.setResult(undefined);
         gameContextMutator.setIsGameOver(false);
+    }
+
+    // TODO fix any
+    const welcomeMessageWasReceived = ({ isGameStarted, board, xClient, oClient }: JSONWeclome) => {
+        gameContextMutator.setIsGameStarted(isGameStarted)
+
+        if (isGameStarted) {
+            gameContextMutator.setBoard(board);
+        }
+
+        if (xClient) {
+            console.log(xClient)
+        }
+
+        if (oClient) {
+            console.log(oClient)
+        }
     }
 
     const sendGameMessage = (instruction: GameInstruction, content?: Position | SquareCharacter) => {

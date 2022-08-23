@@ -3,7 +3,6 @@ import { Position } from "../utility/Position"
 export enum GameInstruction {
     START_GAME = "start game",
     CHOOSE_SQUARE = "choose square",
-    GET_BOARD = "get board",
     SELECT_CHARACTER = "select character",
 }
 

@@ -21,8 +21,6 @@ func ParseCommand(msg GameMessage) (Command, error) {
 		return &StartGameCommand{gameClient}, nil
 	case CHOOSE_SQUARE:
 		return &ChooseSquareCommand{gameClient, msg.Content}, nil
-	case GET_BOARD:
-		return &GetBoardCommand{gameClient}, nil
 	case SELECT_CHARACTER:
 		return &SelectCharacterCommand{gameClient, msg.Content}, nil
 	}
@@ -37,7 +35,7 @@ type StartGameCommand struct {
 func (c *StartGameCommand) execute() (GameResponse, error) {
 	var response GameResponse
 
-	bothCharactersSelected := c.client.Pool.isCharacterTaken(game.X) && c.client.Pool.isCharacterTaken(game.O)
+	bothCharactersSelected := c.client.Pool.xClient != nil && c.client.Pool.oClient != nil
 	if !bothCharactersSelected {
 		return response, fmt.Errorf("Both characters must be selected, before a game can start")
 	}
@@ -54,11 +52,17 @@ type ChooseSquareCommand struct {
 	position any
 }
 
+func (c *ChooseSquareCommand) isClientInTurn() bool {
+	if c.client.Pool.game.PlayerInTurn() == game.X {
+		return c.client.Pool.xClient == c.client
+	}
+	return c.client.Pool.oClient == c.client
+}
+
 func (c *ChooseSquareCommand) execute() (GameResponse, error) {
 	var response GameResponse
 
-	isClientInTurn := c.client.Pool.clients[c.client] == c.client.Pool.game.PlayerInTurn()
-	if !isClientInTurn {
+	if !c.isClientInTurn() {
 		return response, fmt.Errorf("It was not this client's turn to play")
 	}
 
@@ -71,25 +75,6 @@ func (c *ChooseSquareCommand) execute() (GameResponse, error) {
 	if err != nil {
 		return response, err
 	}
-
-	response.ResponseType = BOARD
-	response.Body = board
-
-	return response, nil
-}
-
-type GetBoardCommand struct {
-	client *GameClient
-}
-
-func (c *GetBoardCommand) execute() (GameResponse, error) {
-	var response GameResponse
-
-	if !c.client.Pool.game.IsStarted() {
-		return response, fmt.Errorf("game is not started yet")
-	}
-
-	board := c.client.Pool.game.Board()
 
 	response.ResponseType = BOARD
 	response.Body = board
@@ -116,6 +101,40 @@ func (c *SelectCharacterCommand) execute() (GameResponse, error) {
 
 	response.ResponseType = CHARACTER_SELECTED
 	response.Body = character
+
+	return response, nil
+}
+
+type NewClientCommand struct {
+	client *GameClient
+}
+
+func (c *NewClientCommand) execute() (GameResponse, error) {
+	var response GameResponse
+
+	isGameStarted := c.client.Pool.game.IsStarted()
+
+	xClient := c.client.Pool.xClient
+	xClientName := ""
+	if xClient != nil {
+		xClientName = xClient.Name()
+	}
+
+	oClient := c.client.Pool.oClient
+	oClientName := ""
+	if oClient != nil {
+		oClientName = oClient.Name()
+	}
+
+	board := c.client.Pool.game.Board()
+
+	response.ResponseType = WELCOME
+	response.Body = WelcomeResponse{
+		IsGameStarted: isGameStarted,
+		XClient:       xClientName,
+		OClient:       oClientName,
+		Board:         board,
+	}
 
 	return response, nil
 }

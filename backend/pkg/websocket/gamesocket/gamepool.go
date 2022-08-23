@@ -16,6 +16,8 @@ type GamePool struct {
 	broadcast       chan Command
 	game            game.GameService
 	channelStrategy ChannelStrategy
+	xClient         websocket.Client
+	oClient         websocket.Client
 }
 
 var _ websocket.Pool = new(GamePool)
@@ -28,6 +30,8 @@ func NewGamePool(cs ChannelStrategy) *GamePool {
 		broadcast:       make(chan Command),
 		game:            game.NewGame(),
 		channelStrategy: cs,
+		xClient:         nil,
+		oClient:         nil,
 	}
 }
 
@@ -74,21 +78,18 @@ func (p *GamePool) Clients() map[websocket.Client]game.SquareCharacter {
 	return p.clients
 }
 
-func (p *GamePool) isCharacterTaken(character game.SquareCharacter) bool {
-	for _, v := range p.clients {
-		if v == character {
-			return true
-		}
-	}
-	return false
-}
-
 func (p *GamePool) registerCharacter(client websocket.Client, character game.SquareCharacter) error {
-	if p.isCharacterTaken(character) {
-		return fmt.Errorf("Character %v is already taken", character)
+	if character == game.X && p.xClient == nil {
+		p.xClient = client
+		return nil
 	}
-	p.clients[client] = character
-	return nil
+
+	if character == game.O && p.oClient == nil {
+		p.oClient = client
+		return nil
+	}
+
+	return fmt.Errorf("Character %v is already taken", character)
 }
 
 func (p *GamePool) broadcastResponse(response GameResponse) error {
@@ -127,11 +128,32 @@ func (pool *GamePool) respond(command Command) error {
 	return nil
 }
 
+func (pool *GamePool) respondToNewClient(client websocket.Client) error {
+	gameClient, ok := client.(*GameClient)
+	if !ok {
+		return fmt.Errorf("Client could not be casted to a GameClient")
+	}
+
+	newClientCommand := &NewClientCommand{gameClient}
+
+	response, err := newClientCommand.execute()
+	if err != nil {
+		return err
+	}
+
+	client.Conn().WriteJSON(response)
+
+	return nil
+}
+
 func (pool *GamePool) Start() {
 	for {
 		select {
 		case client := <-pool.register:
 			pool.clients[client] = game.EMPTY
+			if err := pool.respondToNewClient(client); err != nil {
+				fmt.Println(err)
+			}
 		case client := <-pool.unregister:
 			delete(pool.clients, client)
 		case command := <-pool.broadcast:

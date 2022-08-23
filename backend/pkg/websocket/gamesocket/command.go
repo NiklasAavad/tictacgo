@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
+	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 )
 
 type Command interface {
@@ -109,22 +110,21 @@ type NewClientCommand struct {
 	client *GameClient
 }
 
+func (c *NewClientCommand) getClientName(client websocket.Client) string {
+	if client == nil {
+		return ""
+	}
+
+	return client.Name()
+}
+
 func (c *NewClientCommand) execute() (GameResponse, error) {
 	var response GameResponse
 
 	isGameStarted := c.client.Pool.game.IsStarted()
 
-	xClient := c.client.Pool.xClient
-	xClientName := ""
-	if xClient != nil {
-		xClientName = xClient.Name()
-	}
-
-	oClient := c.client.Pool.oClient
-	oClientName := ""
-	if oClient != nil {
-		oClientName = oClient.Name()
-	}
+	xClientName := c.getClientName(c.client.Pool.xClient)
+	oClientName := c.getClientName(c.client.Pool.oClient)
 
 	board := c.client.Pool.game.Board()
 

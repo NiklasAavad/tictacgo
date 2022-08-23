@@ -78,20 +78,6 @@ func (p *GamePool) Clients() map[websocket.Client]game.SquareCharacter {
 	return p.clients
 }
 
-func (p *GamePool) registerCharacter(client websocket.Client, character game.SquareCharacter) error {
-	if character == game.X && p.xClient == nil {
-		p.xClient = client
-		return nil
-	}
-
-	if character == game.O && p.oClient == nil {
-		p.oClient = client
-		return nil
-	}
-
-	return fmt.Errorf("Character %v is already taken", character)
-}
-
 func (p *GamePool) broadcastResponse(response GameResponse) error {
 	for client := range p.clients {
 		if err := client.Conn().WriteJSON(response); err != nil {

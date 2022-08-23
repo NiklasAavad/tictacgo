@@ -93,6 +93,24 @@ type SelectCharacterCommand struct {
 	character any
 }
 
+func (c *SelectCharacterCommand) selectCharacter(character game.SquareCharacter) error {
+	if character == game.X && c.client.Pool.xClient == nil {
+		c.client.Pool.xClient = c.client
+		return nil
+	}
+
+	if character == game.O && c.client.Pool.oClient == nil {
+		c.client.Pool.oClient = c.client
+		return nil
+	}
+
+	return fmt.Errorf("Character %v is already taken", c.character)
+}
+
+func (c *SelectCharacterCommand) hasClientAlreadySelected() bool {
+	return c.client.Pool.xClient == c.client || c.client.Pool.oClient == c.client
+}
+
 func (c *SelectCharacterCommand) execute() (GameResponse, error) {
 	var response GameResponse
 
@@ -101,7 +119,11 @@ func (c *SelectCharacterCommand) execute() (GameResponse, error) {
 		return response, err
 	}
 
-	if err := c.client.Pool.registerCharacter(c.client, character); err != nil {
+	if c.hasClientAlreadySelected() {
+		return response, fmt.Errorf("Client had already selected a character")
+	}
+
+	if err := c.selectCharacter(character); err != nil {
 		return response, err
 	}
 

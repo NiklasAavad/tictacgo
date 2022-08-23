@@ -235,3 +235,28 @@ func TestSpectatorCannotStartGame(t *testing.T) {
 		t.Errorf("Game should not have started, since it was started by the spectator")
 	}
 }
+
+func TestClientCannotChooseBothCharacters(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	client := createTestClient(pool)
+
+	messageX := GameMessage{SELECT_CHARACTER, game.X.String(), client}
+	pool.Broadcast(messageX)
+
+	if pool.xClient != client {
+		t.Errorf("Client should have selected X")
+	}
+
+	messageO := GameMessage{SELECT_CHARACTER, game.O.String(), client}
+	pool.Broadcast(messageO)
+
+	if pool.oClient == client {
+		t.Errorf("Client should not be able to select O, when they already selected X")
+	}
+
+	if pool.xClient != client {
+		t.Errorf("Client should still have selected X")
+	}
+}

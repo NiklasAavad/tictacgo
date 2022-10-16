@@ -28,6 +28,7 @@ export const Chat: React.FC = () => {
         setMessages(messages => [...messages, gameInfoMessage]);
     }, [latestGameInfoMessage])
 
+    // TODO i stedet for at skulle style alle på ny (og have derive state = bad!), så kunne vi bare lave userMessage til en styledMessage med det samme! Bedre + hurtigere.
     const styledMessages = useMemo(() => {
         return messages.map((message, idx) => <Message message={message} key={idx} />)
     }, [messages])

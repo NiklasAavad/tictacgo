@@ -37,7 +37,7 @@ func (c *StartGameCommand) execute() (GameResponse, error) {
 	var response GameResponse
 
 	bothCharactersSelected := c.client.Pool.xClient != nil && c.client.Pool.oClient != nil
-	if !bothCharactersSelected {
+	if !bothCharactersSelected { // TODO kunne overveje at lave en ErrorResponse, der bare sendes tilbage til den pågældende client og ikke broadcastes
 		return response, fmt.Errorf("Both characters must be selected, before a game can start")
 	}
 

@@ -120,7 +120,7 @@ func (pool *GamePool) respondToNewClient(client websocket.Client) error {
 		return fmt.Errorf("Client could not be casted to a GameClient")
 	}
 
-	newClientCommand := &NewClientCommand{gameClient}
+	newClientCommand := MakeNewClientCommand(gameClient)
 
 	response, err := newClientCommand.execute()
 	if err != nil {

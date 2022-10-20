@@ -137,6 +137,12 @@ type NewClientCommand struct {
 	client *GameClient
 }
 
+func MakeNewClientCommand(client *GameClient) Command {
+	return &NewClientCommand{
+		client: client,
+	}
+}
+
 func (c *NewClientCommand) getClientName(client websocket.Client) string {
 	if client == nil {
 		return ""

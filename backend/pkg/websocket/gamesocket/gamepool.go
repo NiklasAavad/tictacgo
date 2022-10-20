@@ -30,8 +30,8 @@ func NewGamePool(cs ChannelStrategy) *GamePool {
 		broadcast:       make(chan Command),
 		game:            game.NewGame(),
 		channelStrategy: cs,
-		xClient:         nil,
-		oClient:         nil,
+		xClient:         nil, // TODO: overvej at tilføje en 'noClient'
+		oClient:         nil, // TODO: overvej at tilføje en 'noClient'
 	}
 }
 

@@ -74,7 +74,6 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
         gameContextMutator.setIsGameOver(false);
     }
 
-    // TODO fix any
     const welcomeMessageWasReceived = ({ isGameStarted, board, xClient, oClient }: JSONWeclome) => {
         gameContextMutator.setIsGameStarted(isGameStarted)
 

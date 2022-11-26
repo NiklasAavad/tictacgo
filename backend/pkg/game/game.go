@@ -2,7 +2,6 @@ package game
 
 import "fmt"
 
-// TODO bør nok have info om hvilke clients der er hvem
 type Game struct {
 	board        Board
 	playerInTurn SquareCharacter

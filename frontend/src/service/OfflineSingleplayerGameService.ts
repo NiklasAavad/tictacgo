@@ -20,7 +20,6 @@ const OfflineSingleplayerGameService: GameService = (gameContextMutator: GameCon
         freePositions = freePositions.filter(freePosition => freePosition !== position);
     }
 
-    // TODO der er en bug ifht Position.TOP_LEFT. Det er fixet hvis TOP_LEFt starter fra 1, men så passer det ikke med board og backend.
     const choosePositionIfGameWouldEnd = (playerPositions: Position[]): Position | undefined => {
         for (const freePosition of freePositions) {
             const positionsIncludingFreePosition = [...playerPositions, freePosition];
@@ -33,7 +32,6 @@ const OfflineSingleplayerGameService: GameService = (gameContextMutator: GameCon
 
     const choosePositionByBot = () => {
         const positionIfBotWouldWin = choosePositionIfGameWouldEnd(o);
-        // TODO hvis man tjekker at positionen ikke er undefined? Ville buggen så blive udbedret?
         if (positionIfBotWouldWin !== undefined) {
             return positionIfBotWouldWin;
         }

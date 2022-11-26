@@ -31,9 +31,6 @@ type SquareProps = {
     border: Border,
 }
 
-// TODO overvej React.memo
-// Problemet er, at React.memo ingen effekt har pga useGameContext, men måske man alligevel kan lave noget ala arePropsEqual og så tjek på
-// latestSquare.position og winningCombination.
 export const Square: React.FC<SquareProps> = (props) => {
     const [character, setCharacter] = useState<SquareCharacter | EmptyString>("");
     const { board, result, chooseSquare } = useGameContext();

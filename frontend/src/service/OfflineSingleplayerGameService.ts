@@ -34,12 +34,12 @@ const OfflineSingleplayerGameService: GameService = (gameContextMutator: GameCon
     const choosePositionByBot = () => {
         const positionIfBotWouldWin = choosePositionIfGameWouldEnd(o);
         // TODO hvis man tjekker at positionen ikke er undefined? Ville buggen så blive udbedret?
-        if (positionIfBotWouldWin) {
+        if (positionIfBotWouldWin !== undefined) {
             return positionIfBotWouldWin;
         }
 
         const positionIfPlayerWouldWin = choosePositionIfGameWouldEnd(x);
-        if (positionIfPlayerWouldWin) {
+        if (positionIfPlayerWouldWin !== undefined) {
             return positionIfPlayerWouldWin;
         }
 

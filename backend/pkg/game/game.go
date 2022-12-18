@@ -53,8 +53,9 @@ func (g *Game) occupiedSquares() []SquareCharacter {
 	return slice
 }
 
-func (g *Game) notEnoughInputs() bool {
-	return len(g.occupiedSquares()) < 5
+// A game may be over, when one of the players have placed at least 3 inputs.
+func (g *Game) hasEnoughInputs() bool {
+	return len(g.occupiedSquares()) >= 5
 }
 
 func (g *Game) isBoardFull() bool {
@@ -77,7 +78,7 @@ func (g *Game) hasWinner() bool {
 }
 
 func (g *Game) IsGameOver() bool {
-	if g.notEnoughInputs() {
+	if !g.hasEnoughInputs() {
 		return false
 	}
 

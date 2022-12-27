@@ -120,7 +120,8 @@ func TestShouldBeWinningResult(t *testing.T) {
 	g.board = mockWinningBoard()
 
 	winningCombination := [3]Position{TOP_LEFT, TOP_CENTER, TOP_RIGHT}
-	expectedResult := Result{winningCombination, X, true}
+	hasWinner := true
+	expectedResult := Result{winningCombination, X, hasWinner}
 
 	assert.Equal(t, expectedResult, g.GetResult())
 }

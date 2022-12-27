@@ -17,7 +17,9 @@ func serveWs(pool websocket.Pool, w http.ResponseWriter, r *http.Request) {
 
 func startPools() (*chat.ChatPool, *gamesocket.GamePool) {
 	chatPool := chat.NewChatPool()
-	gamePool := gamesocket.NewGamePool(gamesocket.NewConcurrentChannelStrategy())
+
+	channelStrategy := gamesocket.NewConcurrentChannelStrategy()
+	gamePool := gamesocket.NewGamePool(channelStrategy)
 
 	go chatPool.Start()
 	go gamePool.Start()

@@ -26,15 +26,17 @@ export const useGameContext = () => {
     return context;
 }
 
-export enum GameInfoMessage {
-    X_WON = "The game has been won by X!",
-    O_WON = "The game has been won by O!",
-    TIE = "The game has been tied...",
-    START_NEW_GAME = "Click on the 'New Game' button to begin!",
-    NEW_GAME_STARTED = "A new game has just begun! X begins.",
-    X_SELECTED = "X has been selected",
-    O_SELECTED = "O has been selected",
-}
+export const GAMEINFO = {
+	X_WON: "The game has been won by X!",
+    O_WON: "The game has been won by O!",
+    TIE: "The game has been tied...",
+    START_NEW_GAME: "Click on the 'New Game' button to begin!",
+    NEW_GAME_STARTED: "A new game has just begun! X begins.",
+    X_SELECTED: "X has been selected",
+    O_SELECTED: "O has been selected",
+} as const;
+
+export type GameInfoMessage = typeof GAMEINFO[keyof typeof GAMEINFO];
 
 type GameProviderProps = {
     gameServiceProvider: GameService
@@ -44,7 +46,7 @@ const TIMEOUT_PERIOD = 2500; // ms!
 
 export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildren<GameProviderProps>) => {
     const [board, setBoard] = useState<Board>(getEmptyBoard());
-    const [latestGameInfoMessage, setLatestGameInfoMessage] = useState<GameInfoMessage>(GameInfoMessage.START_NEW_GAME);
+    const [latestGameInfoMessage, setLatestGameInfoMessage] = useState<GameInfoMessage>(GAMEINFO.START_NEW_GAME);
     const [isGameStarted, setIsGameStarted] = useState(false);
     const [result, setResult] = useState<Result | undefined>(undefined);
     const [isGameOver, setIsGameOver] = useState<boolean>(false);
@@ -70,10 +72,10 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
     const getWinningMessage = useCallback((result: Result): GameInfoMessage => {
         const xWon = result.winningCharacter === SquareCharacter.X;
         if (xWon) {
-            return GameInfoMessage.X_WON;
+            return GAMEINFO.X_WON;
         }
         else {
-            return GameInfoMessage.O_WON;
+            return GAMEINFO.O_WON;
         }
     }, []);
 
@@ -82,11 +84,11 @@ export const GameProvider = ({ gameServiceProvider, children }: PropsWithChildre
             const newGameMessage = getWinningMessage(result);
             setLatestGameInfoMessage(newGameMessage);
         } else {
-            setLatestGameInfoMessage(GameInfoMessage.TIE);
+            setLatestGameInfoMessage(GAMEINFO.TIE);
         }
 
         const waitForGameToEnd = setTimeout(() => {
-            setLatestGameInfoMessage(GameInfoMessage.START_NEW_GAME);
+            setLatestGameInfoMessage(GAMEINFO.START_NEW_GAME);
             setIsGameStarted(false)
         }, TIMEOUT_PERIOD);
 

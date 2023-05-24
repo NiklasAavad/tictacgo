@@ -1,6 +1,5 @@
 import { SquareCharacter } from "../components/Content/Game/Square/Square";
-import { GAMEINFO } from "../context/GameContext";
-import { getEmptyBoard } from "../utility/GameServiceUtility";
+import { getEmptyBoard, startGameForMutator } from "../utility/GameServiceUtility";
 import { allPositions, Position } from "../utility/Position";
 import { WINNING_COMBINATIONS } from "../utility/WinningCombinations";
 import { Board, GameContextMutator, GameService, Result } from "./GameService";
@@ -12,11 +11,7 @@ const OfflineMultiplayerGameService: GameService = (gameContextMutator: GameCont
     const startGame = (): void => {
         board = getEmptyBoard();
         playerInTurn = SquareCharacter.X;
-        gameContextMutator.setBoard(getEmptyBoard());
-        gameContextMutator.setLatestGameInfoMessage(GAMEINFO.NEW_GAME_STARTED);
-        gameContextMutator.setIsGameStarted(true);
-        gameContextMutator.setResult(undefined);
-        gameContextMutator.setIsGameOver(false);
+		startGameForMutator(gameContextMutator);
     };
 
     const getResult = (): Result | undefined => {

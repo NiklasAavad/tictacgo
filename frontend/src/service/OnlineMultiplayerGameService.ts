@@ -4,7 +4,7 @@ import { GAMEINFO } from "../context/GameContext";
 import { Position } from "../utility/Position";
 import { GAME_WS_URL, JSONWeclome } from './../api/BackendApi';
 import { SquareCharacter } from './../components/Content/Game/Square/Square';
-import { getEmptyBoard } from './../utility/GameServiceUtility';
+import { startGameForMutator } from './../utility/GameServiceUtility';
 import { Board, GameContextMutator, GameService } from "./GameService";
 
 const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameContextMutator) => {
@@ -67,11 +67,7 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
     }
 
     const gameDidStart = () => {
-        gameContextMutator.setBoard(getEmptyBoard());
-        gameContextMutator.setLatestGameInfoMessage(GAMEINFO.NEW_GAME_STARTED);
-        gameContextMutator.setIsGameStarted(true);
-        gameContextMutator.setResult(undefined);
-        gameContextMutator.setIsGameOver(false);
+		startGameForMutator(gameContextMutator);
     }
 
     const welcomeMessageWasReceived = ({ isGameStarted, board, xClient, oClient }: JSONWeclome) => {

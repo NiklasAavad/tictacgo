@@ -10,14 +10,15 @@ export type Border = {
     right?: boolean
 }
 
-enum BorderClass {
-    NO_TOP = "no-top-border",
-    NO_BOTTOM = "no-bottom-border",
-    NO_LEFT = "no-left-border",
-    NO_RIGHT = "no-right-border",
-    TOP_RIGHT_BORDER_RADIUS = "top-right-border-radius",
-    BOTTOM_RIGHT_BORDER_RADIUS = "bottomright-border-radius",
-}
+const BorderClass = {
+    NO_TOP: "no-top-border",
+    NO_BOTTOM: "no-bottom-border",
+    NO_LEFT: "no-left-border",
+    NO_RIGHT: "no-right-border",
+    TOP_RIGHT_BORDER_RADIUS: "top-right-border-radius",
+    BOTTOM_RIGHT_BORDER_RADIUS: "bottomright-border-radius",
+} as const;
+type BorderClassType = typeof BorderClass[keyof typeof BorderClass];
 
 export enum SquareCharacter {
     X = "X",
@@ -45,7 +46,7 @@ export const Square: React.FC<SquareProps> = (props) => {
 
     const borderClasses = useMemo(() => {
         const border = props.border;
-        const borderClasses: BorderClass[] = []
+        const borderClasses: BorderClassType[] = []
 
         if (border.top) {
             borderClasses.push(BorderClass.NO_TOP);

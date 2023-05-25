@@ -1,5 +1,5 @@
 import { JSONResult, ResponseType } from "../api/BackendApi";
-import { GameInstruction } from "../api/FrontendApi";
+import { GameInstruction, GameInstructionType } from "../api/FrontendApi";
 import { GAMEINFO } from "../context/GameContext";
 import { Position } from "../utility/Position";
 import { GAME_WS_URL, JSONWeclome } from './../api/BackendApi';
@@ -86,7 +86,7 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
         }
     }
 
-    const sendGameMessage = (instruction: GameInstruction, content?: Position | SquareCharacter) => {
+    const sendGameMessage = (instruction: GameInstructionType, content?: Position | SquareCharacter) => {
         const jsonMessage = JSON.stringify({ instruction, content })
         socket.send(jsonMessage);
     }

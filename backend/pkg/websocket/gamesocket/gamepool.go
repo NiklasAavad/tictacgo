@@ -9,6 +9,8 @@ import (
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 )
 
+// GamePool is a websocket pool that handles the game logic
+// It implements the websocket.Pool interface
 type GamePool struct {
 	register        chan websocket.Client
 	unregister      chan websocket.Client
@@ -20,8 +22,10 @@ type GamePool struct {
 	oClient         websocket.Client
 }
 
+// Assert that GamePool implements the websocket.Pool interface
 var _ websocket.Pool = new(GamePool)
 
+// NewGamePool creates a new GamePool
 func NewGamePool(cs ChannelStrategy) *GamePool {
 	return &GamePool{
 		register:        make(chan websocket.Client),
@@ -35,6 +39,7 @@ func NewGamePool(cs ChannelStrategy) *GamePool {
 	}
 }
 
+// NewClient creates a new GameClient
 func (p *GamePool) NewClient(w http.ResponseWriter, r *http.Request) websocket.Client {
 	clientName := r.URL.Query().Get("name")
 	if clientName == "" {
@@ -55,6 +60,7 @@ func (p *GamePool) NewClient(w http.ResponseWriter, r *http.Request) websocket.C
 	return client
 }
 
+// Broadcast broadcasts a GameMessage to all clients in the pool
 func (p *GamePool) Broadcast(m GameMessage) error {
 	command, err := ParseCommand(m)
 	if err != nil {
@@ -66,18 +72,24 @@ func (p *GamePool) Broadcast(m GameMessage) error {
 	return nil
 }
 
+// Register registers a client in the pool
 func (p *GamePool) Register(c websocket.Client) {
 	p.channelStrategy.register(p, c)
 }
 
+// Unregister unregisters a client from the pool
 func (p *GamePool) Unregister(c websocket.Client) {
 	p.channelStrategy.unregister(p, c)
 }
 
+// Clients returns a map of all clients in the pool
+// The key is the client and the value is the client's character in the game
 func (p *GamePool) Clients() map[websocket.Client]game.SquareCharacter {
 	return p.clients
 }
 
+// broadcastResponse broadcasts a GameResponse to all clients in the pool
+// It returns an error if the broadcast fails
 func (p *GamePool) broadcastResponse(response GameResponse) error {
 	for client := range p.clients {
 		if err := client.Conn().WriteJSON(response); err != nil {
@@ -87,6 +99,9 @@ func (p *GamePool) broadcastResponse(response GameResponse) error {
 	return nil
 }
 
+// broadcastGameIsOver broadcasts a GAME_OVER response to all clients in the pool
+// It also broadcasts a RESULT response to all clients in the pool
+// The RESULT response contains the result of the game
 func (pool *GamePool) broadcastGameIsOver() {
 	gameOverResponse := GameResponse{GAME_OVER, true}
 
@@ -97,6 +112,9 @@ func (pool *GamePool) broadcastGameIsOver() {
 	pool.broadcastResponse(resultResponse)
 }
 
+// respond responds to a command
+// It executes the command and broadcasts the response to all clients in the pool
+// It returns an error if the command execution fails
 func (pool *GamePool) respond(command Command) error {
 	response, err := command.execute()
 
@@ -115,6 +133,9 @@ func (pool *GamePool) respond(command Command) error {
 	return nil
 }
 
+// respondToNewClient responds to a new client
+// It executes a NEW_CLIENT command and sends the response to the client
+// It returns an error if the command execution fails
 func (pool *GamePool) respondToNewClient(client websocket.Client) error {
 	gameClient, ok := client.(*GameClient)
 	if !ok {
@@ -135,6 +156,9 @@ func (pool *GamePool) respondToNewClient(client websocket.Client) error {
 	return nil
 }
 
+// Start starts the GamePool
+// It listens for new clients, unregistered clients and commands
+// It responds to new clients and commands
 func (pool *GamePool) Start() {
 	for {
 		select {

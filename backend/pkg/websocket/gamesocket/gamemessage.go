@@ -19,7 +19,7 @@ func (gm *GameMessage) ToCommand() (Command, error) {
 	}
 
 	// TODO should we check if there is a gi in the parser?
-	command, err := gm.InstructionParser.gi.ToCommand(*gameClient, gm.Content)
+	command, err := gm.InstructionParser.gi.ToCommand(gameClient, gm.Content)
 	if err != nil {
 		return nil, err
 	}

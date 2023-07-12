@@ -10,7 +10,7 @@ import (
 
 type GameInstruction interface {
 	String() string
-	ToCommand(GameClient, any) (Command, error)
+	ToCommand(*GameClient, any) (Command, error)
 }
 
 // ---------------------------------------------------------------------------------------------------
@@ -71,8 +71,8 @@ func (*StartGameInstruction) String() string {
 
 // ToCommand implements GameInstruction
 // TODO consider if we should check that content is nil / 0 / whatever
-func (*StartGameInstruction) ToCommand(gc GameClient, content any) (Command, error) {
-	return &StartGameCommand{&gc}, nil
+func (*StartGameInstruction) ToCommand(gc *GameClient, content any) (Command, error) {
+	return &StartGameCommand{gc}, nil
 }
 
 var _ GameInstruction = new(StartGameInstruction)
@@ -87,13 +87,13 @@ func (*ChooseSquareInstruction) String() string {
 }
 
 // ToCommand implements GameInstruction
-func (*ChooseSquareInstruction) ToCommand(gc GameClient, content any) (Command, error) {
+func (*ChooseSquareInstruction) ToCommand(gc *GameClient, content any) (Command, error) {
 	position, err := game.ParsePosition(content)
 	if err != nil {
 		return nil, err
 	}
 
-	return &ChooseSquareCommand{&gc, position}, nil
+	return &ChooseSquareCommand{gc, position}, nil
 }
 
 var _ GameInstruction = new(ChooseSquareInstruction)
@@ -108,13 +108,13 @@ func (*SelectCharacterInstruction) String() string {
 }
 
 // ToCommand implements GameInstruction
-func (*SelectCharacterInstruction) ToCommand(gc GameClient, content any) (Command, error) {
+func (*SelectCharacterInstruction) ToCommand(gc *GameClient, content any) (Command, error) {
 	character, err := game.ParseSquareCharacter(content)
 	if err != nil {
 		return nil, err
 	}
 
-	return &SelectCharacterCommand{&gc, character}, nil
+	return &SelectCharacterCommand{gc, character}, nil
 }
 
 var _ GameInstruction = new(SelectCharacterInstruction)

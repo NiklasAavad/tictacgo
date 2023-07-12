@@ -14,7 +14,7 @@ import (
 type GamePool struct {
 	register        chan websocket.Client
 	unregister      chan websocket.Client
-	clients         map[websocket.Client]game.SquareCharacter
+	clients         map[websocket.Client]game.SquareCharacter // TODO: evt lav om til liste af clients? 
 	broadcast       chan Command
 	game            game.GameService
 	channelStrategy ChannelStrategy

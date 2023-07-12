@@ -25,6 +25,7 @@ const (
 	WELCOME
 )
 
+// WelcomeResponse is the response that is sent to a client when it connects to the server
 type WelcomeResponse struct {
 	IsGameStarted bool       `json:"isGameStarted"`
 	XClient       string     `json:"xClient"`
@@ -32,6 +33,7 @@ type WelcomeResponse struct {
 	Board         game.Board `json:"board"`
 }
 
+// Maps for converting between ResponseType and string
 var (
 	ResponseTypeName = map[uint8]string{
 		1: "board",

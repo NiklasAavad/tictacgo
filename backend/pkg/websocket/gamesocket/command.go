@@ -90,14 +90,11 @@ func (c *SelectCharacterCommand) selectCharacter(character game.SquareCharacter)
 	return fmt.Errorf("Character %v is already taken", c.character)
 }
 
-func (c *SelectCharacterCommand) hasClientAlreadySelected() bool {
-	return c.client.Pool.xClient == c.client || c.client.Pool.oClient == c.client
-}
-
 func (c *SelectCharacterCommand) execute() (GameResponse, error) {
 	var response GameResponse
 
-	if c.hasClientAlreadySelected() {
+	hasClientAlreadySelected := c.client.Pool.xClient == c.client || c.client.Pool.oClient == c.client
+	if hasClientAlreadySelected {
 		return response, fmt.Errorf("Client had already selected a character")
 	}
 

@@ -21,9 +21,17 @@ func ParseCommand(msg GameMessage) (Command, error) {
 	case START_GAME:
 		return &StartGameCommand{gameClient}, nil
 	case CHOOSE_SQUARE:
-		return &ChooseSquareCommand{gameClient, msg.Content}, nil
+		position, err := game.ParsePosition(msg.Content)
+		if err != nil {
+			return nil, err
+		}
+		return &ChooseSquareCommand{gameClient, position}, nil
 	case SELECT_CHARACTER:
-		return &SelectCharacterCommand{gameClient, msg.Content}, nil
+		character, err := game.ParseSquareCharacter(msg.Content)
+		if err != nil {
+			return nil, err
+		}
+		return &SelectCharacterCommand{gameClient, character}, nil
 	}
 
 	return nil, fmt.Errorf("invalid instruction: %s", msg.Instruction)
@@ -55,7 +63,7 @@ func (c *StartGameCommand) execute() (GameResponse, error) {
 
 type ChooseSquareCommand struct {
 	client   *GameClient
-	position any
+	position game.Position
 }
 
 func (c *ChooseSquareCommand) isClientInTurn() bool {
@@ -72,12 +80,7 @@ func (c *ChooseSquareCommand) execute() (GameResponse, error) {
 		return response, fmt.Errorf("It was not this client's turn to play")
 	}
 
-	position, err := game.ParsePosition(c.position)
-	if err != nil {
-		return response, err
-	}
-
-	board, err := c.client.Pool.game.ChooseSquare(position)
+	board, err := c.client.Pool.game.ChooseSquare(c.position)
 	if err != nil {
 		return response, err
 	}
@@ -90,7 +93,7 @@ func (c *ChooseSquareCommand) execute() (GameResponse, error) {
 
 type SelectCharacterCommand struct {
 	client    *GameClient
-	character any
+	character game.SquareCharacter
 }
 
 func (c *SelectCharacterCommand) selectCharacter(character game.SquareCharacter) error {
@@ -114,21 +117,16 @@ func (c *SelectCharacterCommand) hasClientAlreadySelected() bool {
 func (c *SelectCharacterCommand) execute() (GameResponse, error) {
 	var response GameResponse
 
-	character, err := game.ParseSquareCharacter(c.character)
-	if err != nil {
-		return response, err
-	}
-
 	if c.hasClientAlreadySelected() {
 		return response, fmt.Errorf("Client had already selected a character")
 	}
 
-	if err := c.selectCharacter(character); err != nil {
+	if err := c.selectCharacter(c.character); err != nil {
 		return response, err
 	}
 
 	response.ResponseType = CHARACTER_SELECTED
-	response.Body = character
+	response.Body = c.character
 
 	return response, nil
 }

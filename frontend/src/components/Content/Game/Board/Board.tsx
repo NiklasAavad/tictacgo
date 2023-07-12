@@ -1,7 +1,7 @@
 import React from "react";
 import { Position } from "../../../../utility/Position";
 import { Border, Square } from "../Square/Square";
-import "./Board.css";
+import styles from  "./Board.module.css"
 
 export const Board: React.FC = React.memo(() => {
     const createSquare = (position: Position, border: Border) => {
@@ -48,7 +48,7 @@ export const Board: React.FC = React.memo(() => {
     const centerSquares = createCenterSquares();
     const bottomSquares = createBottomSquares();
 
-    return <div className="board">
+    return <div className={styles.board}>
         <div className="row">
             {topSquares}
         </div>

@@ -1,6 +1,8 @@
 package gamesocket
 
 import (
+	"fmt"
+
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 )
@@ -55,7 +57,9 @@ func NewSequentialChannelStrategy() ChannelStrategy {
 
 // broadcast implements ChannelStrategy
 func (*SequentialChannelStrategy) broadcast(p *GamePool, c Command) {
-	p.respond(c)
+	if err := p.respond(c); err != nil {
+		fmt.Println(err)
+	}
 }
 
 // register implements ChannelStrategy

@@ -67,9 +67,7 @@ func (p *GamePool) Broadcast(m GameMessage) error {
 		return err
 	}
 
-	p.channelStrategy.broadcast(p, command)
-
-	return nil
+	return p.channelStrategy.broadcast(p, command)
 }
 
 // Register registers a client in the pool

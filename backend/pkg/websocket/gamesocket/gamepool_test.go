@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
-	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket/testutils"
 )
 
@@ -29,28 +28,28 @@ func createTestClient(pool *GamePool) *GameClient {
 	return client
 }
 
-func createSelectCharacterMessage(client websocket.Client, character game.SquareCharacter) GameMessage {
+func createSelectCharacterMessage(client *GameClient, character game.SquareCharacter) GameMessage {
 	giParser := GameInstructionParser{
 		gi: &SelectCharacterInstruction{},
 	}
 	return GameMessage{giParser, character.String(), client}
 }
 
-func createStartGameMessage(client websocket.Client) GameMessage {
+func createStartGameMessage(client *GameClient) GameMessage {
 	giParser := GameInstructionParser{
 		gi: &StartGameInstruction{},
 	}
 	return GameMessage{giParser, 0, client}
 }
 
-func createChooseSquareMessage(client websocket.Client, position game.Position) GameMessage {
+func createChooseSquareMessage(client *GameClient, position game.Position) GameMessage {
 	giParser := GameInstructionParser{
 		gi: &ChooseSquareInstruction{},
 	}
 	return GameMessage{giParser, position, client}
 }
 
-func startGame(pool *GamePool) (websocket.Client, websocket.Client, error) {
+func startGame(pool *GamePool) (*GameClient, *GameClient, error) {
 	clientX, clientO := createTestClient(pool), createTestClient(pool)
 
 	messageX := createSelectCharacterMessage(clientX, game.X)
@@ -72,7 +71,7 @@ func startGame(pool *GamePool) (websocket.Client, websocket.Client, error) {
 	return clientX, clientO, nil
 }
 
-func chooseSquare(pool *GamePool, c websocket.Client, position game.Position) error {
+func chooseSquare(pool *GamePool, c *GameClient, position game.Position) error {
 	message := createChooseSquareMessage(c, position)
 	return pool.Broadcast(message)
 }

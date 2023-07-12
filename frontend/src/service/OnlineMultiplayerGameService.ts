@@ -1,5 +1,5 @@
 import { JSONResult, ResponseType } from "../api/BackendApi";
-import { GameInstruction, GameInstructionType } from "../api/FrontendApi";
+import { GameInstruction, GameInstructionType, GameMessage } from "../api/FrontendApi";
 import { GAMEINFO } from "../context/GameContext";
 import { Position } from "../utility/Position";
 import { GAME_WS_URL, JSONWeclome } from './../api/BackendApi';
@@ -86,21 +86,30 @@ const OnlineMultiplayerGameService: GameService = (gameContextMutator: GameConte
         }
     }
 
-    const sendGameMessage = (instruction: GameInstructionType, content?: Position | SquareCharacter) => {
-        const jsonMessage = JSON.stringify({ instruction, content })
+    const sendGameMessage = (msg: GameMessage) => {
+        const jsonMessage = JSON.stringify(msg)
         socket.send(jsonMessage);
     }
 
     const startGame = (): void => {
-        sendGameMessage(GameInstruction.START_GAME);
+		const msg = { instruction: GameInstruction.START_GAME };
+        sendGameMessage(msg);
     };
 
     const chooseSquare = (position: Position): void => {
-        sendGameMessage(GameInstruction.CHOOSE_SQUARE, position);
+		const msg = {
+			instruction: GameInstruction.CHOOSE_SQUARE,
+			content: position
+		}
+        sendGameMessage(msg);
     };
 
     const selectCharacter = (character: SquareCharacter): void => {
-        sendGameMessage(GameInstruction.SELECT_CHARACTER, character);
+		const msg = {
+			instruction: GameInstruction.SELECT_CHARACTER,
+			content: character
+		}
+        sendGameMessage(msg);
     }
 
     return {

@@ -22,10 +22,6 @@ func TestGameInstructionString(t *testing.T) {
 			expectedResult: "choose square",
 		},
 		{
-			input:          new(GetBoardInstruction),
-			expectedResult: "get board",
-		},
-		{
 			input:          new(SelectCharacterInstruction),
 			expectedResult: "select character",
 		},
@@ -54,16 +50,6 @@ func TestParseChooseSquare(t *testing.T) {
 	}
 	if gameInstruction != ChooseSquare {
 		t.Errorf("expected CHOOSE_SQUARE, got %v", gameInstruction)
-	}
-}
-
-func TestParseGetBoard(t *testing.T) {
-	gameInstruction, err := ParseGameInstruction("get board")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if gameInstruction != GetBoard {
-		t.Errorf("expected GET_BOARD, got %v", gameInstruction)
 	}
 }
 

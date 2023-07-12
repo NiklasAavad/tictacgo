@@ -62,7 +62,7 @@ func (p *GamePool) NewClient(w http.ResponseWriter, r *http.Request) websocket.C
 
 // Broadcast broadcasts a GameMessage to all clients in the pool
 func (p *GamePool) Broadcast(m GameMessage) error {
-	command, err := ParseCommand(m)
+	command, err := m.ToCommand()
 	if err != nil {
 		return err
 	}

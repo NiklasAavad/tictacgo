@@ -29,24 +29,52 @@ func createTestClient(pool *GamePool) *GameClient {
 	return client
 }
 
-func startGame(pool *GamePool) (websocket.Client, websocket.Client) {
-	clientX, clientO := createTestClient(pool), createTestClient(pool)
-
-	messageX := GameMessage{SELECT_CHARACTER, game.X.String(), clientX}
-	messageO := GameMessage{SELECT_CHARACTER, game.O.String(), clientO}
-
-	pool.Broadcast(messageX)
-	pool.Broadcast(messageO)
-
-	message := GameMessage{START_GAME, 0, clientX}
-	pool.Broadcast(message)
-
-	return clientX, clientO
+func createSelectCharacterMessage(client websocket.Client, character game.SquareCharacter) GameMessage {
+	giParser := GameInstructionParser{
+		gi: &SelectCharacterInstruction{},
+	}
+	return GameMessage{giParser, character.String(), client}
 }
 
-func chooseSquare(pool *GamePool, c websocket.Client, position game.Position) {
-	message := GameMessage{CHOOSE_SQUARE, position, c}
-	pool.Broadcast(message)
+func createStartGameMessage(client websocket.Client) GameMessage {
+	giParser := GameInstructionParser{
+		gi: &StartGameInstruction{},
+	}
+	return GameMessage{giParser, 0, client}
+}
+
+func createChooseSquareMessage(client websocket.Client, position game.Position) GameMessage {
+	giParser := GameInstructionParser{
+		gi: &ChooseSquareInstruction{},
+	}
+	return GameMessage{giParser, position, client}
+}
+
+func startGame(pool *GamePool) (websocket.Client, websocket.Client, error) {
+	clientX, clientO := createTestClient(pool), createTestClient(pool)
+
+	messageX := createSelectCharacterMessage(clientX, game.X)
+	messageO := createSelectCharacterMessage(clientO, game.O)
+
+	if err := pool.Broadcast(messageX); err != nil {
+		return nil, nil, err
+	}
+
+	if err := pool.Broadcast(messageO); err != nil {
+		return nil, nil, err
+	}
+
+	message := createStartGameMessage(clientX)
+	if err := pool.Broadcast(message); err != nil {
+		return nil, nil, err
+	}
+
+	return clientX, clientO, nil
+}
+
+func chooseSquare(pool *GamePool, c websocket.Client, position game.Position) error {
+	message := createChooseSquareMessage(c, position)
+	return pool.Broadcast(message)
 }
 
 func TestRegisterClient(t *testing.T) {
@@ -94,9 +122,11 @@ func TestShouldBeCharacterX(t *testing.T) {
 
 	client := createTestClient(pool)
 
-	message := GameMessage{SELECT_CHARACTER, game.X.String(), client}
+	message := createSelectCharacterMessage(client, game.X)
 
-	pool.Broadcast(message)
+	if err := pool.Broadcast(message); err != nil {
+		t.Fatal(err)
+	}
 
 	if pool.xClient != client {
 		t.Errorf("Expected client to be xClient, but got %v", pool.xClient)
@@ -109,9 +139,11 @@ func TestShouldBeCharacterO(t *testing.T) {
 
 	client := createTestClient(pool)
 
-	message := GameMessage{SELECT_CHARACTER, game.O.String(), client}
+	message := createSelectCharacterMessage(client, game.O)
 
-	pool.Broadcast(message)
+	if err := pool.Broadcast(message); err != nil {
+		t.Fatal(err)
+	}
 
 	if pool.oClient != client {
 		t.Errorf("Expected client to be oClient, but got %v", pool.oClient)
@@ -123,12 +155,16 @@ func TestShouldNotChangeCharacterIfCharacterIsAlreadyTaken(t *testing.T) {
 	defer teardown(t)
 
 	client1 := createTestClient(pool)
-	message1 := GameMessage{SELECT_CHARACTER, game.X.String(), client1}
-	pool.Broadcast(message1)
+	message1 := createSelectCharacterMessage(client1, game.X)
+	if err := pool.Broadcast(message1); err != nil {
+		t.Fatal(err)
+	}
 
 	client2 := createTestClient(pool)
-	message2 := GameMessage{SELECT_CHARACTER, game.X.String(), client2}
-	pool.Broadcast(message2)
+	message2 := createSelectCharacterMessage(client2, game.X)
+	if err := pool.Broadcast(message2); err != nil {
+		t.Fatal(err)
+	}
 
 	want := game.EMPTY
 	got := pool.Clients()[client2]
@@ -148,8 +184,10 @@ func TestGameShouldNotStartWhenNoCharactersSelected(t *testing.T) {
 
 	client := createTestClient(pool)
 
-	message := GameMessage{START_GAME, 0, client}
-	pool.Broadcast(message)
+	message := createStartGameMessage(client)
+	if err := pool.Broadcast(message); err != nil {
+		t.Fatal(err)
+	}
 
 	if pool.game.IsStarted() {
 		t.Errorf("Game should still not have started, despite the Start Game message, since both characters must've been selected")
@@ -161,15 +199,21 @@ func TestGameShouldBeAbleToStartWhenBothCharactersAreSelected(t *testing.T) {
 	defer teardown(t)
 
 	client1 := createTestClient(pool)
-	message1 := GameMessage{SELECT_CHARACTER, game.X.String(), client1}
-	pool.Broadcast(message1)
+	message1 := createSelectCharacterMessage(client1, game.X)
+	if err := pool.Broadcast(message1); err != nil {
+		t.Fatal(err)
+	}
 
 	client2 := createTestClient(pool)
-	message2 := GameMessage{SELECT_CHARACTER, game.O.String(), client2}
-	pool.Broadcast(message2)
+	message2 := createSelectCharacterMessage(client2, game.O)
+	if err := pool.Broadcast(message2); err != nil {
+		t.Fatal(err)
+	}
 
-	message := GameMessage{START_GAME, 0, client1}
-	pool.Broadcast(message)
+	message := createStartGameMessage(client1)
+	if err := pool.Broadcast(message); err != nil {
+		t.Fatal(err)
+	}
 
 	if !pool.game.IsStarted() {
 		t.Errorf("Game should be started")
@@ -180,11 +224,16 @@ func TestOCannotChooseSquareWhenItIsX(t *testing.T) {
 	teardown, pool := setupTest(t)
 	defer teardown(t)
 
-	_, clientO := startGame(pool)
+	_, clientO, err := startGame(pool)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	originalBoard := pool.game.Board()
 
-	chooseSquare(pool, clientO, game.CENTER)
+	if err := chooseSquare(pool, clientO, game.CENTER); err != nil {
+		t.Fatal(err)
+	}
 
 	want := originalBoard
 	got := pool.game.Board()
@@ -198,13 +247,20 @@ func TestXCannotChooseSquareWhenItIsO(t *testing.T) {
 	teardown, pool := setupTest(t)
 	defer teardown(t)
 
-	clientX, _ := startGame(pool)
+	clientX, _, err := startGame(pool)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	chooseSquare(pool, clientX, game.CENTER)
+	if err := chooseSquare(pool, clientX, game.CENTER); err != nil {
+		t.Fatal(err)
+	}
 
 	boardAfterFirstPlay := pool.game.Board()
 
-	chooseSquare(pool, clientX, game.BOTTOM_CENTER)
+	if err := chooseSquare(pool, clientX, game.BOTTOM_CENTER); err != nil {
+		t.Fatal(err)
+	}
 
 	want := boardAfterFirstPlay
 	got := pool.game.Board()
@@ -222,14 +278,21 @@ func TestSpectatorCannotStartGame(t *testing.T) {
 	clientO := createTestClient(pool)
 	clientSpectator := createTestClient(pool)
 
-	messageX := GameMessage{SELECT_CHARACTER, game.X.String(), clientX}
-	messageO := GameMessage{SELECT_CHARACTER, game.O.String(), clientO}
+	messageX := createSelectCharacterMessage(clientX, game.X)
+	messageO := createSelectCharacterMessage(clientO, game.O)
 
-	pool.Broadcast(messageX)
-	pool.Broadcast(messageO)
+	if err := pool.Broadcast(messageX); err != nil {
+		t.Fatal(err)
+	}
 
-	startGameMessage := GameMessage{START_GAME, 0, clientSpectator}
-	pool.Broadcast(startGameMessage)
+	if err := pool.Broadcast(messageO); err != nil {
+		t.Fatal(err)
+	}
+
+	startGameMessage := createStartGameMessage(clientSpectator)
+	if err := pool.Broadcast(startGameMessage); err != nil {
+		t.Fatal(err)
+	}
 
 	if pool.game.IsStarted() {
 		t.Errorf("Game should not have started, since it was started by the spectator")
@@ -242,15 +305,19 @@ func TestClientCannotChooseBothCharacters(t *testing.T) {
 
 	client := createTestClient(pool)
 
-	messageX := GameMessage{SELECT_CHARACTER, game.X.String(), client}
-	pool.Broadcast(messageX)
+	messageX := createSelectCharacterMessage(client, game.X)
+	if err := pool.Broadcast(messageX); err != nil {
+		t.Fatal(err)
+	}
 
 	if pool.xClient != client {
 		t.Errorf("Client should have selected X")
 	}
 
-	messageO := GameMessage{SELECT_CHARACTER, game.O.String(), client}
-	pool.Broadcast(messageO)
+	messageO := createSelectCharacterMessage(client, game.O)
+	if err := pool.Broadcast(messageO); err != nil {
+		t.Fatal(err)
+	}
 
 	if pool.oClient == client {
 		t.Errorf("Client should not be able to select O, when they already selected X")

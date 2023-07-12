@@ -14,19 +14,19 @@ func TestGameInstructionString(t *testing.T) {
 
 	for _, testCase := range []stringTestCases{
 		{
-			input:          GameInstruction(1),
+			input:          new(StartGameInstruction),
 			expectedResult: "start game",
 		},
 		{
-			input:          GameInstruction(2),
+			input:          new(ChooseSquareInstruction),
 			expectedResult: "choose square",
 		},
 		{
-			input:          GameInstruction(3),
+			input:          new(GetBoardInstruction),
 			expectedResult: "get board",
 		},
 		{
-			input:          GameInstruction(4),
+			input:          new(SelectCharacterInstruction),
 			expectedResult: "select character",
 		},
 	} {
@@ -42,7 +42,7 @@ func TestParseStartGame(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if gameInstruction != START_GAME {
+	if gameInstruction != StartGame {
 		t.Errorf("expected START_GAME, got %v", gameInstruction)
 	}
 }
@@ -52,7 +52,7 @@ func TestParseChooseSquare(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if gameInstruction != CHOOSE_SQUARE {
+	if gameInstruction != ChooseSquare {
 		t.Errorf("expected CHOOSE_SQUARE, got %v", gameInstruction)
 	}
 }
@@ -62,7 +62,7 @@ func TestParseGetBoard(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if gameInstruction != GET_BOARD {
+	if gameInstruction != GetBoard {
 		t.Errorf("expected GET_BOARD, got %v", gameInstruction)
 	}
 }
@@ -72,7 +72,7 @@ func TestParseIsCaseInsensitive(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if gameInstruction != START_GAME {
+	if gameInstruction != StartGame {
 		t.Errorf("expected START_GAME, got %v", gameInstruction)
 	}
 }
@@ -82,7 +82,7 @@ func TestParseTrimsBothSides(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if gameInstruction != START_GAME {
+	if gameInstruction != StartGame {
 		t.Errorf("expected START_GAME, got %v", gameInstruction)
 	}
 }
@@ -95,36 +95,36 @@ func TestParseShouldThrowError(t *testing.T) {
 }
 
 func TestUnmarshalSucces(t *testing.T) {
-	var gi GameInstruction
+	var giParser GameInstructionParser
 
 	input := []byte("\"start game\"")
 
-	if err := gi.UnmarshalJSON(input); err != nil {
+	if err := giParser.UnmarshalJSON(input); err != nil {
 		t.Fatal(err)
 	}
 
-	if gi != START_GAME {
-		t.Errorf("expected START_GAME, got %v", gi)
+	if giParser.gi != StartGame {
+		t.Errorf("expected START_GAME, got %v", giParser.gi)
 	}
 }
 
 func TestUnmarshalFailure(t *testing.T) {
-	var gi GameInstruction
+	var giParser GameInstructionParser
 
 	input := []byte("Cannot unmarshal this")
 
-	err := gi.UnmarshalJSON(input)
+	err := giParser.UnmarshalJSON(input)
 	if err == nil {
 		t.Errorf("expected error, got nil")
 	}
 }
 
 func TestUnmarshalFailureParsing(t *testing.T) {
-	var gi GameInstruction
+	var giParser GameInstructionParser
 
 	input := []byte("\"wrong string\"")
 
-	err := gi.UnmarshalJSON(input)
+	err := giParser.UnmarshalJSON(input)
 	if err == nil {
 		t.Errorf("expected error, got nil")
 	}

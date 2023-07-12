@@ -1,8 +1,6 @@
 package gamesocket
 
 import (
-	"fmt"
-
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 )
@@ -13,7 +11,7 @@ import (
 // For example, the SequentialChannelStrategy is used in tests, because it is easier to debug.
 // The ConcurrentChannelStrategy is used in production, because it is more performant.
 type ChannelStrategy interface {
-	broadcast(p *GamePool, c Command)
+	broadcast(p *GamePool, c Command) error
 	register(p *GamePool, c websocket.Client)
 	unregister(p *GamePool, c websocket.Client)
 }
@@ -27,8 +25,9 @@ func NewConcurrentChannelStrategy() *ConcurrentChannelStrategy {
 }
 
 // broadcast implements ChannelStrategy
-func (*ConcurrentChannelStrategy) broadcast(p *GamePool, c Command) {
+func (*ConcurrentChannelStrategy) broadcast(p *GamePool, c Command) error {
 	p.broadcast <- c
+	return nil
 }
 
 // register implements ChannelStrategy
@@ -56,10 +55,11 @@ func NewSequentialChannelStrategy() ChannelStrategy {
 }
 
 // broadcast implements ChannelStrategy
-func (*SequentialChannelStrategy) broadcast(p *GamePool, c Command) {
+func (*SequentialChannelStrategy) broadcast(p *GamePool, c Command) error {
 	if err := p.respond(c); err != nil {
-		fmt.Println(err)
+		return err
 	}
+	return nil
 }
 
 // register implements ChannelStrategy

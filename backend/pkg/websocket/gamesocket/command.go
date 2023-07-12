@@ -11,31 +11,7 @@ type Command interface {
 	execute() (GameResponse, error)
 }
 
-func ParseCommand(msg GameMessage) (Command, error) {
-	gameClient, ok := msg.Client.(*GameClient)
-	if !ok {
-		return nil, fmt.Errorf("invalid client type: %T", msg.Client)
-	}
-
-	switch msg.Instruction {
-	case START_GAME:
-		return &StartGameCommand{gameClient}, nil
-	case CHOOSE_SQUARE:
-		position, err := game.ParsePosition(msg.Content)
-		if err != nil {
-			return nil, err
-		}
-		return &ChooseSquareCommand{gameClient, position}, nil
-	case SELECT_CHARACTER:
-		character, err := game.ParseSquareCharacter(msg.Content)
-		if err != nil {
-			return nil, err
-		}
-		return &SelectCharacterCommand{gameClient, character}, nil
-	}
-
-	return nil, fmt.Errorf("invalid instruction: %s", msg.Instruction)
-}
+// ------------------------------------------------------------------------------------------------------------
 
 type StartGameCommand struct {
 	client *GameClient
@@ -60,6 +36,8 @@ func (c *StartGameCommand) execute() (GameResponse, error) {
 
 	return response, nil
 }
+
+// ------------------------------------------------------------------------------------------------------------
 
 type ChooseSquareCommand struct {
 	client   *GameClient
@@ -90,6 +68,8 @@ func (c *ChooseSquareCommand) execute() (GameResponse, error) {
 
 	return response, nil
 }
+
+// ------------------------------------------------------------------------------------------------------------
 
 type SelectCharacterCommand struct {
 	client    *GameClient
@@ -130,6 +110,8 @@ func (c *SelectCharacterCommand) execute() (GameResponse, error) {
 
 	return response, nil
 }
+
+// ------------------------------------------------------------------------------------------------------------
 
 type NewClientCommand struct {
 	client *GameClient

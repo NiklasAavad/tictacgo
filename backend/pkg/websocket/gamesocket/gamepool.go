@@ -124,8 +124,7 @@ func (pool *GamePool) respond(command Command) error {
 
 	if pool.game.IsGameOver() {
 		pool.broadcastGameIsOver()
-		waitingTime := 2500 * time.Millisecond // Sleep 2.5 seconds to await game ending on client side
-		time.Sleep(waitingTime)
+		time.Sleep(2500 * time.Millisecond) // Sleep 2.5 seconds to await game ending on client side
 	}
 
 	return nil

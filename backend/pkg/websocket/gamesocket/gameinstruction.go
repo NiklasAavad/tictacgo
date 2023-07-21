@@ -108,7 +108,7 @@ var _ GameInstruction = new(ChooseSquareInstruction)
 
 // ---------------------------------------------------------------------------------------------------
 
-type SelectCharacterInstruction struct{
+type SelectCharacterInstruction struct {
 	character game.SquareCharacter
 }
 
@@ -119,7 +119,7 @@ func (*SelectCharacterInstruction) String() string {
 
 // ParseContent implements GameInstruction
 func (instruction *SelectCharacterInstruction) ParseContent(content any) error {
- 	character, err := game.ParseSquareCharacter(content)
+	character, err := game.ParseSquareCharacter(content)
 	if err != nil {
 		return err
 	}

@@ -1,16 +1,26 @@
 package gamesocket
 
+import "errors"
+
 type GameMessage struct {
 	InstructionParser GameInstructionParser `json:"instruction"`
 	Content           any                   `json:"content"`
 	Client            *GameClient
 }
 
-func (gm *GameMessage) ToCommand() (Command, error) {
-	// TODO should we check if there is a gi in the parser?
-	command, err := gm.InstructionParser.gi.ToCommand(gm.Client, gm.Content)
-	if err != nil {
+func (msg *GameMessage) ToCommand() (Command, error) {
+	if msg.Client == nil {
+		return nil, errors.New("No GameClient found in GameMessage")
+	}
+
+	instruction := msg.InstructionParser.GameInstruction
+	if instruction == nil {
+		return nil, errors.New("No GameInstruction found in GameMessage")
+	}
+
+	if err := instruction.ParseContent(msg.Content); err != nil {
 		return nil, err
 	}
-	return command, nil
+
+	return instruction.ToCommand(msg.Client)
 }

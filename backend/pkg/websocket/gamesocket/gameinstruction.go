@@ -10,28 +10,23 @@ import (
 
 type GameInstruction interface {
 	String() string
-	ToCommand(*GameClient, any) (Command, error)
+	ParseContent(any) error
+	ToCommand(*GameClient) (Command, error)
 }
 
 // ---------------------------------------------------------------------------------------------------
 
 type GameInstructionParser struct {
-	gi GameInstruction
+	GameInstruction GameInstruction
 }
 
 var _ json.Unmarshaler = new(GameInstructionParser)
 
-var (
-	StartGame       = new(StartGameInstruction)
-	ChooseSquare    = new(ChooseSquareInstruction)
-	SelectCharacter = new(SelectCharacterInstruction)
-)
-
 // map from strings to GameInstruction
 var GameInstructionValue = map[string]GameInstruction{
-	"start game":       StartGame,
-	"choose square":    ChooseSquare,
-	"select character": SelectCharacter,
+	"start game":       new(StartGameInstruction),
+	"choose square":    new(ChooseSquareInstruction),
+	"select character": new(SelectCharacterInstruction),
 }
 
 func ParseGameInstruction(s string) (GameInstruction, error) {
@@ -55,7 +50,7 @@ func (parser *GameInstructionParser) UnmarshalJSON(data []byte) (err error) {
 		return err
 	}
 
-	parser.gi = gi
+	parser.GameInstruction = gi
 
 	return nil
 }
@@ -69,9 +64,14 @@ func (*StartGameInstruction) String() string {
 	return "start game"
 }
 
+// ParseContent implements GameInstruction
+func (*StartGameInstruction) ParseContent(any) error {
+	// TODO consider if we should check that content is nil / 0 / whatever
+	return nil // StartGameInstruction has no content
+}
+
 // ToCommand implements GameInstruction
-// TODO consider if we should check that content is nil / 0 / whatever
-func (*StartGameInstruction) ToCommand(gc *GameClient, content any) (Command, error) {
+func (*StartGameInstruction) ToCommand(gc *GameClient) (Command, error) {
 	return &StartGameCommand{gc}, nil
 }
 
@@ -79,42 +79,58 @@ var _ GameInstruction = new(StartGameInstruction)
 
 // ---------------------------------------------------------------------------------------------------
 
-type ChooseSquareInstruction struct{}
+type ChooseSquareInstruction struct {
+	position game.Position
+}
 
 // String implements GameInstruction
 func (*ChooseSquareInstruction) String() string {
 	return "choose square"
 }
 
-// ToCommand implements GameInstruction
-func (*ChooseSquareInstruction) ToCommand(gc *GameClient, content any) (Command, error) {
+// ParseContent implements GameInstruction
+func (instruction *ChooseSquareInstruction) ParseContent(content any) error {
 	position, err := game.ParsePosition(content)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &ChooseSquareCommand{gc, position}, nil
+	instruction.position = position
+	return nil
+}
+
+// ToCommand implements GameInstruction
+func (instruciton *ChooseSquareInstruction) ToCommand(gc *GameClient) (Command, error) {
+	return &ChooseSquareCommand{gc, instruciton.position}, nil
 }
 
 var _ GameInstruction = new(ChooseSquareInstruction)
 
 // ---------------------------------------------------------------------------------------------------
 
-type SelectCharacterInstruction struct{}
+type SelectCharacterInstruction struct{
+	character game.SquareCharacter
+}
 
 // String implements GameInstruction
 func (*SelectCharacterInstruction) String() string {
 	return "select character"
 }
 
-// ToCommand implements GameInstruction
-func (*SelectCharacterInstruction) ToCommand(gc *GameClient, content any) (Command, error) {
-	character, err := game.ParseSquareCharacter(content)
+// ParseContent implements GameInstruction
+func (instruction *SelectCharacterInstruction) ParseContent(content any) error {
+ 	character, err := game.ParseSquareCharacter(content)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &SelectCharacterCommand{gc, character}, nil
+	instruction.character = character
+	return nil
+}
+
+// ToCommand implements GameInstruction
+func (instruction *SelectCharacterInstruction) ToCommand(gc *GameClient) (Command, error) {
+	return &SelectCharacterCommand{gc, instruction.character}, nil
 }
 
 var _ GameInstruction = new(SelectCharacterInstruction)

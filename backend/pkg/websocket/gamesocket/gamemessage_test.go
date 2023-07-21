@@ -38,7 +38,7 @@ func TestParseStartGame(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if gameInstruction != StartGame {
+	if gameInstruction.String() != "start game" {
 		t.Errorf("expected START_GAME, got %v", gameInstruction)
 	}
 }
@@ -48,7 +48,7 @@ func TestParseChooseSquare(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if gameInstruction != ChooseSquare {
+	if gameInstruction.String() != "choose square" {
 		t.Errorf("expected CHOOSE_SQUARE, got %v", gameInstruction)
 	}
 }
@@ -58,7 +58,7 @@ func TestParseIsCaseInsensitive(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if gameInstruction != StartGame {
+	if gameInstruction.String() != "start game" {
 		t.Errorf("expected START_GAME, got %v", gameInstruction)
 	}
 }
@@ -68,7 +68,7 @@ func TestParseTrimsBothSides(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if gameInstruction != StartGame {
+	if gameInstruction.String() != "start game" {
 		t.Errorf("expected START_GAME, got %v", gameInstruction)
 	}
 }
@@ -89,8 +89,8 @@ func TestUnmarshalSucces(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if giParser.gi != StartGame {
-		t.Errorf("expected START_GAME, got %v", giParser.gi)
+	if giParser.GameInstruction.String() != "start game" {
+		t.Errorf("expected START_GAME, got %v", giParser.GameInstruction)
 	}
 }
 

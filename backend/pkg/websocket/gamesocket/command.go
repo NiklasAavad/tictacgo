@@ -45,10 +45,12 @@ type ChooseSquareCommand struct {
 }
 
 func (c *ChooseSquareCommand) isClientInTurn() bool {
-	if c.client.Pool.game.PlayerInTurn() == game.X {
-		return c.client.Pool.xClient == c.client
+	pool := c.client.Pool
+
+	if pool.game.PlayerInTurn() == game.X {
+		return pool.xClient == c.client
 	}
-	return c.client.Pool.oClient == c.client
+	return pool.oClient == c.client
 }
 
 func (c *ChooseSquareCommand) execute() (GameResponse, error) {
@@ -76,14 +78,16 @@ type SelectCharacterCommand struct {
 	character game.SquareCharacter
 }
 
-func (c *SelectCharacterCommand) selectCharacter(character game.SquareCharacter) error {
-	if character == game.X && c.client.Pool.xClient == nil {
-		c.client.Pool.xClient = c.client
+func (c *SelectCharacterCommand) selectCharacter() error {
+	pool := c.client.Pool
+
+	if c.character == game.X && pool.xClient == nil {
+		pool.xClient = c.client
 		return nil
 	}
 
-	if character == game.O && c.client.Pool.oClient == nil {
-		c.client.Pool.oClient = c.client
+	if c.character == game.O && pool.oClient == nil {
+		pool.oClient = c.client
 		return nil
 	}
 
@@ -98,7 +102,7 @@ func (c *SelectCharacterCommand) execute() (GameResponse, error) {
 		return response, fmt.Errorf("Client had already selected a character")
 	}
 
-	if err := c.selectCharacter(c.character); err != nil {
+	if err := c.selectCharacter(); err != nil {
 		return response, err
 	}
 
@@ -122,7 +126,6 @@ func (c *NewClientCommand) getClientName(client websocket.Client) string {
 	if client == nil {
 		return ""
 	}
-
 	return client.Name()
 }
 

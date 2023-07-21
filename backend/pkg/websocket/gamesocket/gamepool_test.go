@@ -161,7 +161,7 @@ func TestShouldNotChangeCharacterIfCharacterIsAlreadyTaken(t *testing.T) {
 
 	client2 := createTestClient(pool)
 	message2 := createSelectCharacterMessage(client2, game.X)
-	if err := pool.Broadcast(message2); err != nil {
+	if err := pool.Broadcast(message2); err == nil { // should return error!
 		t.Fatal(err)
 	}
 
@@ -184,7 +184,7 @@ func TestGameShouldNotStartWhenNoCharactersSelected(t *testing.T) {
 	client := createTestClient(pool)
 
 	message := createStartGameMessage(client)
-	if err := pool.Broadcast(message); err != nil {
+	if err := pool.Broadcast(message); err == nil { // should return error!
 		t.Fatal(err)
 	}
 
@@ -230,7 +230,7 @@ func TestOCannotChooseSquareWhenItIsX(t *testing.T) {
 
 	originalBoard := pool.game.Board()
 
-	if err := chooseSquare(pool, clientO, game.CENTER); err != nil {
+	if err := chooseSquare(pool, clientO, game.CENTER); err == nil { // should return error!
 		t.Fatal(err)
 	}
 
@@ -257,7 +257,7 @@ func TestXCannotChooseSquareWhenItIsO(t *testing.T) {
 
 	boardAfterFirstPlay := pool.game.Board()
 
-	if err := chooseSquare(pool, clientX, game.BOTTOM_CENTER); err != nil {
+	if err := chooseSquare(pool, clientX, game.BOTTOM_CENTER); err == nil { // should return error!
 		t.Fatal(err)
 	}
 
@@ -289,7 +289,7 @@ func TestSpectatorCannotStartGame(t *testing.T) {
 	}
 
 	startGameMessage := createStartGameMessage(clientSpectator)
-	if err := pool.Broadcast(startGameMessage); err != nil {
+	if err := pool.Broadcast(startGameMessage); err == nil { // should return error!
 		t.Fatal(err)
 	}
 
@@ -314,7 +314,7 @@ func TestClientCannotChooseBothCharacters(t *testing.T) {
 	}
 
 	messageO := createSelectCharacterMessage(client, game.O)
-	if err := pool.Broadcast(messageO); err != nil {
+	if err := pool.Broadcast(messageO); err == nil { // should return error!
 		t.Fatal(err)
 	}
 

@@ -17,6 +17,13 @@ type StartGameCommand struct {
 	client *GameClient
 }
 
+func NewStartGameCommand(client *GameClient) (*StartGameCommand, error) {
+	if client == nil {
+		return nil, fmt.Errorf("Client cannot be nil")
+	}
+	return &StartGameCommand{client}, nil
+}
+
 func (c *StartGameCommand) execute() (GameResponse, error) {
 	var response GameResponse
 
@@ -42,6 +49,18 @@ func (c *StartGameCommand) execute() (GameResponse, error) {
 type ChooseSquareCommand struct {
 	client   *GameClient
 	position game.Position
+}
+
+func NewChooseSquareCommand(client *GameClient, position game.Position) (*ChooseSquareCommand, error) {
+	if client == nil {
+		return nil, fmt.Errorf("Client cannot be nil")
+	}
+
+	if position == game.NO_POSITION {
+		return nil, fmt.Errorf("No position was given")
+	}
+
+	return &ChooseSquareCommand{client, position}, nil
 }
 
 func (c *ChooseSquareCommand) isClientInTurn() bool {
@@ -76,6 +95,18 @@ func (c *ChooseSquareCommand) execute() (GameResponse, error) {
 type SelectCharacterCommand struct {
 	client    *GameClient
 	character game.SquareCharacter
+}
+
+func NewSelectCharacterCommand(client *GameClient, character game.SquareCharacter) (*SelectCharacterCommand, error) {
+	if client == nil {
+		return nil, fmt.Errorf("Client cannot be nil")
+	}
+
+	if character == game.EMPTY_CHARACTER {
+		return nil, fmt.Errorf("No character was given")
+	}
+
+	return &SelectCharacterCommand{client, character}, nil
 }
 
 func (c *SelectCharacterCommand) selectCharacter() error {

@@ -12,7 +12,7 @@ var _ json.Marshaler = new(SquareCharacter)
 const (
 	X SquareCharacter = iota + 1
 	O
-	EMPTY
+	EMPTY_CHARACTER
 )
 
 var (
@@ -34,7 +34,7 @@ func (s SquareCharacter) String() string {
 		return "X"
 	case O:
 		return "O"
-	case EMPTY:
+	case EMPTY_CHARACTER:
 		return ""
 	}
 	return "unknown"

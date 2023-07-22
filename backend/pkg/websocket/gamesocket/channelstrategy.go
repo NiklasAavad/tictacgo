@@ -64,7 +64,7 @@ func (*SequentialChannelStrategy) broadcast(p *GamePool, c Command) error {
 
 // register implements ChannelStrategy
 func (*SequentialChannelStrategy) register(p *GamePool, c websocket.Client) {
-	p.clients[c] = game.EMPTY
+	p.clients[c] = game.EMPTY_CHARACTER
 }
 
 // unregister implements ChannelStrategy

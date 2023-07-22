@@ -61,7 +61,7 @@ func (p *ChatPool) Clients() map[websocket.Client]game.SquareCharacter {
 }
 
 func (p *ChatPool) registerClient(c websocket.Client) {
-	p.clients[c] = game.EMPTY
+	p.clients[c] = game.EMPTY_CHARACTER
 
 	body := c.Name() + " just joined!"
 	msg := Message{Type: websocket.TextMessage, Sender: CHAT_INFO, Body: body}

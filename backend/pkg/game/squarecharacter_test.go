@@ -52,7 +52,7 @@ func TestMarshalO(t *testing.T) {
 }
 
 func TestMarshalEMPTY(t *testing.T) {
-	_, err := EMPTY.MarshalJSON()
+	_, err := EMPTY_CHARACTER.MarshalJSON()
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -59,6 +59,10 @@ func (parser *GameInstructionParser) UnmarshalJSON(data []byte) (err error) {
 
 type StartGameInstruction struct{}
 
+func NewStartGameInstruction() *StartGameInstruction {
+	return &StartGameInstruction{}
+}
+
 // String implements GameInstruction
 func (*StartGameInstruction) String() string {
 	return "start game"
@@ -72,7 +76,7 @@ func (*StartGameInstruction) ParseContent(any) error {
 
 // ToCommand implements GameInstruction
 func (*StartGameInstruction) ToCommand(gc *GameClient) (Command, error) {
-	return &StartGameCommand{gc}, nil
+	return NewStartGameCommand(gc)
 }
 
 var _ GameInstruction = new(StartGameInstruction)
@@ -81,6 +85,12 @@ var _ GameInstruction = new(StartGameInstruction)
 
 type ChooseSquareInstruction struct {
 	position game.Position
+}
+
+func NewChooseSquareInstruction() *ChooseSquareInstruction {
+	return &ChooseSquareInstruction{
+		position: game.NO_POSITION,
+	}
 }
 
 // String implements GameInstruction
@@ -101,7 +111,7 @@ func (instruction *ChooseSquareInstruction) ParseContent(content any) error {
 
 // ToCommand implements GameInstruction
 func (instruciton *ChooseSquareInstruction) ToCommand(gc *GameClient) (Command, error) {
-	return &ChooseSquareCommand{gc, instruciton.position}, nil
+	return NewChooseSquareCommand(gc, instruciton.position)
 }
 
 var _ GameInstruction = new(ChooseSquareInstruction)
@@ -110,6 +120,12 @@ var _ GameInstruction = new(ChooseSquareInstruction)
 
 type SelectCharacterInstruction struct {
 	character game.SquareCharacter
+}
+
+func NewSelectCharacterInstruction() *SelectCharacterInstruction {
+	return &SelectCharacterInstruction{
+		character: game.EMPTY_CHARACTER,
+	}
 }
 
 // String implements GameInstruction
@@ -130,7 +146,7 @@ func (instruction *SelectCharacterInstruction) ParseContent(content any) error {
 
 // ToCommand implements GameInstruction
 func (instruction *SelectCharacterInstruction) ToCommand(gc *GameClient) (Command, error) {
-	return &SelectCharacterCommand{gc, instruction.character}, nil
+	return NewSelectCharacterCommand(gc, instruction.character)
 }
 
 var _ GameInstruction = new(SelectCharacterInstruction)

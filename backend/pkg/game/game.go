@@ -20,9 +20,9 @@ var _ GameService = new(Game) // check that Game implements GameService
 
 func newBoard() Board {
 	return Board{
-		EMPTY, EMPTY, EMPTY,
-		EMPTY, EMPTY, EMPTY,
-		EMPTY, EMPTY, EMPTY,
+		EMPTY_CHARACTER, EMPTY_CHARACTER, EMPTY_CHARACTER,
+		EMPTY_CHARACTER, EMPTY_CHARACTER, EMPTY_CHARACTER,
+		EMPTY_CHARACTER, EMPTY_CHARACTER, EMPTY_CHARACTER,
 	}
 }
 
@@ -46,7 +46,7 @@ func (g *Game) GetResult() Result {
 func (g *Game) occupiedSquares() []SquareCharacter {
 	var slice []SquareCharacter
 	for _, square := range g.board {
-		if square != EMPTY {
+		if square != EMPTY_CHARACTER {
 			slice = append(slice, square)
 		}
 	}
@@ -63,7 +63,7 @@ func (g *Game) isBoardFull() bool {
 }
 
 func (g *Game) isWinningRow(p [3]Position) bool {
-	rowIsNotEmpty := g.board[p[0]] != EMPTY
+	rowIsNotEmpty := g.board[p[0]] != EMPTY_CHARACTER
 	isSameCharacter := g.board[p[0]] == g.board[p[1]] && g.board[p[1]] == g.board[p[2]]
 	return rowIsNotEmpty && isSameCharacter
 }
@@ -95,7 +95,7 @@ func (g *Game) isChoiceValid(p Position) bool {
 		return false
 	}
 
-	return g.board[p] == EMPTY
+	return g.board[p] == EMPTY_CHARACTER
 }
 
 func (g *Game) ChooseSquare(p Position) (Board, error) {

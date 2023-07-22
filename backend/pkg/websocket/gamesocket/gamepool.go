@@ -160,7 +160,7 @@ func (pool *GamePool) Start() {
 	for {
 		select {
 		case client := <-pool.register:
-			pool.clients[client] = game.EMPTY
+			pool.clients[client] = game.EMPTY_CHARACTER
 			if err := pool.respondToNewClient(client); err != nil {
 				fmt.Println(err)
 			}

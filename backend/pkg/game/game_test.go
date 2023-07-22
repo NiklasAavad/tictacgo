@@ -12,9 +12,9 @@ func TestStartGame(t *testing.T) {
 	g.StartGame()
 
 	expectedBoard := [9]SquareCharacter{
-		EMPTY, EMPTY, EMPTY,
-		EMPTY, EMPTY, EMPTY,
-		EMPTY, EMPTY, EMPTY,
+		EMPTY_CHARACTER, EMPTY_CHARACTER, EMPTY_CHARACTER,
+		EMPTY_CHARACTER, EMPTY_CHARACTER, EMPTY_CHARACTER,
+		EMPTY_CHARACTER, EMPTY_CHARACTER, EMPTY_CHARACTER,
 	}
 
 	expectedPlayerInTurn := X
@@ -52,9 +52,9 @@ func TestShouldChooseTopLeft(t *testing.T) {
 	g.ChooseSquare(TOP_LEFT)
 
 	expectedBoard := [9]SquareCharacter{
-		X, EMPTY, EMPTY,
-		EMPTY, EMPTY, EMPTY,
-		EMPTY, EMPTY, EMPTY,
+		X, EMPTY_CHARACTER, EMPTY_CHARACTER,
+		EMPTY_CHARACTER, EMPTY_CHARACTER, EMPTY_CHARACTER,
+		EMPTY_CHARACTER, EMPTY_CHARACTER, EMPTY_CHARACTER,
 	}
 
 	assert.Equal(t, expectedBoard, g.board)
@@ -73,8 +73,8 @@ func TestChangePlayerInTurn(t *testing.T) {
 func mockWinningBoard() Board {
 	return [9]SquareCharacter{
 		X, X, X,
-		O, O, EMPTY,
-		EMPTY, EMPTY, EMPTY,
+		O, O, EMPTY_CHARACTER,
+		EMPTY_CHARACTER, EMPTY_CHARACTER, EMPTY_CHARACTER,
 	}
 }
 
@@ -82,7 +82,7 @@ func mockAlmostFullBoard() Board {
 	return [9]SquareCharacter{
 		X, X, O,
 		O, O, X,
-		EMPTY, EMPTY, EMPTY,
+		EMPTY_CHARACTER, EMPTY_CHARACTER, EMPTY_CHARACTER,
 	}
 }
 

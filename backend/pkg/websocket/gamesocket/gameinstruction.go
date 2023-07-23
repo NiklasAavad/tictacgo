@@ -10,7 +10,10 @@ import (
 
 type GameInstruction interface {
 	String() string
+
+	// ParseContent parses the content of the instruction, and returns an error if the content is invalid. The content is then stored in the instruction as a field.
 	ParseContent(any) error
+
 	ToCommand(*GameClient) (Command, error)
 }
 

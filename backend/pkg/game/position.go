@@ -19,7 +19,7 @@ const (
 	BOTTOM_LEFT
 	BOTTOM_CENTER
 	BOTTOM_RIGHT
-	NO_POSITION = -1
+	NO_POSITION
 )
 
 func castToFloat(input any) (float64, bool) {

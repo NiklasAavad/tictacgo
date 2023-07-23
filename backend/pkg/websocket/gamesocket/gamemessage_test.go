@@ -3,6 +3,7 @@ package gamesocket
 import (
 	"testing"
 
+	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -113,5 +114,46 @@ func TestUnmarshalFailureParsing(t *testing.T) {
 	err := giParser.UnmarshalJSON(input)
 	if err == nil {
 		t.Errorf("expected error, got nil")
+	}
+}
+
+func TestChooseSquareInstructionShouldHaveNoPositionDefault(t *testing.T) {
+	chooseSquareInstruction := NewChooseSquareInstruction()
+
+	want := game.NO_POSITION
+	got := chooseSquareInstruction.position
+
+	if want != got {
+		t.Errorf("Expected %v, got %v", want, got)
+	}
+}
+
+func TestSelectCharacterInstructionShouldHaveEmptyCharacterDefault(t *testing.T) {
+	selectCharacterInstruction := NewSelectCharacterInstruction()
+
+	want := game.EMPTY_CHARACTER
+	got := selectCharacterInstruction.character
+
+	if want != got {
+		t.Errorf("Expected %v, got %v", want, got)
+	}
+}
+
+func getSelectCharacterInstructionFromParseInstruction() *SelectCharacterInstruction {
+	gameInstruction, _ := ParseGameInstruction("select character")
+	return gameInstruction.(*SelectCharacterInstruction)
+}
+
+func TestNewGameInstructionsAreCreatedAtParser(t *testing.T) {
+	firstSelectCharacterInstruction := getSelectCharacterInstructionFromParseInstruction()
+	firstSelectCharacterInstruction.character = game.X
+
+	secondSelectCharacterInstruction := getSelectCharacterInstructionFromParseInstruction()
+
+	want := game.EMPTY_CHARACTER
+	got := secondSelectCharacterInstruction.character
+
+	if want != got {
+		t.Errorf("Every instance must be new instance. Expected %v, got %v", want, got)
 	}
 }

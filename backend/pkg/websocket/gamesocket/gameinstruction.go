@@ -25,20 +25,19 @@ type GameInstructionParser struct {
 
 var _ json.Unmarshaler = new(GameInstructionParser)
 
-// map from strings to GameInstruction
-var GameInstructionValue = map[string]GameInstruction{
-	"start game":       new(StartGameInstruction),
-	"choose square":    new(ChooseSquareInstruction),
-	"select character": new(SelectCharacterInstruction),
-}
-
 func ParseGameInstruction(s string) (GameInstruction, error) {
 	s = strings.TrimSpace(strings.ToLower(s))
-	gameInstruction, ok := GameInstructionValue[s]
-	if !ok {
-		return nil, fmt.Errorf("%q is not a valid Game Instruction", s)
+
+	switch s {
+	case "start game":
+		return NewStartGameInstruction(), nil
+	case "choose square":
+		return NewChooseSquareInstruction(), nil
+	case "select character":
+		return NewSelectCharacterInstruction(), nil
+	default:
+		return nil, fmt.Errorf("invalid game instruction: %s", s)
 	}
-	return gameInstruction, nil
 }
 
 func (parser *GameInstructionParser) UnmarshalJSON(data []byte) (err error) {

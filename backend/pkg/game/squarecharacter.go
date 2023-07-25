@@ -15,19 +15,6 @@ const (
 	EMPTY_CHARACTER
 )
 
-var (
-	SquareCharacterName = map[uint8]string{
-		1: "X",
-		2: "O",
-		3: "",
-	}
-	SquareCharacterValue = map[string]uint8{
-		"X": 1,
-		"O": 2,
-		"":  3,
-	}
-)
-
 func (s SquareCharacter) String() string {
 	switch s {
 	case X:
@@ -46,13 +33,19 @@ func (c SquareCharacter) MarshalJSON() ([]byte, error) {
 
 // TODO test
 func ParseSquareCharacter(c any) (SquareCharacter, error) {
-	if c, ok := c.(string); !ok {
+	c, ok := c.(string)
+	if !ok {
 		return SquareCharacter(0), fmt.Errorf("invalid type for squarecharacter, expected string: %v", c)
-	} else {
-		value, ok := SquareCharacterValue[c]
-		if !ok {
-			return SquareCharacter(0), fmt.Errorf("%v is not a valid SquareCharacter", c)
-		}
-		return SquareCharacter(value), nil
+	}
+
+	switch c {
+	case "X":
+		return X, nil
+	case "O":
+		return O, nil
+	case "":
+		return EMPTY_CHARACTER, nil
+	default:
+		return SquareCharacter(42), fmt.Errorf("%v is not a valid SquareCharacter", c)
 	}
 }

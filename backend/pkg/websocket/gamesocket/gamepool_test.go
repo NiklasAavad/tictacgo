@@ -29,24 +29,22 @@ func createTestClient(pool *GamePool) *GameClient {
 }
 
 func createSelectCharacterMessage(client *GameClient, character game.SquareCharacter) GameMessage {
-	giParser := GameInstructionParser{
-		GameInstruction: NewSelectCharacterInstruction(),
+	instruction := &SelectCharacterInstruction{
+		character: character,
 	}
-	return GameMessage{giParser, character.String(), client}
+	return GameMessage{instruction, character.String(), client}
 }
 
 func createStartGameMessage(client *GameClient) GameMessage {
-	giParser := GameInstructionParser{
-		GameInstruction: NewStartGameInstruction(),
-	}
-	return GameMessage{giParser, 0, client}
+	instruction := &StartGameInstruction{}
+	return GameMessage{instruction, 0, client}
 }
 
 func createChooseSquareMessage(client *GameClient, position game.Position) GameMessage {
-	giParser := GameInstructionParser{
-		GameInstruction: NewChooseSquareInstruction(),
+	instruction := &ChooseSquareInstruction{
+		position: position,
 	}
-	return GameMessage{giParser, position, client}
+	return GameMessage{instruction, position, client}
 }
 
 func startGame(pool *GamePool) (*GameClient, *GameClient, error) {

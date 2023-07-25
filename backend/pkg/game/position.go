@@ -60,3 +60,30 @@ func (p *Position) UnmarshalJSON(data []byte) (err error) {
 	}
 	return nil
 }
+
+func (p Position) String() string {
+	switch p {
+	case TOP_LEFT:
+		return "TOP_LEFT"
+	case TOP_CENTER:
+		return "TOP_CENTER"
+	case TOP_RIGHT:
+		return "TOP_RIGHT"
+	case CENTER_LEFT:
+		return "CENTER_LEFT"
+	case CENTER:
+		return "CENTER"
+	case CENTER_RIGHT:
+		return "CENTER_RIGHT"
+	case BOTTOM_LEFT:
+		return "BOTTOM_LEFT"
+	case BOTTOM_CENTER:
+		return "BOTTOM_CENTER"
+	case BOTTOM_RIGHT:
+		return "BOTTOM_RIGHT"
+	case NO_POSITION:
+		return "NO_POSITION"
+	default:
+		return "unknown"
+	}
+}

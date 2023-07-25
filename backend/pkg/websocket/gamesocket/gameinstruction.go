@@ -1,7 +1,6 @@
 package gamesocket
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -17,14 +16,6 @@ type GameInstruction interface {
 	ToCommand(*GameClient) (Command, error)
 }
 
-// ---------------------------------------------------------------------------------------------------
-
-type GameInstructionParser struct {
-	GameInstruction GameInstruction
-}
-
-var _ json.Unmarshaler = new(GameInstructionParser)
-
 func ParseGameInstruction(s string) (GameInstruction, error) {
 	s = strings.TrimSpace(strings.ToLower(s))
 
@@ -38,23 +29,6 @@ func ParseGameInstruction(s string) (GameInstruction, error) {
 	default:
 		return nil, fmt.Errorf("invalid game instruction: %s", s)
 	}
-}
-
-func (parser *GameInstructionParser) UnmarshalJSON(data []byte) (err error) {
-	var gameInstruction string
-
-	if err := json.Unmarshal(data, &gameInstruction); err != nil {
-		return err
-	}
-
-	gi, err := ParseGameInstruction(gameInstruction)
-	if err != nil {
-		return err
-	}
-
-	parser.GameInstruction = gi
-
-	return nil
 }
 
 // ---------------------------------------------------------------------------------------------------

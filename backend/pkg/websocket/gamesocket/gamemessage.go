@@ -1,11 +1,37 @@
 package gamesocket
 
-import "errors"
+import (
+	"encoding/json"
+	"errors"
+)
 
 type GameMessage struct {
-	InstructionParser GameInstructionParser `json:"instruction"`
-	Content           any                   `json:"content"`
-	Client            *GameClient
+	Instruction GameInstruction
+	Client      *GameClient
+}
+
+// UnmarshalJSON implements json.Unmarshaler
+func (msg *GameMessage) UnmarshalJSON(bytes []byte) error {
+	var data struct {
+		Instruction string `json:"instruction"`
+		Content     any    `json:"content"`
+	}
+
+	if err := json.Unmarshal(bytes, &data); err != nil {
+		return err
+	}
+
+	parsedGameInstruction, err := ParseGameInstruction(data.Instruction)
+	if err != nil {
+		return err
+	}
+	msg.Instruction = parsedGameInstruction
+
+	if err := msg.Instruction.ParseContent(data.Content); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (msg *GameMessage) ToCommand() (Command, error) {
@@ -13,14 +39,12 @@ func (msg *GameMessage) ToCommand() (Command, error) {
 		return nil, errors.New("No GameClient found in GameMessage")
 	}
 
-	instruction := msg.InstructionParser.GameInstruction
-	if instruction == nil {
+	if msg.Instruction == nil {
 		return nil, errors.New("No GameInstruction found in GameMessage")
 	}
 
-	if err := instruction.ParseContent(msg.Content); err != nil {
-		return nil, err
-	}
-
-	return instruction.ToCommand(msg.Client)
+	return msg.Instruction.ToCommand(msg.Client)
 }
+
+// assert that GameMessage implements unmarshaller interface
+var _ json.Unmarshaler = new(GameMessage)

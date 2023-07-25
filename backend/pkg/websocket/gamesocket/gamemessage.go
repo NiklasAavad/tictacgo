@@ -21,15 +21,16 @@ func (msg *GameMessage) UnmarshalJSON(bytes []byte) error {
 		return err
 	}
 
-	parsedGameInstruction, err := ParseGameInstruction(data.Instruction)
+	gameInstruction, err := ParseGameInstruction(data.Instruction)
 	if err != nil {
 		return err
 	}
-	msg.Instruction = parsedGameInstruction
 
-	if err := msg.Instruction.ParseContent(data.Content); err != nil {
+	if err := gameInstruction.ParseContent(data.Content); err != nil {
 		return err
 	}
+
+	msg.Instruction = gameInstruction
 
 	return nil
 }

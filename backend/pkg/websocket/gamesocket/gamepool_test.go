@@ -32,19 +32,19 @@ func createSelectCharacterMessage(client *GameClient, character game.SquareChara
 	instruction := &SelectCharacterInstruction{
 		character: character,
 	}
-	return GameMessage{instruction, character.String(), client}
+	return GameMessage{instruction, client}
 }
 
 func createStartGameMessage(client *GameClient) GameMessage {
 	instruction := &StartGameInstruction{}
-	return GameMessage{instruction, 0, client}
+	return GameMessage{instruction, client}
 }
 
 func createChooseSquareMessage(client *GameClient, position game.Position) GameMessage {
 	instruction := &ChooseSquareInstruction{
 		position: position,
 	}
-	return GameMessage{instruction, position, client}
+	return GameMessage{instruction, client}
 }
 
 func startGame(pool *GamePool) (*GameClient, *GameClient, error) {

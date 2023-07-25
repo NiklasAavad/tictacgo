@@ -96,8 +96,8 @@ func NewChooseSquareInstruction() *ChooseSquareInstruction {
 }
 
 // String implements GameInstruction
-func (*ChooseSquareInstruction) String() string {
-	return "choose square"
+func (ins *ChooseSquareInstruction) String() string {
+	return fmt.Sprintf("choose square: %v", ins.position.String())
 }
 
 // ParseContent implements GameInstruction
@@ -131,8 +131,8 @@ func NewSelectCharacterInstruction() *SelectCharacterInstruction {
 }
 
 // String implements GameInstruction
-func (*SelectCharacterInstruction) String() string {
-	return "select character"
+func (ins *SelectCharacterInstruction) String() string {
+	return fmt.Sprintf("select character: %v", ins.character)
 }
 
 // ParseContent implements GameInstruction

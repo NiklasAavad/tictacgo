@@ -131,19 +131,28 @@ func (pool *GamePool) respond(command Command) error {
 }
 
 // respondToNewClient responds to a new client
-// It executes a NEW_CLIENT command and sends the response to the client
-// It returns an error if the command execution fails
+// It sends a WELCOME response to the client
+// The WELCOME response contains information about the game
+// It returns an error if the broadcast fails
 func (pool *GamePool) respondToNewClient(client websocket.Client) error {
-	gameClient, ok := client.(*GameClient)
-	if !ok {
-		return fmt.Errorf("Client could not be casted to a GameClient")
+	xClientName := ""
+	if pool.xClient != nil {
+		xClientName = pool.xClient.Name()
 	}
 
-	newClientCommand := MakeNewClientCommand(gameClient)
+	oClientName := ""
+	if pool.oClient != nil {
+		oClientName = pool.oClient.Name()
+	}
 
-	response, err := newClientCommand.execute()
-	if err != nil {
-		return err
+	response := GameResponse{
+		ResponseType: WELCOME,
+		Body: WelcomeResponse{
+			IsGameStarted: pool.game.IsStarted(),
+			XClient:       xClientName,
+			OClient:       oClientName,
+			Board:         pool.game.Board(),
+		},
 	}
 
 	if err := client.Conn().WriteJSON(response); err != nil {

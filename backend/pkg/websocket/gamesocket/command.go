@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
-	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 )
 
 type Command interface {
@@ -139,44 +138,6 @@ func (c *SelectCharacterCommand) execute() (GameResponse, error) {
 
 	response.ResponseType = CHARACTER_SELECTED
 	response.Body = c.character
-
-	return response, nil
-}
-
-// ------------------------------------------------------------------------------------------------------------
-
-type NewClientCommand struct {
-	client *GameClient
-}
-
-func MakeNewClientCommand(client *GameClient) Command {
-	return &NewClientCommand{client}
-}
-
-func (c *NewClientCommand) getClientName(client websocket.Client) string {
-	if client == nil {
-		return ""
-	}
-	return client.Name()
-}
-
-func (c *NewClientCommand) execute() (GameResponse, error) {
-	var response GameResponse
-
-	isGameStarted := c.client.Pool.game.IsStarted()
-
-	xClientName := c.getClientName(c.client.Pool.xClient)
-	oClientName := c.getClientName(c.client.Pool.oClient)
-
-	board := c.client.Pool.game.Board()
-
-	response.ResponseType = WELCOME
-	response.Body = WelcomeResponse{
-		IsGameStarted: isGameStarted,
-		XClient:       xClientName,
-		OClient:       oClientName,
-		Board:         board,
-	}
 
 	return response, nil
 }

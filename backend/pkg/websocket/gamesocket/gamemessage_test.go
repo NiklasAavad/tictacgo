@@ -19,12 +19,12 @@ func TestGameInstructionString(t *testing.T) {
 			expectedResult: "start game",
 		},
 		{
-			input:          new(ChooseSquareInstruction),
-			expectedResult: "choose square",
+			input:          &ChooseSquareInstruction{position: game.TOP_RIGHT},
+			expectedResult: "choose square: TOP_RIGHT",
 		},
 		{
-			input:          new(SelectCharacterInstruction),
-			expectedResult: "select character",
+			input:          &SelectCharacterInstruction{character: game.O},
+			expectedResult: "select character: O",
 		},
 	} {
 		t.Run("Testing String method", func(t *testing.T) {
@@ -49,7 +49,7 @@ func TestParseChooseSquare(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if gameInstruction.String() != "choose square" {
+	if gameInstruction.String() != "choose square: NO_POSITION" {
 		t.Errorf("expected CHOOSE_SQUARE, got %v", gameInstruction)
 	}
 }
@@ -82,36 +82,53 @@ func TestParseShouldThrowError(t *testing.T) {
 }
 
 func TestUnmarshalSucces(t *testing.T) {
-	var giParser GameInstructionParser
-
-	input := []byte("\"start game\"")
-
-	if err := giParser.UnmarshalJSON(input); err != nil {
-		t.Fatal(err)
+	type marshallTestCases struct {
+		input       []byte
+		instruction string
 	}
 
-	if giParser.GameInstruction.String() != "start game" {
-		t.Errorf("expected START_GAME, got %v", giParser.GameInstruction)
+	for _, testCase := range []marshallTestCases{
+		{
+			input:       []byte("{\"instruction\":\"start game\"}"),
+			instruction: "start game",
+		},
+		{
+			input:       []byte("{\"instruction\":\"select character\",\"content\":\"X\"}"),
+			instruction: "select character: X",
+		},
+		{
+			input:       []byte("{\"instruction\":\"choose square\",\"content\":4}"),
+			instruction: "choose square: CENTER",
+		},
+	} {
+		t.Run("Testing unmarshal of game messages", func(t *testing.T) {
+			var msg GameMessage
+			err := msg.UnmarshalJSON(testCase.input)
+			if err != nil {
+				t.Fatal(err)
+			}
+			assert.Equal(t, testCase.instruction, msg.Instruction.String())
+		})
 	}
 }
 
 func TestUnmarshalFailure(t *testing.T) {
-	var giParser GameInstructionParser
+	var msg GameMessage
 
 	input := []byte("Cannot unmarshal this")
 
-	err := giParser.UnmarshalJSON(input)
+	err := msg.UnmarshalJSON(input)
 	if err == nil {
 		t.Errorf("expected error, got nil")
 	}
 }
 
 func TestUnmarshalFailureParsing(t *testing.T) {
-	var giParser GameInstructionParser
+	var msg GameMessage
 
 	input := []byte("\"wrong string\"")
 
-	err := giParser.UnmarshalJSON(input)
+	err := msg.UnmarshalJSON(input)
 	if err == nil {
 		t.Errorf("expected error, got nil")
 	}

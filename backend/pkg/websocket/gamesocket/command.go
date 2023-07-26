@@ -280,7 +280,7 @@ func (c *RespondToDrawRequestCommand) execute() ([]ResponseHandler, error) {
 	response.ResponseType = DRAW_REQUEST_RESPONSE
 
 	responseHandler, err := NewResponseHandler(&response, receivers)
- 	if err != nil {
+	if err != nil {
 		return nil, err
 	}
 

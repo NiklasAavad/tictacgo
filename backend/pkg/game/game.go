@@ -3,16 +3,18 @@ package game
 import "fmt"
 
 type Game struct {
-	board        Board
-	playerInTurn SquareCharacter
-	isStarted    bool
+	board          Board
+	playerInTurn   SquareCharacter
+	isStarted      bool
+	forcedGameOver bool
 }
 
 func NewGame() *Game {
 	return &Game{
-		board:        newBoard(),
-		playerInTurn: X,
-		isStarted:    false,
+		board:          newBoard(),
+		playerInTurn:   X,
+		isStarted:      false,
+		forcedGameOver: false,
 	}
 }
 
@@ -78,11 +80,7 @@ func (g *Game) hasWinner() bool {
 }
 
 func (g *Game) IsGameOver() bool {
-	if !g.hasEnoughInputs() {
-		return false
-	}
-
-	if g.isBoardFull() || g.hasWinner() {
+	if g.forcedGameOver || g.isBoardFull() || g.hasWinner() {
 		g.isStarted = false
 		return true
 	}
@@ -129,4 +127,9 @@ func (g *Game) IsStarted() bool {
 
 func (g *Game) PlayerInTurn() SquareCharacter {
 	return g.playerInTurn
+}
+
+func (g *Game) ForceDraw() {
+	g.forcedGameOver = true
+	g.isStarted = false
 }

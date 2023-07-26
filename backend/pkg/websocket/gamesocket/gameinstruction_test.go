@@ -23,7 +23,7 @@ func TestParseContentSucces(t *testing.T) {
 		},
 		{
 			input:   NewSelectCharacterInstruction(),
-			content: game.O,
+			content: "X",
 		},
 		{
 			input:   NewRequestDrawInstruction(),

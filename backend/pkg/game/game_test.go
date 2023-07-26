@@ -131,7 +131,7 @@ func TestShouldBeEmptyResult(t *testing.T) {
 
 	g.board = mockFullBoard()
 
-	expectedResult := Result{}
+	expectedResult := Result{HasWinner: false}
 	assert.Equal(t, expectedResult, g.GetResult())
 }
 
@@ -141,4 +141,16 @@ func TestShouldGetBoard(t *testing.T) {
 	g.board = mockFullBoard()
 
 	assert.Equal(t, mockFullBoard(), g.Board())
+}
+
+func TestForceDraw(t *testing.T) {
+	g := NewGame()
+
+	g.board = mockAlmostFullBoard()
+
+	g.ForceDraw()
+
+	if !g.IsGameOver() {
+		t.Error("Game should be over")
+	}
 }

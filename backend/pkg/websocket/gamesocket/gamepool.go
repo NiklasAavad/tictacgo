@@ -10,7 +10,6 @@ import (
 )
 
 // GamePool is a websocket pool that handles the game logic
-// It implements the websocket.Pool interface
 type GamePool struct {
 	register        chan *GameClient
 	unregister      chan *GameClient

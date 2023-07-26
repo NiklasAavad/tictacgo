@@ -7,7 +7,7 @@ import (
 )
 
 type Command interface {
-	execute() (GameResponse, error)
+	execute() ([]ResponseHandler, error)
 }
 
 // ------------------------------------------------------------------------------------------------------------
@@ -23,24 +23,29 @@ func NewStartGameCommand(client *GameClient) (*StartGameCommand, error) {
 	return &StartGameCommand{client}, nil
 }
 
-func (c *StartGameCommand) execute() (GameResponse, error) {
+func (c *StartGameCommand) execute() ([]ResponseHandler, error) {
 	var response GameResponse
 
 	bothCharactersSelected := c.client.Pool.xClient != nil && c.client.Pool.oClient != nil
 	if !bothCharactersSelected { // TODO kunne overveje at lave en ErrorResponse, der bare sendes tilbage til den pågældende client og ikke broadcastes
-		return response, fmt.Errorf("Both characters must be selected, before a game can start")
+		return nil, fmt.Errorf("Both characters must be selected, before a game can start")
 	}
 
 	isClientPlaying := c.client.Pool.xClient == c.client || c.client.Pool.oClient == c.client
 	if !isClientPlaying {
-		return response, fmt.Errorf("Client must be playing to start the game, cannot be a spectator")
+		return nil, fmt.Errorf("Client must be playing to start the game, cannot be a spectator")
 	}
 
 	c.client.Pool.game.StartGame()
 
 	response.ResponseType = GAME_STARTED
 
-	return response, nil
+	responseHandler, err := NewResponseHandler(&response, c.client.Pool.clients)
+	if err != nil {
+		return nil, err
+	}
+
+	return []ResponseHandler{*responseHandler}, nil
 }
 
 // ------------------------------------------------------------------------------------------------------------
@@ -71,22 +76,27 @@ func (c *ChooseSquareCommand) isClientInTurn() bool {
 	return pool.oClient == c.client
 }
 
-func (c *ChooseSquareCommand) execute() (GameResponse, error) {
+func (c *ChooseSquareCommand) execute() ([]ResponseHandler, error) {
 	var response GameResponse
 
 	if !c.isClientInTurn() {
-		return response, fmt.Errorf("It was not this client's turn to play")
+		return nil, fmt.Errorf("It was not this client's turn to play")
 	}
 
 	board, err := c.client.Pool.game.ChooseSquare(c.position)
 	if err != nil {
-		return response, err
+		return nil, err
 	}
 
 	response.ResponseType = BOARD
 	response.Body = board
 
-	return response, nil
+	responseHandler, err := NewResponseHandler(&response, c.client.Pool.clients)
+	if err != nil {
+		return nil, err
+	}
+
+	return []ResponseHandler{*responseHandler}, nil
 }
 
 // ------------------------------------------------------------------------------------------------------------
@@ -124,20 +134,25 @@ func (c *SelectCharacterCommand) selectCharacter() error {
 	return fmt.Errorf("Character %v is already taken", c.character)
 }
 
-func (c *SelectCharacterCommand) execute() (GameResponse, error) {
+func (c *SelectCharacterCommand) execute() ([]ResponseHandler, error) {
 	var response GameResponse
 
 	hasClientAlreadySelected := c.client.Pool.xClient == c.client || c.client.Pool.oClient == c.client
 	if hasClientAlreadySelected {
-		return response, fmt.Errorf("Client had already selected a character")
+		return nil, fmt.Errorf("Client had already selected a character")
 	}
 
 	if err := c.selectCharacter(); err != nil {
-		return response, err
+		return nil, err
 	}
 
 	response.ResponseType = CHARACTER_SELECTED
 	response.Body = c.character
 
-	return response, nil
+	responseHandler, err := NewResponseHandler(&response, c.client.Pool.clients)
+	if err != nil {
+		return nil, err
+	}
+
+	return []ResponseHandler{*responseHandler}, nil
 }

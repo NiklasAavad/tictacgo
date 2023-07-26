@@ -105,7 +105,10 @@ func TestUnregisterClient(t *testing.T) {
 	createTestClient(pool)
 
 	clientToUnregister := createTestClient(pool)
-	pool.Unregister(clientToUnregister)
+	err := pool.Unregister(clientToUnregister)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	clientsInPool := len(pool.Clients())
 	if clientsInPool != 2 {
@@ -163,8 +166,8 @@ func TestShouldNotChangeCharacterIfCharacterIsAlreadyTaken(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want := game.EMPTY_CHARACTER
-	got := pool.Clients()[client2]
+	want := client1
+	got := pool.xClient
 
 	if want != got {
 		t.Errorf("got %v, want %v", got, want)

@@ -1,10 +1,5 @@
 package gamesocket
 
-import (
-	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
-	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
-)
-
 // ChannelStrategy defines the interface for the different channel strategies that can be used in the GamePool.
 //
 // Different strategies can be used for different purposes.
@@ -12,8 +7,8 @@ import (
 // The ConcurrentChannelStrategy is used in production, because it is more performant.
 type ChannelStrategy interface {
 	broadcast(p *GamePool, c Command) error
-	register(p *GamePool, c websocket.Client)
-	unregister(p *GamePool, c websocket.Client)
+	register(p *GamePool, c *GameClient)
+	unregister(p *GamePool, c *GameClient) error
 }
 
 // ConcurrentChannelStrategy is a ChannelStrategy that uses a channel to broadcast messages to all clients.
@@ -31,13 +26,14 @@ func (*ConcurrentChannelStrategy) broadcast(p *GamePool, c Command) error {
 }
 
 // register implements ChannelStrategy
-func (*ConcurrentChannelStrategy) register(p *GamePool, c websocket.Client) {
+func (*ConcurrentChannelStrategy) register(p *GamePool, c *GameClient) {
 	p.register <- c
 }
 
 // unregister implements ChannelStrategy
-func (*ConcurrentChannelStrategy) unregister(p *GamePool, c websocket.Client) {
+func (*ConcurrentChannelStrategy) unregister(p *GamePool, c *GameClient) error {
 	p.unregister <- c
+	return nil
 }
 
 // Assert that ConcurrentChannelStrategy implements ChannelStrategy
@@ -63,13 +59,19 @@ func (*SequentialChannelStrategy) broadcast(p *GamePool, c Command) error {
 }
 
 // register implements ChannelStrategy
-func (*SequentialChannelStrategy) register(p *GamePool, c websocket.Client) {
-	p.clients[c] = game.EMPTY_CHARACTER
+func (*SequentialChannelStrategy) register(p *GamePool, c *GameClient) {
+	p.clients = append(p.clients, c)
 }
 
 // unregister implements ChannelStrategy
-func (*SequentialChannelStrategy) unregister(p *GamePool, c websocket.Client) {
-	delete(p.clients, c)
+func (*SequentialChannelStrategy) unregister(p *GamePool, c *GameClient) error {
+	updatedClients, err := RemoveElement(p.clients, c)
+	if err != nil {
+		return err
+	}
+
+	p.clients = updatedClients
+	return nil
 }
 
 // Assert that SequentialChannelStrategy implements ChannelStrategy

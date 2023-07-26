@@ -102,3 +102,9 @@ func (pool *ChatPool) Start() {
 		}
 	}
 }
+
+func (pool *ChatPool) ServeWs(w http.ResponseWriter, r *http.Request) {
+	client := pool.NewClient(w, r)
+	pool.Register(client)
+	go client.Read()
+}

@@ -12,9 +12,9 @@ import (
 // GamePool is a websocket pool that handles the game logic
 // It implements the websocket.Pool interface
 type GamePool struct {
-	register        chan websocket.Client
-	unregister      chan websocket.Client
-	clients         map[websocket.Client]game.SquareCharacter // TODO: evt lav om til liste af clients?
+	register        chan *GameClient
+	unregister      chan *GameClient
+	clients         []*GameClient
 	broadcast       chan Command
 	game            game.GameService
 	channelStrategy ChannelStrategy
@@ -22,15 +22,12 @@ type GamePool struct {
 	oClient         websocket.Client
 }
 
-// Assert that GamePool implements the websocket.Pool interface
-var _ websocket.Pool = new(GamePool)
-
 // NewGamePool creates a new GamePool
 func NewGamePool(cs ChannelStrategy) *GamePool {
 	return &GamePool{
-		register:        make(chan websocket.Client),
-		unregister:      make(chan websocket.Client),
-		clients:         make(map[websocket.Client]game.SquareCharacter),
+		register:        make(chan *GameClient),
+		unregister:      make(chan *GameClient),
+		clients:         []*GameClient{},
 		broadcast:       make(chan Command),
 		game:            game.NewGame(),
 		channelStrategy: cs,
@@ -40,7 +37,7 @@ func NewGamePool(cs ChannelStrategy) *GamePool {
 }
 
 // NewClient creates a new GameClient
-func (p *GamePool) NewClient(w http.ResponseWriter, r *http.Request) websocket.Client {
+func (p *GamePool) NewClient(w http.ResponseWriter, r *http.Request) *GameClient {
 	clientName := r.URL.Query().Get("name")
 	if clientName == "" {
 		clientName = "Unknown"
@@ -71,27 +68,42 @@ func (p *GamePool) Broadcast(m GameMessage) error {
 }
 
 // Register registers a client in the pool
-func (p *GamePool) Register(c websocket.Client) {
+func (p *GamePool) Register(c *GameClient) {
 	p.channelStrategy.register(p, c)
 }
 
 // Unregister unregisters a client from the pool
-func (p *GamePool) Unregister(c websocket.Client) {
-	p.channelStrategy.unregister(p, c)
+// returns an error for testing purposes. Will always return nil using the concurrent channel strategy
+func (p *GamePool) Unregister(c *GameClient) error {
+	return p.channelStrategy.unregister(p, c)
 }
 
-// Clients returns a map of all clients in the pool
-// The key is the client and the value is the client's character in the game
-func (p *GamePool) Clients() map[websocket.Client]game.SquareCharacter {
+// Clients returns all clients in the pool
+func (p *GamePool) Clients() []*GameClient {
 	return p.clients
 }
 
 // broadcastResponse broadcasts a GameResponse to all clients in the pool
 // It returns an error if the broadcast fails
 func (p *GamePool) broadcastResponse(response GameResponse) error {
-	for client := range p.clients {
+	for _, client := range p.clients {
 		if err := client.Conn().WriteJSON(response); err != nil {
 			return err
+		}
+	}
+	return nil
+}
+
+// broadcastToSelected broadcasts a GameResponse to selected clients in the pool
+// The argument responseHandlers contains the response and the clients to which the response should be sent
+// It returns an error if the broadcast fails
+func (p *GamePool) broadcastToSelected(responseHandlers []ResponseHandler) error {
+	for _, responseHandler := range responseHandlers {
+		for _, client := range responseHandler.Receivers {
+			if err := client.Conn().WriteJSON(responseHandler.Response); err != nil {
+				// TODO consider if we should return early or continue (and thereby collect all errors)
+				return err
+			}
 		}
 	}
 	return nil
@@ -114,13 +126,15 @@ func (pool *GamePool) broadcastGameIsOver() {
 // It executes the command and broadcasts the response to all clients in the pool
 // It returns an error if the command execution fails
 func (pool *GamePool) respond(command Command) error {
-	response, err := command.execute()
+	responseHandlers, err := command.execute()
 
 	if err != nil {
 		return err
 	}
 
-	pool.broadcastResponse(response)
+	if err := pool.broadcastToSelected(responseHandlers); err != nil {
+		return err
+	}
 
 	if pool.game.IsGameOver() {
 		pool.broadcastGameIsOver()
@@ -169,16 +183,27 @@ func (pool *GamePool) Start() {
 	for {
 		select {
 		case client := <-pool.register:
-			pool.clients[client] = game.EMPTY_CHARACTER
+			pool.clients = append(pool.clients, client)
 			if err := pool.respondToNewClient(client); err != nil {
 				fmt.Println(err)
 			}
 		case client := <-pool.unregister:
-			delete(pool.clients, client)
+			updatedClients, err := RemoveElement(pool.clients, client)
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				pool.clients = updatedClients
+			}
 		case command := <-pool.broadcast:
 			if err := pool.respond(command); err != nil {
 				fmt.Println(err)
 			}
 		}
 	}
+}
+
+func (pool *GamePool) ServeWs(w http.ResponseWriter, r *http.Request) {
+	client := pool.NewClient(w, r)
+	pool.Register(client)
+	client.Read()
 }

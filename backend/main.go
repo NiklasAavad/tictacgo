@@ -4,38 +4,32 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket/chat"
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket/gamesocket"
 )
 
-func serveWs(pool websocket.Pool, w http.ResponseWriter, r *http.Request) {
-	client := pool.NewClient(w, r)
-	pool.Register(client)
-	client.Read()
+func startChatPool() *chat.ChatPool {
+	chatPool := chat.NewChatPool()
+	go chatPool.Start()
+	return chatPool
 }
 
-func startPools() (*chat.ChatPool, *gamesocket.GamePool) {
-	chatPool := chat.NewChatPool()
-
+func startGamePool() *gamesocket.GamePool {
 	channelStrategy := gamesocket.NewConcurrentChannelStrategy()
 	gamePool := gamesocket.NewGamePool(channelStrategy)
-
-	go chatPool.Start()
 	go gamePool.Start()
-
-	return chatPool, gamePool
+	return gamePool
 }
 
 func setupRoutes() {
-	chatPool, gamePool := startPools()
-
+	chatPool := startChatPool()
 	http.HandleFunc("/chatws", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(chatPool, w, r)
+		chatPool.ServeWs(w, r)
 	})
 
+	gamePool := startGamePool()
 	http.HandleFunc("/gamews", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(gamePool, w, r)
+		gamePool.ServeWs(w, r)
 	})
 }
 

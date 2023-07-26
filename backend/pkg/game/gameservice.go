@@ -19,4 +19,5 @@ type GameService interface {
 	Board() Board
 	IsStarted() bool
 	PlayerInTurn() SquareCharacter
+	ForceDraw()
 }

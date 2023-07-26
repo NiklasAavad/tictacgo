@@ -1,5 +1,4 @@
-package testutils
-
+package gamesocket
 import "github.com/NiklasPrograms/tictacgo/backend/pkg/websocket"
 
 type ConnMock struct{}

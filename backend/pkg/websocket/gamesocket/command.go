@@ -156,3 +156,71 @@ func (c *SelectCharacterCommand) execute() ([]ResponseHandler, error) {
 
 	return []ResponseHandler{*responseHandler}, nil
 }
+
+// ------------------------------------------------------------------------------------------------------------
+
+type RequestDrawCommand struct {
+	client *GameClient
+}
+
+func NewRequestDrawCommand(client *GameClient) (*RequestDrawCommand, error) {
+	if client == nil {
+		return nil, fmt.Errorf("Client cannot be nil")
+	}
+	return &RequestDrawCommand{client}, nil
+}
+
+func (c *RequestDrawCommand) execute() ([]ResponseHandler, error) {
+	pool := c.client.Pool
+	game := pool.game
+
+	if !game.IsStarted() {
+		return nil, fmt.Errorf("Game has not started yet, and a draw cannot be requested")
+	}
+
+	if game.IsGameOver() {
+		return nil, fmt.Errorf("Game is already over, and a draw cannot be requested")
+	}
+
+	if pool.IsDrawRequested {
+		return nil, fmt.Errorf("A draw has already been requested")
+	}
+
+	clientIsPlaying := pool.xClient == c.client || pool.oClient == c.client
+	if !clientIsPlaying {
+		return nil, fmt.Errorf("Client must be playing to request a draw, cannot be a spectator")
+	}
+
+	isOpponent := true
+	responseToOpponent := GameResponse{
+		ResponseType: REQUEST_DRAW,
+		Body:         isOpponent,
+	}
+
+	isOpponent = false
+	responseToSelf := GameResponse{
+		ResponseType: REQUEST_DRAW,
+		Body:         isOpponent,
+	}
+
+	var opponent *GameClient
+	if pool.xClient == c.client {
+		opponent = pool.oClient
+	} else {
+		opponent = pool.xClient
+	}
+
+	opponentResponseHandler, err := NewResponseHandler(&responseToOpponent, []*GameClient{opponent})
+	if err != nil {
+		return nil, err
+	}
+
+	selfResponseHandler, err := NewResponseHandler(&responseToSelf, []*GameClient{c.client})
+	if err != nil {
+		return nil, err
+	}
+
+	c.client.Pool.IsDrawRequested = true
+
+	return []ResponseHandler{*opponentResponseHandler, *selfResponseHandler}, nil
+}

@@ -17,8 +17,9 @@ type GamePool struct {
 	broadcast       chan Command
 	game            game.GameService
 	channelStrategy ChannelStrategy
-	xClient         websocket.Client
-	oClient         websocket.Client
+	xClient         *GameClient
+	oClient         *GameClient
+	IsDrawRequested bool
 }
 
 // NewGamePool creates a new GamePool
@@ -32,6 +33,7 @@ func NewGamePool(cs ChannelStrategy) *GamePool {
 		channelStrategy: cs,
 		xClient:         nil, // TODO: overvej at tilføje en 'noClient'
 		oClient:         nil, // TODO: overvej at tilføje en 'noClient'
+		IsDrawRequested: false,
 	}
 }
 

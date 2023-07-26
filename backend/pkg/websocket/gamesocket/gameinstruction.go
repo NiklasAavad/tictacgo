@@ -26,6 +26,8 @@ func ParseGameInstruction(s string) (GameInstruction, error) {
 		return NewChooseSquareInstruction(), nil
 	case "select character":
 		return NewSelectCharacterInstruction(), nil
+	case "request draw":
+		return NewRequestDrawInstruction(), nil
 	default:
 		return nil, fmt.Errorf("invalid game instruction: %s", s)
 	}
@@ -126,3 +128,26 @@ func (instruction *SelectCharacterInstruction) ToCommand(gc *GameClient) (Comman
 }
 
 var _ GameInstruction = new(SelectCharacterInstruction)
+
+// ---------------------------------------------------------------------------------------------------
+
+type RequestDrawInstruction struct{}
+
+func NewRequestDrawInstruction() *RequestDrawInstruction {
+	return &RequestDrawInstruction{}
+}
+
+// String implements GameInstruction
+func (*RequestDrawInstruction) String() string {
+	return "request draw"
+}
+
+// ParseContent implements GameInstruction
+func (*RequestDrawInstruction) ParseContent(any) error {
+	return nil // RequestDrawInstruction has no content
+}
+
+// ToCommand implements GameInstruction
+func (*RequestDrawInstruction) ToCommand(gc *GameClient) (Command, error) {
+	return NewRequestDrawCommand(gc)
+}

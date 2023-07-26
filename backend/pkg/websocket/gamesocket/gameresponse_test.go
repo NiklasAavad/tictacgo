@@ -41,6 +41,10 @@ func TestResponseTypeString(t *testing.T) {
 			input:          ResponseType(7),
 			expectedResult: "welcome",
 		},
+		{
+			input:          ResponseType(8),
+			expectedResult: "request draw",
+		},
 	} {
 		t.Run("Testing String method", func(t *testing.T) {
 			actualResult := testCase.input.String()

@@ -13,7 +13,7 @@ type GameResponse struct {
 
 type ResponseType uint8
 
-var _ json.Marshaler = new(ResponseType) // Command implements Marshaler interface
+var _ json.Marshaler = new(ResponseType)
 
 const (
 	BOARD ResponseType = iota + 1

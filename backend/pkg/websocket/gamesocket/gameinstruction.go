@@ -2,6 +2,7 @@ package gamesocket
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
@@ -28,6 +29,8 @@ func ParseGameInstruction(s string) (GameInstruction, error) {
 		return NewSelectCharacterInstruction(), nil
 	case "request draw":
 		return NewRequestDrawInstruction(), nil
+	case "respond to draw":
+		return NewRespondToDrawInstruction(), nil
 	default:
 		return nil, fmt.Errorf("invalid game instruction: %s", s)
 	}
@@ -150,4 +153,37 @@ func (*RequestDrawInstruction) ParseContent(any) error {
 // ToCommand implements GameInstruction
 func (*RequestDrawInstruction) ToCommand(gc *GameClient) (Command, error) {
 	return NewRequestDrawCommand(gc)
+}
+
+// ---------------------------------------------------------------------------------------------------
+
+type RespondToDrawRequestInstruction struct {
+	accept bool
+}
+
+func NewRespondToDrawInstruction() *RespondToDrawRequestInstruction {
+	return &RespondToDrawRequestInstruction{
+		accept: false,
+	}
+}
+
+// String implements GameInstruction
+func (ins *RespondToDrawRequestInstruction) String() string {
+	return fmt.Sprintf("respond to draw: %v", ins.accept)
+}
+
+// ParseContent implements GameInstruction
+func (instruction *RespondToDrawRequestInstruction) ParseContent(content any) error {
+	accept, ok := content.(bool)
+	if !ok {
+		return fmt.Errorf("invalid content type for RespondToDrawInstruction: %v", reflect.TypeOf(content))
+	}
+
+	instruction.accept = accept
+	return nil
+}
+
+// ToCommand implements GameInstruction
+func (instruction *RespondToDrawRequestInstruction) ToCommand(gc *GameClient) (Command, error) {
+	return NewRespondToDrawRequestCommand(gc, instruction.accept)
 }

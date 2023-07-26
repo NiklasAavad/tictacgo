@@ -224,3 +224,22 @@ func (c *RequestDrawCommand) execute() ([]ResponseHandler, error) {
 
 	return []ResponseHandler{*opponentResponseHandler, *selfResponseHandler}, nil
 }
+
+// ------------------------------------------------------------------------------------------------------------
+
+type RespondToDrawRequestCommand struct {
+	client *GameClient
+	accept bool
+}
+
+func NewRespondToDrawRequestCommand(client *GameClient, accept bool) (*RespondToDrawRequestCommand, error) {
+	if client == nil {
+		return nil, fmt.Errorf("Client cannot be nil")
+	}
+
+	return &RespondToDrawRequestCommand{client, accept}, nil
+}
+
+func (c *RespondToDrawRequestCommand) execute() ([]ResponseHandler, error) {
+	return nil, nil
+}

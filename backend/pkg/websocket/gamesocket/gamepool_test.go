@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
-	"github.com/NiklasPrograms/tictacgo/backend/pkg/websocket/testutils"
 )
 
 func setupTest(t *testing.T) (func(t *testing.T), *GamePool) {
@@ -15,63 +14,6 @@ func setupTest(t *testing.T) (func(t *testing.T), *GamePool) {
 	return func(t *testing.T) {
 		t.Log("Tearing down testing")
 	}, pool
-}
-
-func createTestClient(pool *GamePool) *GameClient {
-	client := &GameClient{
-		Pool: pool,
-		conn: testutils.NewConnMock(),
-	}
-
-	pool.Register(client)
-
-	return client
-}
-
-func createSelectCharacterMessage(client *GameClient, character game.SquareCharacter) GameMessage {
-	instruction := &SelectCharacterInstruction{
-		character: character,
-	}
-	return GameMessage{instruction, client}
-}
-
-func createStartGameMessage(client *GameClient) GameMessage {
-	instruction := &StartGameInstruction{}
-	return GameMessage{instruction, client}
-}
-
-func createChooseSquareMessage(client *GameClient, position game.Position) GameMessage {
-	instruction := &ChooseSquareInstruction{
-		position: position,
-	}
-	return GameMessage{instruction, client}
-}
-
-func startGame(pool *GamePool) (*GameClient, *GameClient, error) {
-	clientX, clientO := createTestClient(pool), createTestClient(pool)
-
-	messageX := createSelectCharacterMessage(clientX, game.X)
-	messageO := createSelectCharacterMessage(clientO, game.O)
-
-	if err := pool.Broadcast(messageX); err != nil {
-		return nil, nil, err
-	}
-
-	if err := pool.Broadcast(messageO); err != nil {
-		return nil, nil, err
-	}
-
-	message := createStartGameMessage(clientX)
-	if err := pool.Broadcast(message); err != nil {
-		return nil, nil, err
-	}
-
-	return clientX, clientO, nil
-}
-
-func chooseSquare(pool *GamePool, c *GameClient, position game.Position) error {
-	message := createChooseSquareMessage(c, position)
-	return pool.Broadcast(message)
 }
 
 func TestRegisterClient(t *testing.T) {
@@ -224,7 +166,7 @@ func TestOCannotChooseSquareWhenItIsX(t *testing.T) {
 	teardown, pool := setupTest(t)
 	defer teardown(t)
 
-	_, clientO, err := startGame(pool)
+	_, clientO, err := initGame(pool)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -247,7 +189,7 @@ func TestXCannotChooseSquareWhenItIsO(t *testing.T) {
 	teardown, pool := setupTest(t)
 	defer teardown(t)
 
-	clientX, _, err := startGame(pool)
+	clientX, _, err := initGame(pool)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -325,5 +267,111 @@ func TestClientCannotChooseBothCharacters(t *testing.T) {
 
 	if pool.xClient != client {
 		t.Errorf("Client should still have selected X")
+	}
+}
+
+func TestClientCanRequestDraw(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	clientX, _, err := initGame(pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if pool.IsDrawRequested {
+		t.Errorf("Game should not have a draw requested")
+	}
+
+	requestDrawMessage := createRequestDrawMessage(clientX)
+	if err := pool.Broadcast(requestDrawMessage); err != nil {
+		t.Fatal(err)
+	}
+
+	if !pool.IsDrawRequested {
+		t.Errorf("Game should have a draw requested")
+	}
+}
+
+func TestClientCannotRequestDrawWhenGameIsNotStarted(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	clientX, clientO := createBothClients(pool)
+	if err := selectBothCharacters(pool, clientX, clientO); err != nil {
+		t.Fatal(err)
+	}
+
+	requestDrawMessage := createRequestDrawMessage(clientX)
+	if err := pool.Broadcast(requestDrawMessage); err == nil { // should return error!
+		t.Fatalf("Broadcast should fail, since game is not started")
+	}
+
+	if pool.IsDrawRequested {
+		t.Errorf("Game should not have a draw requested, since it was not started")
+	}
+}
+
+func TestClientCannotRequestDrawWhenGameIsOver(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	clientX, clientO, err := initGame(pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := playTillGameWon(pool, clientX, clientO); err != nil {
+		t.Fatal(err)
+	}
+
+	requestDrawMessage := createRequestDrawMessage(clientO)
+	if err := pool.Broadcast(requestDrawMessage); err == nil { // should return error!
+		t.Errorf("Broadcast should fail, since the game is over")
+	}
+
+	if pool.IsDrawRequested {
+		t.Errorf("Game should not have a draw requested, since the game is over")
+	}
+}
+
+func TestClientCannotRequestDrawWhenDrawIsAlreadyRequested(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	clientX, clientO, err := initGame(pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	firstRequestDrawMessage := createRequestDrawMessage(clientX)
+	if err := pool.Broadcast(firstRequestDrawMessage); err != nil {
+		t.Fatal(err)
+	}
+
+	secondRequestDrawMessage := createRequestDrawMessage(clientO)
+	if err := pool.Broadcast(secondRequestDrawMessage); err == nil { // should return error!
+		t.Errorf("Broadcast should fail, since a draw is already requested")
+	}
+}
+
+func TestSpectatorCannotRequestDraw(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	_, _, err := initGame(pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	spectator := createTestClient(pool)
+
+	requestDrawMessage := createRequestDrawMessage(spectator)
+	if err := pool.Broadcast(requestDrawMessage); err == nil { // should return error!
+		t.Errorf("Broadcast should fail, since the spectator is not a player")
+	}
+
+	if pool.IsDrawRequested {
+		t.Errorf("Game should not have a draw requested, since the spectator is not a player")
 	}
 }

@@ -24,6 +24,7 @@ const (
 	GAME_STARTED
 	WELCOME
 	REQUEST_DRAW
+	DRAW_REQUEST_RESPONSE
 )
 
 // WelcomeResponse is the response that is sent to a client when it connects to the server
@@ -45,16 +46,18 @@ var (
 		6: "game started",
 		7: "welcome",
 		8: "request draw",
+		9: "draw request response",
 	}
 	ResponseTypeValue = map[string]uint8{
-		"board":              1,
-		"game over":          2,
-		"result":             3,
-		"new message":        4,
-		"character selected": 5,
-		"game started":       6,
-		"welcome":            7,
-		"request draw":       8,
+		"board":                 1,
+		"game over":             2,
+		"result":                3,
+		"new message":           4,
+		"character selected":    5,
+		"game started":          6,
+		"welcome":               7,
+		"request draw":          8,
+		"draw request response": 9,
 	}
 )
 

@@ -72,6 +72,13 @@ func createRequestDrawMessage(client *GameClient) GameMessage {
 	return GameMessage{instruction, client}
 }
 
+func createRespondToDrawRequestMessage(client *GameClient, accept bool) GameMessage {
+	instruction := &RespondToDrawRequestInstruction{
+		accept: accept,
+	}
+	return GameMessage{instruction, client}
+}
+
 func createBothClients(pool *GamePool) (*GameClient, *GameClient) {
 	return createTestClient(pool), createTestClient(pool)
 }

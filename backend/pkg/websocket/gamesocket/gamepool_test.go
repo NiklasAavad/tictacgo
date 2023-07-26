@@ -375,3 +375,121 @@ func TestSpectatorCannotRequestDraw(t *testing.T) {
 		t.Errorf("Game should not have a draw requested, since the spectator is not a player")
 	}
 }
+
+func TestClientCanAcceptDraw(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	clientX, clientO, err := initGame(pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	requestDrawMessage := createRequestDrawMessage(clientX)
+	if err := pool.Broadcast(requestDrawMessage); err != nil {
+		t.Fatal(err)
+	}
+
+	acceptDrawMessage := createRespondToDrawRequestMessage(clientO, true)
+	if err := pool.Broadcast(acceptDrawMessage); err != nil {
+		t.Fatal(err)
+	}
+
+	if pool.IsDrawRequested {
+		t.Errorf("Game should not have a draw requested")
+	}
+
+	if !pool.game.IsGameOver() {
+		t.Errorf("Game should be over, since a draw was accepted")
+	}
+
+}
+
+func TestClientCanDeclineDraw(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	clientX, clientO, err := initGame(pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	requestDrawMessage := createRequestDrawMessage(clientX)
+	if err := pool.Broadcast(requestDrawMessage); err != nil {
+		t.Fatal(err)
+	}
+
+	acceptDrawMessage := createRespondToDrawRequestMessage(clientO, false)
+	if err := pool.Broadcast(acceptDrawMessage); err != nil {
+		t.Fatal(err)
+	}
+
+	if pool.IsDrawRequested {
+		t.Errorf("Game should not have a draw requested")
+	}
+
+	if pool.game.IsGameOver() {
+		t.Errorf("Game should not be over, since a draw was declined")
+	}
+}
+
+func TestClientCannotRespondToDrawRequestIfNoRequestIsActive(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	_, clientO, err := initGame(pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	acceptDrawMessage := createRespondToDrawRequestMessage(clientO, true)
+	if err := pool.Broadcast(acceptDrawMessage); err == nil { // should return error!
+		t.Errorf("Broadcast should fail, since no draw request is active")
+	}
+}
+
+func TestClientCannotRespondToDrawRequestIfNotPlayer(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	clientX, _, err := initGame(pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	requestDrawMessage := createRequestDrawMessage(clientX)
+	if err := pool.Broadcast(requestDrawMessage); err != nil {
+		t.Fatal(err)
+	}
+
+	spectator := createTestClient(pool)
+
+	acceptDrawMessage := createRespondToDrawRequestMessage(spectator, true)
+	if err := pool.Broadcast(acceptDrawMessage); err == nil { // should return error!
+		t.Errorf("Broadcast should fail, since spectator is not a player")
+	}
+}
+
+func TestClientCannotRespondToDrawRequestIfGameIsOver(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	clientX, clientO, err := initGame(pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	requestDrawMessage := createRequestDrawMessage(clientO)
+	if err := pool.Broadcast(requestDrawMessage); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := playTillGameWon(pool, clientX, clientO); err != nil {
+		t.Fatal(err)
+	}
+
+	acceptDrawMessage := createRespondToDrawRequestMessage(clientX, true)
+	if err := pool.Broadcast(acceptDrawMessage); err == nil { // should return error!
+		t.Errorf("Broadcast should fail, since game is over")
+	}
+}

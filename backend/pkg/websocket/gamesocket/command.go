@@ -240,6 +240,49 @@ func NewRespondToDrawRequestCommand(client *GameClient, accept bool) (*RespondTo
 	return &RespondToDrawRequestCommand{client, accept}, nil
 }
 
+// TODO should add a time limit to respond to a draw request, probably through an attached timestamp?
 func (c *RespondToDrawRequestCommand) execute() ([]ResponseHandler, error) {
-	return nil, nil
+	pool := c.client.Pool
+	game := pool.game
+
+	var response GameResponse
+	var receivers []*GameClient
+
+	if !pool.IsDrawRequested {
+		return nil, fmt.Errorf("No draw was requested, so there is nothing to respond to")
+	}
+
+	if !game.IsStarted() {
+		pool.IsDrawRequested = false
+		return nil, fmt.Errorf("Game has not started yet, and a draw cannot be requested")
+	}
+
+	if game.IsGameOver() {
+		pool.IsDrawRequested = false
+		return nil, fmt.Errorf("Game is already over, and a draw cannot be requested")
+	}
+
+	clientIsPlaying := pool.xClient == c.client || pool.oClient == c.client
+	if !clientIsPlaying {
+		return nil, fmt.Errorf("Client must be playing to accept a draw, cannot be a spectator. Indicates a larger problem with the server")
+	}
+
+	if c.accept {
+		game.ForceDraw()
+		receivers = c.client.Pool.clients
+	} else {
+		receivers = []*GameClient{pool.xClient, pool.oClient} // Only opponent and self needs to know that the draw was rejected. No spectators receive the inital message either
+	}
+
+	pool.IsDrawRequested = false
+
+	response.Body = c.accept
+	response.ResponseType = DRAW_REQUEST_RESPONSE
+
+	responseHandler, err := NewResponseHandler(&response, receivers)
+ 	if err != nil {
+		return nil, err
+	}
+
+	return []ResponseHandler{*responseHandler}, nil
 }

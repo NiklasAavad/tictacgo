@@ -14,6 +14,10 @@ func NewDrawRequestHandler() *DrawRequestHandler {
 	}
 }
 
+// Common validation for DrawRequests
+//
+// Ensures that the client is actually playing
+// and that the game is in a valid state (started, but not finished)
 func IsDrawRequestCommandValid(client *GameClient) (bool, error) {
 	pool := client.Pool
 	game := pool.game

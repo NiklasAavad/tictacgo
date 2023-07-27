@@ -279,7 +279,7 @@ func TestClientCanRequestDraw(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if pool.IsDrawRequested {
+	if pool.DrawRequestHandler.IsDrawRequested {
 		t.Errorf("Game should not have a draw requested")
 	}
 
@@ -288,7 +288,7 @@ func TestClientCanRequestDraw(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !pool.IsDrawRequested {
+	if !pool.DrawRequestHandler.IsDrawRequested {
 		t.Errorf("Game should have a draw requested")
 	}
 }
@@ -307,7 +307,7 @@ func TestClientCannotRequestDrawWhenGameIsNotStarted(t *testing.T) {
 		t.Fatalf("Broadcast should fail, since game is not started")
 	}
 
-	if pool.IsDrawRequested {
+	if pool.DrawRequestHandler.IsDrawRequested {
 		t.Errorf("Game should not have a draw requested, since it was not started")
 	}
 }
@@ -330,7 +330,7 @@ func TestClientCannotRequestDrawWhenGameIsOver(t *testing.T) {
 		t.Errorf("Broadcast should fail, since the game is over")
 	}
 
-	if pool.IsDrawRequested {
+	if pool.DrawRequestHandler.IsDrawRequested {
 		t.Errorf("Game should not have a draw requested, since the game is over")
 	}
 }
@@ -371,7 +371,7 @@ func TestSpectatorCannotRequestDraw(t *testing.T) {
 		t.Errorf("Broadcast should fail, since the spectator is not a player")
 	}
 
-	if pool.IsDrawRequested {
+	if pool.DrawRequestHandler.IsDrawRequested {
 		t.Errorf("Game should not have a draw requested, since the spectator is not a player")
 	}
 }
@@ -395,7 +395,7 @@ func TestClientCanAcceptDraw(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if pool.IsDrawRequested {
+	if pool.DrawRequestHandler.IsDrawRequested {
 		t.Errorf("Game should not have a draw requested")
 	}
 
@@ -424,7 +424,7 @@ func TestClientCanDeclineDraw(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if pool.IsDrawRequested {
+	if pool.DrawRequestHandler.IsDrawRequested {
 		t.Errorf("Game should not have a draw requested")
 	}
 

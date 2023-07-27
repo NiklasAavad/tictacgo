@@ -182,7 +182,7 @@ func (c *RequestDrawCommand) execute() ([]ResponseHandler, error) {
 		return nil, fmt.Errorf("Game is already over, and a draw cannot be requested")
 	}
 
-	if pool.IsDrawRequested {
+	if pool.DrawRequestHandler.IsDrawRequested {
 		return nil, fmt.Errorf("A draw has already been requested")
 	}
 
@@ -220,7 +220,7 @@ func (c *RequestDrawCommand) execute() ([]ResponseHandler, error) {
 		return nil, err
 	}
 
-	c.client.Pool.IsDrawRequested = true
+	pool.DrawRequestHandler.IsDrawRequested = true
 
 	return []ResponseHandler{*opponentResponseHandler, *selfResponseHandler}, nil
 }
@@ -248,17 +248,17 @@ func (c *RespondToDrawRequestCommand) execute() ([]ResponseHandler, error) {
 	var response GameResponse
 	var receivers []*GameClient
 
-	if !pool.IsDrawRequested {
+	if !pool.DrawRequestHandler.IsDrawRequested {
 		return nil, fmt.Errorf("No draw was requested, so there is nothing to respond to")
 	}
 
 	if !game.IsStarted() {
-		pool.IsDrawRequested = false
+		pool.DrawRequestHandler.IsDrawRequested = false
 		return nil, fmt.Errorf("Game has not started yet, and a draw cannot be requested")
 	}
 
 	if game.IsGameOver() {
-		pool.IsDrawRequested = false
+		pool.DrawRequestHandler.IsDrawRequested = false
 		return nil, fmt.Errorf("Game is already over, and a draw cannot be requested")
 	}
 
@@ -274,7 +274,7 @@ func (c *RespondToDrawRequestCommand) execute() ([]ResponseHandler, error) {
 		receivers = []*GameClient{pool.xClient, pool.oClient} // Only opponent and self needs to know that the draw was rejected. No spectators receive the inital message either
 	}
 
-	pool.IsDrawRequested = false
+	pool.DrawRequestHandler.IsDrawRequested = false
 
 	response.Body = c.accept
 	response.ResponseType = DRAW_REQUEST_RESPONSE

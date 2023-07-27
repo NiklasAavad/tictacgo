@@ -11,15 +11,15 @@ import (
 
 // GamePool is a websocket pool that handles the game logic
 type GamePool struct {
-	register        chan *GameClient
-	unregister      chan *GameClient
-	clients         []*GameClient
-	broadcast       chan Command
-	game            game.GameService
-	channelStrategy ChannelStrategy
-	xClient         *GameClient
-	oClient         *GameClient
-	IsDrawRequested bool
+	register           chan *GameClient
+	unregister         chan *GameClient
+	clients            []*GameClient
+	broadcast          chan Command
+	game               game.GameService
+	channelStrategy    ChannelStrategy
+	xClient            *GameClient
+	oClient            *GameClient
+	DrawRequestHandler *DrawRequestHandler
 }
 
 // NewGamePool creates a new GamePool
@@ -33,7 +33,7 @@ func NewGamePool(cs ChannelStrategy) *GamePool {
 		channelStrategy: cs,
 		xClient:         nil, // TODO: overvej at tilføje en 'noClient'
 		oClient:         nil, // TODO: overvej at tilføje en 'noClient'
-		IsDrawRequested: false,
+		DrawRequestHandler: NewDrawRequestHandler(),
 	}
 }
 

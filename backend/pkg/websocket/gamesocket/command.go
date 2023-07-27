@@ -172,23 +172,14 @@ func NewRequestDrawCommand(client *GameClient) (*RequestDrawCommand, error) {
 
 func (c *RequestDrawCommand) execute() ([]ResponseHandler, error) {
 	pool := c.client.Pool
-	game := pool.game
-
-	if !game.IsStarted() {
-		return nil, fmt.Errorf("Game has not started yet, and a draw cannot be requested")
-	}
-
-	if game.IsGameOver() {
-		return nil, fmt.Errorf("Game is already over, and a draw cannot be requested")
-	}
 
 	if pool.DrawRequestHandler.IsDrawRequested {
 		return nil, fmt.Errorf("A draw has already been requested")
 	}
 
-	clientIsPlaying := pool.xClient == c.client || pool.oClient == c.client
-	if !clientIsPlaying {
-		return nil, fmt.Errorf("Client must be playing to request a draw, cannot be a spectator")
+	isValid, err := IsDrawRequestCommandValid(c.client)
+	if !isValid {
+		return nil, err
 	}
 
 	isOpponent := true
@@ -253,21 +244,9 @@ func (c *RespondToDrawRequestCommand) execute() ([]ResponseHandler, error) {
 		return nil, fmt.Errorf("No draw was requested, so there is nothing to respond to")
 	}
 
-	if !game.IsStarted() {
-		pool.DrawRequestHandler.IsDrawRequested = false
-		pool.DrawRequestHandler.DrawRequester = nil
-		return nil, fmt.Errorf("Game has not started yet, and a draw cannot be requested")
-	}
-
-	if game.IsGameOver() {
-		pool.DrawRequestHandler.IsDrawRequested = false
-		pool.DrawRequestHandler.DrawRequester = nil
-		return nil, fmt.Errorf("Game is already over, and a draw cannot be requested")
-	}
-
-	clientIsPlaying := pool.xClient == c.client || pool.oClient == c.client
-	if !clientIsPlaying {
-		return nil, fmt.Errorf("Client must be playing to accept a draw, cannot be a spectator. Indicates a larger problem with the server")
+	isValid, err := IsDrawRequestCommandValid(c.client)
+	if !isValid {
+		return nil, err
 	}
 
 	if c.accept {
@@ -307,27 +286,14 @@ func NewWithdrawDrawRequestCommand(client *GameClient) (*WithdrawDrawRequestComm
 
 func (c *WithdrawDrawRequestCommand) execute() ([]ResponseHandler, error) {
 	pool := c.client.Pool
-	game := pool.game
 
 	if !pool.DrawRequestHandler.IsDrawRequested {
 		return nil, fmt.Errorf("No draw was requested, so there is nothing to withdraw")
 	}
 
-	clientIsPlaying := pool.xClient == c.client || pool.oClient == c.client
-	if !clientIsPlaying {
-		return nil, fmt.Errorf("Client must be playing to accept a draw, cannot be a spectator. Indicates a larger problem with the server")
-	}
-
-	if game.IsGameOver() {
-		pool.DrawRequestHandler.IsDrawRequested = false
-		pool.DrawRequestHandler.DrawRequester = nil
-		return nil, fmt.Errorf("Game is not over, and a draw cannot be requested")
-	}
-
-	if !game.IsStarted() {
-		pool.DrawRequestHandler.IsDrawRequested = false
-		pool.DrawRequestHandler.DrawRequester = nil
-		return nil, fmt.Errorf("Game has not started yet, and a draw cannot be requested")
+	isValid, err := IsDrawRequestCommandValid(c.client)
+	if !isValid {
+		return nil, err
 	}
 
 	isClientTheDrawRequester := pool.DrawRequestHandler.DrawRequester == c.client

@@ -493,3 +493,134 @@ func TestClientCannotRespondToDrawRequestIfGameIsOver(t *testing.T) {
 		t.Errorf("Broadcast should fail, since game is over")
 	}
 }
+
+func TestClientCanWithdrawDrawRequest(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	clientX, _, err := initGame(pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	requestDrawMessage := createRequestDrawMessage(clientX)
+	if err := pool.Broadcast(requestDrawMessage); err != nil {
+		t.Fatal(err)
+	}
+
+	if !pool.DrawRequestHandler.IsDrawRequested {
+		t.Errorf("Game should have a draw requested")
+	}
+
+	withdrawDrawMessage := createWithdrawDrawRequestMessage(clientX)
+	if err := pool.Broadcast(withdrawDrawMessage); err != nil {
+		t.Fatal(err)
+	}
+
+	if pool.DrawRequestHandler.IsDrawRequested {
+		t.Errorf("Game should NOT have a draw requested")
+	}
+}
+
+func TestClientCannotWithdrawDrawRequestIfNoRequestIsActive(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	clientX, _, err := initGame(pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	withdrawDrawMessage := createWithdrawDrawRequestMessage(clientX)
+	if err := pool.Broadcast(withdrawDrawMessage); err == nil { // should return error!
+		t.Errorf("Broadcast should fail, since no draw request is active")
+	}
+}
+
+func TestClientCannotWithdrawDrawRequestIfNotPlayer(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	clientX, _, err := initGame(pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	requestDrawMessage := createRequestDrawMessage(clientX)
+	if err := pool.Broadcast(requestDrawMessage); err != nil {
+		t.Fatal(err)
+	}
+
+	spectator := createTestClient(pool)
+
+	withdrawDrawMessage := createWithdrawDrawRequestMessage(spectator)
+	if err := pool.Broadcast(withdrawDrawMessage); err == nil { // should return error!
+		t.Errorf("Broadcast should fail, since spectator is not a player")
+	}
+}
+
+func TestClientCannotWithdrawDrawRequestIfGameIsOver(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	clientX, clientO, err := initGame(pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	requestDrawMessage := createRequestDrawMessage(clientX)
+	if err := pool.Broadcast(requestDrawMessage); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := playTillGameWon(pool, clientX, clientO); err != nil {
+		t.Fatal(err)
+	}
+
+	withdrawDrawMessage := createWithdrawDrawRequestMessage(clientX)
+	if err := pool.Broadcast(withdrawDrawMessage); err == nil { // should return error!
+		t.Errorf("Broadcast should fail, since game is over")
+	}
+}
+
+func TestClientCannotWithdrawDrawRequestIfGameIsNotStarted(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	clientX, clientO := createBothClients(pool)
+	err := selectBothCharacters(pool, clientX, clientO)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	pool.DrawRequestHandler.IsDrawRequested = true // simulate draw request, as a draw request should NOT be possible either before game starts
+
+	withdrawDrawMessage := createWithdrawDrawRequestMessage(clientX)
+	if err := pool.Broadcast(withdrawDrawMessage); err == nil { // should return error!
+		t.Errorf("Broadcast should fail, since game is not started")
+	}
+
+	if pool.DrawRequestHandler.IsDrawRequested {
+		t.Errorf("Game should NOT have a draw requested")
+	}
+}
+
+func TestOnlyClientWhoSendDrawRequestCanWithdrawIt(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	clientX, clientO, err := initGame(pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	requestDrawMessage := createRequestDrawMessage(clientX)
+	if err := pool.Broadcast(requestDrawMessage); err != nil {
+		t.Fatal(err)
+	}
+
+	withdrawDrawMessage := createWithdrawDrawRequestMessage(clientO)
+	if err := pool.Broadcast(withdrawDrawMessage); err == nil { // should return error!
+		t.Errorf("Broadcast should fail, since only client who sent draw request can withdraw it")
+	}
+}

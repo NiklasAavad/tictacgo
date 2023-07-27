@@ -79,6 +79,11 @@ func createRespondToDrawRequestMessage(client *GameClient, accept bool) GameMess
 	return GameMessage{instruction, client}
 }
 
+func createWithdrawDrawRequestMessage(client *GameClient) GameMessage {
+	instruction := &WithdrawDrawRequestInstruction{}
+	return GameMessage{instruction, client}
+}
+
 func createBothClients(pool *GamePool) (*GameClient, *GameClient) {
 	return createTestClient(pool), createTestClient(pool)
 }

@@ -249,6 +249,11 @@ func (c *RespondToDrawRequestCommand) execute() ([]ResponseHandler, error) {
 		return nil, err
 	}
 
+	isClientTheRequester := pool.DrawRequestHandler.DrawRequester == c.client
+	if isClientTheRequester {
+		return nil, fmt.Errorf("Client cannot respond to their own draw request")
+	}
+
 	if c.accept {
 		game.ForceDraw()
 		receivers = c.client.Pool.clients

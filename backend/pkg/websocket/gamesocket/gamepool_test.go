@@ -494,6 +494,30 @@ func TestClientCannotRespondToDrawRequestIfGameIsOver(t *testing.T) {
 	}
 }
 
+func TestClientCannotRespondToOwnDrawRequest(t *testing.T) {
+	teardown, pool := setupTest(t)
+	defer teardown(t)
+
+	clientX, _, err := initGame(pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	requestDrawMessage := createRequestDrawMessage(clientX)
+	if err := pool.Broadcast(requestDrawMessage); err != nil {
+		t.Fatal(err)
+	}
+
+	acceptDrawMessage := createRespondToDrawRequestMessage(clientX, true)
+	if err := pool.Broadcast(acceptDrawMessage); err == nil { // should return error!
+		t.Errorf("Broadcast should fail, since clientX is the one who requested the draw")
+	}
+
+	if !pool.DrawRequestHandler.IsDrawRequested {
+		t.Errorf("Game should not have a draw requested")
+	}
+}
+
 func TestClientCanWithdrawDrawRequest(t *testing.T) {
 	teardown, pool := setupTest(t)
 	defer teardown(t)

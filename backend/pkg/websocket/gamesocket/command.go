@@ -182,31 +182,7 @@ func (c *RequestDrawCommand) execute() ([]ResponseHandler, error) {
 		return nil, err
 	}
 
-	isOpponent := true
-	responseToOpponent := GameResponse{
-		ResponseType: REQUEST_DRAW,
-		Body:         isOpponent,
-	}
-
-	isOpponent = false
-	responseToSelf := GameResponse{
-		ResponseType: REQUEST_DRAW,
-		Body:         isOpponent,
-	}
-
-	var opponent *GameClient
-	if pool.xClient == c.client {
-		opponent = pool.oClient
-	} else {
-		opponent = pool.xClient
-	}
-
-	opponentResponseHandler, err := NewResponseHandler(&responseToOpponent, []*GameClient{opponent})
-	if err != nil {
-		return nil, err
-	}
-
-	selfResponseHandler, err := NewResponseHandler(&responseToSelf, []*GameClient{c.client})
+	responseHandlers, err := CreateResponseHandlersForSelfAndOpponent(c.client, REQUEST_DRAW)
 	if err != nil {
 		return nil, err
 	}
@@ -214,7 +190,7 @@ func (c *RequestDrawCommand) execute() ([]ResponseHandler, error) {
 	pool.DrawRequestHandler.IsDrawRequested = true
 	pool.DrawRequestHandler.DrawRequester = c.client
 
-	return []ResponseHandler{*opponentResponseHandler, *selfResponseHandler}, nil
+	return responseHandlers, nil
 }
 
 // ------------------------------------------------------------------------------------------------------------
@@ -306,31 +282,7 @@ func (c *WithdrawDrawRequestCommand) execute() ([]ResponseHandler, error) {
 		return nil, fmt.Errorf("Client is not the draw requester, and cannot withdraw the draw request")
 	}
 
-	isOpponent := true
-	responseToOpponent := GameResponse{
-		ResponseType: WITHDRAW_DRAW_REQUEST,
-		Body:         isOpponent,
-	}
-
-	isOpponent = false
-	responseToSelf := GameResponse{
-		ResponseType: WITHDRAW_DRAW_REQUEST,
-		Body:         isOpponent,
-	}
-
-	var opponent *GameClient
-	if pool.xClient == c.client {
-		opponent = pool.oClient
-	} else {
-		opponent = pool.xClient
-	}
-
-	opponentResponseHandler, err := NewResponseHandler(&responseToOpponent, []*GameClient{opponent})
-	if err != nil {
-		return nil, err
-	}
-
-	selfResponseHandler, err := NewResponseHandler(&responseToSelf, []*GameClient{c.client})
+	responseHandlers, err := CreateResponseHandlersForSelfAndOpponent(c.client, WITHDRAW_DRAW_REQUEST)
 	if err != nil {
 		return nil, err
 	}
@@ -338,5 +290,5 @@ func (c *WithdrawDrawRequestCommand) execute() ([]ResponseHandler, error) {
 	pool.DrawRequestHandler.IsDrawRequested = false
 	pool.DrawRequestHandler.DrawRequester = nil
 
-	return []ResponseHandler{*opponentResponseHandler, *selfResponseHandler}, nil
+	return responseHandlers, nil
 }

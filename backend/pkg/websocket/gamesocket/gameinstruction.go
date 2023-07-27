@@ -31,6 +31,8 @@ func ParseGameInstruction(s string) (GameInstruction, error) {
 		return NewRequestDrawInstruction(), nil
 	case "respond to draw":
 		return NewRespondToDrawInstruction(), nil
+	case "withdraw draw request":
+		return NewWithdrawDrawRequestInstruction(), nil
 	default:
 		return nil, fmt.Errorf("invalid game instruction: %s", s)
 	}
@@ -186,4 +188,27 @@ func (instruction *RespondToDrawRequestInstruction) ParseContent(content any) er
 // ToCommand implements GameInstruction
 func (instruction *RespondToDrawRequestInstruction) ToCommand(gc *GameClient) (Command, error) {
 	return NewRespondToDrawRequestCommand(gc, instruction.accept)
+}
+
+// ---------------------------------------------------------------------------------------------------
+
+type WithdrawDrawRequestInstruction struct{}
+
+func NewWithdrawDrawRequestInstruction() *WithdrawDrawRequestInstruction {
+	return &WithdrawDrawRequestInstruction{}
+}
+
+// String implements GameInstruction
+func (*WithdrawDrawRequestInstruction) String() string {
+	return "withdraw draw request"
+}
+
+// ParseContent implements GameInstruction
+func (*WithdrawDrawRequestInstruction) ParseContent(any) error {
+	return nil // WithdrawDrawRequestInstruction has no content
+}
+
+// ToCommand implements GameInstruction
+func (*WithdrawDrawRequestInstruction) ToCommand(gc *GameClient) (Command, error) {
+	return NewWithdrawDrawRequestCommand(gc)
 }

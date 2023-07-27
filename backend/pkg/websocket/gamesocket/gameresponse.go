@@ -25,6 +25,7 @@ const (
 	WELCOME
 	REQUEST_DRAW
 	DRAW_REQUEST_RESPONSE
+	WITHDRAW_DRAW_REQUEST
 )
 
 // WelcomeResponse is the response that is sent to a client when it connects to the server
@@ -38,15 +39,16 @@ type WelcomeResponse struct {
 // Maps for converting between ResponseType and string
 var (
 	ResponseTypeName = map[uint8]string{
-		1: "board",
-		2: "game over",
-		3: "result",
-		4: "new message",
-		5: "character selected",
-		6: "game started",
-		7: "welcome",
-		8: "request draw",
-		9: "draw request response",
+		1:  "board",
+		2:  "game over",
+		3:  "result",
+		4:  "new message",
+		5:  "character selected",
+		6:  "game started",
+		7:  "welcome",
+		8:  "request draw",
+		9:  "draw request response",
+		10: "withdraw draw request",
 	}
 	ResponseTypeValue = map[string]uint8{
 		"board":                 1,
@@ -58,6 +60,7 @@ var (
 		"welcome":               7,
 		"request draw":          8,
 		"draw request response": 9,
+		"withdraw draw request": 10,
 	}
 )
 

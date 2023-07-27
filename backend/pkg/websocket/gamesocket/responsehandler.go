@@ -1,5 +1,7 @@
 package gamesocket
 
+import "errors"
+
 type ResponseHandler struct {
 	Response  *GameResponse
 	Receivers []*GameClient
@@ -14,6 +16,11 @@ func NewResponseHandler(response *GameResponse, receivers []*GameClient) (*Respo
 // The body of the response is a boolean indicating whether the receiver is the opponent
 func CreateResponseHandlersForSelfAndOpponent(client *GameClient, responseType ResponseType) ([]ResponseHandler, error) {
 	pool := client.Pool
+
+	isBothCharactersChosen := pool.xClient != nil && pool.oClient != nil
+	if !isBothCharactersChosen {
+		return nil, errors.New("Cannot send a response to the opponent if both characters are not chosen")
+	}
 
 	isOpponent := true 
 	responseToOpponent := GameResponse{

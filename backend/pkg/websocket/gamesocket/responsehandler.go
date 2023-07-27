@@ -22,7 +22,7 @@ func CreateResponseHandlersForSelfAndOpponent(client *GameClient, responseType R
 		return nil, errors.New("Cannot send a response to the opponent if both characters are not chosen")
 	}
 
-	isOpponent := true 
+	isOpponent := true
 	responseToOpponent := GameResponse{
 		ResponseType: responseType,
 		Body:         isOpponent,

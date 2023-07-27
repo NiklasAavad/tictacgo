@@ -25,14 +25,14 @@ type GamePool struct {
 // NewGamePool creates a new GamePool
 func NewGamePool(cs ChannelStrategy) *GamePool {
 	return &GamePool{
-		register:        make(chan *GameClient),
-		unregister:      make(chan *GameClient),
-		clients:         []*GameClient{},
-		broadcast:       make(chan Command),
-		game:            game.NewGame(),
-		channelStrategy: cs,
-		xClient:         nil, // TODO: overvej at tilføje en 'noClient'
-		oClient:         nil, // TODO: overvej at tilføje en 'noClient'
+		register:           make(chan *GameClient),
+		unregister:         make(chan *GameClient),
+		clients:            []*GameClient{},
+		broadcast:          make(chan Command),
+		game:               game.NewGame(),
+		channelStrategy:    cs,
+		xClient:            nil, // TODO: overvej at tilføje en 'noClient'
+		oClient:            nil, // TODO: overvej at tilføje en 'noClient'
 		DrawRequestHandler: NewDrawRequestHandler(),
 	}
 }

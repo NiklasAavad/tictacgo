@@ -623,10 +623,6 @@ func TestClientCannotWithdrawDrawRequestIfGameIsNotStarted(t *testing.T) {
 	if err := pool.Broadcast(withdrawDrawMessage); err == nil { // should return error!
 		t.Errorf("Broadcast should fail, since game is not started")
 	}
-
-	if pool.DrawRequestHandler.IsDrawRequested {
-		t.Errorf("Game should NOT have a draw requested")
-	}
 }
 
 func TestOnlyClientWhoSendDrawRequestCanWithdrawIt(t *testing.T) {

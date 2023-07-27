@@ -24,23 +24,26 @@ func NewStartGameCommand(client *GameClient) (*StartGameCommand, error) {
 }
 
 func (command *StartGameCommand) execute() ([]ResponseHandler, error) {
+	pool := command.client.Pool
+	game := pool.game
+
 	var response GameResponse
 
-	bothCharactersSelected := command.client.Pool.xClient != nil && command.client.Pool.oClient != nil
+	bothCharactersSelected := pool.xClient != nil && pool.oClient != nil
 	if !bothCharactersSelected { // TODO kunne overveje at lave en ErrorResponse, der bare sendes tilbage til den pågældende client og ikke broadcastes
 		return nil, fmt.Errorf("Both characters must be selected, before a game can start")
 	}
 
-	isClientPlaying := command.client.Pool.xClient == command.client || command.client.Pool.oClient == command.client
+	isClientPlaying := pool.xClient == command.client || pool.oClient == command.client
 	if !isClientPlaying {
 		return nil, fmt.Errorf("Client must be playing to start the game, cannot be a spectator")
 	}
 
-	command.client.Pool.game.StartGame()
+	game.StartGame()
 
 	response.ResponseType = GAME_STARTED
 
-	responseHandler, err := NewResponseHandler(&response, command.client.Pool.clients)
+	responseHandler, err := NewResponseHandler(&response, pool.clients)
 	if err != nil {
 		return nil, err
 	}
@@ -77,13 +80,16 @@ func (command *ChooseSquareCommand) isClientInTurn() bool {
 }
 
 func (command *ChooseSquareCommand) execute() ([]ResponseHandler, error) {
+	pool := command.client.Pool
+	game := pool.game
+
 	var response GameResponse
 
 	if !command.isClientInTurn() {
 		return nil, fmt.Errorf("It was not this client's turn to play")
 	}
 
-	board, err := command.client.Pool.game.ChooseSquare(command.position)
+	board, err := game.ChooseSquare(command.position)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +97,7 @@ func (command *ChooseSquareCommand) execute() ([]ResponseHandler, error) {
 	response.ResponseType = BOARD
 	response.Body = board
 
-	responseHandler, err := NewResponseHandler(&response, command.client.Pool.clients)
+	responseHandler, err := NewResponseHandler(&response, pool.clients)
 	if err != nil {
 		return nil, err
 	}
@@ -135,9 +141,11 @@ func (command *SelectCharacterCommand) selectCharacter() error {
 }
 
 func (command *SelectCharacterCommand) execute() ([]ResponseHandler, error) {
+	pool := command.client.Pool
+
 	var response GameResponse
 
-	hasClientAlreadySelected := command.client.Pool.xClient == command.client || command.client.Pool.oClient == command.client
+	hasClientAlreadySelected := pool.xClient == command.client || pool.oClient == command.client
 	if hasClientAlreadySelected {
 		return nil, fmt.Errorf("Client had already selected a character")
 	}
@@ -149,7 +157,7 @@ func (command *SelectCharacterCommand) execute() ([]ResponseHandler, error) {
 	response.ResponseType = CHARACTER_SELECTED
 	response.Body = command.character
 
-	responseHandler, err := NewResponseHandler(&response, command.client.Pool.clients)
+	responseHandler, err := NewResponseHandler(&response, pool.clients)
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +240,7 @@ func (command *RespondToDrawRequestCommand) execute() ([]ResponseHandler, error)
 
 	if command.accept {
 		game.ForceDraw()
-		receivers = command.client.Pool.clients
+		receivers = pool.clients
 	} else {
 		receivers = []*GameClient{pool.xClient, pool.oClient} // Only opponent and self needs to know that the draw was rejected. No spectators receive the inital message either
 	}

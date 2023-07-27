@@ -23,24 +23,24 @@ func NewStartGameCommand(client *GameClient) (*StartGameCommand, error) {
 	return &StartGameCommand{client}, nil
 }
 
-func (c *StartGameCommand) execute() ([]ResponseHandler, error) {
+func (command *StartGameCommand) execute() ([]ResponseHandler, error) {
 	var response GameResponse
 
-	bothCharactersSelected := c.client.Pool.xClient != nil && c.client.Pool.oClient != nil
+	bothCharactersSelected := command.client.Pool.xClient != nil && command.client.Pool.oClient != nil
 	if !bothCharactersSelected { // TODO kunne overveje at lave en ErrorResponse, der bare sendes tilbage til den pågældende client og ikke broadcastes
 		return nil, fmt.Errorf("Both characters must be selected, before a game can start")
 	}
 
-	isClientPlaying := c.client.Pool.xClient == c.client || c.client.Pool.oClient == c.client
+	isClientPlaying := command.client.Pool.xClient == command.client || command.client.Pool.oClient == command.client
 	if !isClientPlaying {
 		return nil, fmt.Errorf("Client must be playing to start the game, cannot be a spectator")
 	}
 
-	c.client.Pool.game.StartGame()
+	command.client.Pool.game.StartGame()
 
 	response.ResponseType = GAME_STARTED
 
-	responseHandler, err := NewResponseHandler(&response, c.client.Pool.clients)
+	responseHandler, err := NewResponseHandler(&response, command.client.Pool.clients)
 	if err != nil {
 		return nil, err
 	}
@@ -67,23 +67,23 @@ func NewChooseSquareCommand(client *GameClient, position game.Position) (*Choose
 	return &ChooseSquareCommand{client, position}, nil
 }
 
-func (c *ChooseSquareCommand) isClientInTurn() bool {
-	pool := c.client.Pool
+func (command *ChooseSquareCommand) isClientInTurn() bool {
+	pool := command.client.Pool
 
 	if pool.game.PlayerInTurn() == game.X {
-		return pool.xClient == c.client
+		return pool.xClient == command.client
 	}
-	return pool.oClient == c.client
+	return pool.oClient == command.client
 }
 
-func (c *ChooseSquareCommand) execute() ([]ResponseHandler, error) {
+func (command *ChooseSquareCommand) execute() ([]ResponseHandler, error) {
 	var response GameResponse
 
-	if !c.isClientInTurn() {
+	if !command.isClientInTurn() {
 		return nil, fmt.Errorf("It was not this client's turn to play")
 	}
 
-	board, err := c.client.Pool.game.ChooseSquare(c.position)
+	board, err := command.client.Pool.game.ChooseSquare(command.position)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (c *ChooseSquareCommand) execute() ([]ResponseHandler, error) {
 	response.ResponseType = BOARD
 	response.Body = board
 
-	responseHandler, err := NewResponseHandler(&response, c.client.Pool.clients)
+	responseHandler, err := NewResponseHandler(&response, command.client.Pool.clients)
 	if err != nil {
 		return nil, err
 	}
@@ -118,38 +118,38 @@ func NewSelectCharacterCommand(client *GameClient, character game.SquareCharacte
 	return &SelectCharacterCommand{client, character}, nil
 }
 
-func (c *SelectCharacterCommand) selectCharacter() error {
-	pool := c.client.Pool
+func (command *SelectCharacterCommand) selectCharacter() error {
+	pool := command.client.Pool
 
-	if c.character == game.X && pool.xClient == nil {
-		pool.xClient = c.client
+	if command.character == game.X && pool.xClient == nil {
+		pool.xClient = command.client
 		return nil
 	}
 
-	if c.character == game.O && pool.oClient == nil {
-		pool.oClient = c.client
+	if command.character == game.O && pool.oClient == nil {
+		pool.oClient = command.client
 		return nil
 	}
 
-	return fmt.Errorf("Character %v is already taken", c.character)
+	return fmt.Errorf("Character %v is already taken", command.character)
 }
 
-func (c *SelectCharacterCommand) execute() ([]ResponseHandler, error) {
+func (command *SelectCharacterCommand) execute() ([]ResponseHandler, error) {
 	var response GameResponse
 
-	hasClientAlreadySelected := c.client.Pool.xClient == c.client || c.client.Pool.oClient == c.client
+	hasClientAlreadySelected := command.client.Pool.xClient == command.client || command.client.Pool.oClient == command.client
 	if hasClientAlreadySelected {
 		return nil, fmt.Errorf("Client had already selected a character")
 	}
 
-	if err := c.selectCharacter(); err != nil {
+	if err := command.selectCharacter(); err != nil {
 		return nil, err
 	}
 
 	response.ResponseType = CHARACTER_SELECTED
-	response.Body = c.character
+	response.Body = command.character
 
-	responseHandler, err := NewResponseHandler(&response, c.client.Pool.clients)
+	responseHandler, err := NewResponseHandler(&response, command.client.Pool.clients)
 	if err != nil {
 		return nil, err
 	}
@@ -170,25 +170,25 @@ func NewRequestDrawCommand(client *GameClient) (*RequestDrawCommand, error) {
 	return &RequestDrawCommand{client}, nil
 }
 
-func (c *RequestDrawCommand) execute() ([]ResponseHandler, error) {
-	pool := c.client.Pool
+func (command *RequestDrawCommand) execute() ([]ResponseHandler, error) {
+	pool := command.client.Pool
 
 	if pool.DrawRequestHandler.IsDrawRequested {
 		return nil, fmt.Errorf("A draw has already been requested")
 	}
 
-	isValid, err := IsDrawRequestCommandValid(c.client)
+	isValid, err := IsDrawRequestCommandValid(command.client)
 	if !isValid {
 		return nil, err
 	}
 
-	responseHandlers, err := CreateResponseHandlersForSelfAndOpponent(c.client, REQUEST_DRAW)
+	responseHandlers, err := CreateResponseHandlersForSelfAndOpponent(command.client, REQUEST_DRAW)
 	if err != nil {
 		return nil, err
 	}
 
 	pool.DrawRequestHandler.IsDrawRequested = true
-	pool.DrawRequestHandler.DrawRequester = c.client
+	pool.DrawRequestHandler.DrawRequester = command.client
 
 	return responseHandlers, nil
 }
@@ -209,8 +209,8 @@ func NewRespondToDrawRequestCommand(client *GameClient, accept bool) (*RespondTo
 }
 
 // TODO should add a time limit to respond to a draw request, probably through an attached timestamp?
-func (c *RespondToDrawRequestCommand) execute() ([]ResponseHandler, error) {
-	pool := c.client.Pool
+func (command *RespondToDrawRequestCommand) execute() ([]ResponseHandler, error) {
+	pool := command.client.Pool
 	game := pool.game
 
 	var response GameResponse
@@ -220,19 +220,19 @@ func (c *RespondToDrawRequestCommand) execute() ([]ResponseHandler, error) {
 		return nil, fmt.Errorf("No draw was requested, so there is nothing to respond to")
 	}
 
-	isValid, err := IsDrawRequestCommandValid(c.client)
+	isValid, err := IsDrawRequestCommandValid(command.client)
 	if !isValid {
 		return nil, err
 	}
 
-	isClientTheRequester := pool.DrawRequestHandler.DrawRequester == c.client
+	isClientTheRequester := pool.DrawRequestHandler.DrawRequester == command.client
 	if isClientTheRequester {
 		return nil, fmt.Errorf("Client cannot respond to their own draw request")
 	}
 
-	if c.accept {
+	if command.accept {
 		game.ForceDraw()
-		receivers = c.client.Pool.clients
+		receivers = command.client.Pool.clients
 	} else {
 		receivers = []*GameClient{pool.xClient, pool.oClient} // Only opponent and self needs to know that the draw was rejected. No spectators receive the inital message either
 	}
@@ -240,7 +240,7 @@ func (c *RespondToDrawRequestCommand) execute() ([]ResponseHandler, error) {
 	pool.DrawRequestHandler.IsDrawRequested = false
 	pool.DrawRequestHandler.DrawRequester = nil
 
-	response.Body = c.accept
+	response.Body = command.accept
 	response.ResponseType = DRAW_REQUEST_RESPONSE
 
 	responseHandler, err := NewResponseHandler(&response, receivers)
@@ -265,24 +265,24 @@ func NewWithdrawDrawRequestCommand(client *GameClient) (*WithdrawDrawRequestComm
 	return &WithdrawDrawRequestCommand{client}, nil
 }
 
-func (c *WithdrawDrawRequestCommand) execute() ([]ResponseHandler, error) {
-	pool := c.client.Pool
+func (command *WithdrawDrawRequestCommand) execute() ([]ResponseHandler, error) {
+	pool := command.client.Pool
 
 	if !pool.DrawRequestHandler.IsDrawRequested {
 		return nil, fmt.Errorf("No draw was requested, so there is nothing to withdraw")
 	}
 
-	isValid, err := IsDrawRequestCommandValid(c.client)
+	isValid, err := IsDrawRequestCommandValid(command.client)
 	if !isValid {
 		return nil, err
 	}
 
-	isClientTheDrawRequester := pool.DrawRequestHandler.DrawRequester == c.client
+	isClientTheDrawRequester := pool.DrawRequestHandler.DrawRequester == command.client
 	if !isClientTheDrawRequester {
 		return nil, fmt.Errorf("Client is not the draw requester, and cannot withdraw the draw request")
 	}
 
-	responseHandlers, err := CreateResponseHandlersForSelfAndOpponent(c.client, WITHDRAW_DRAW_REQUEST)
+	responseHandlers, err := CreateResponseHandlersForSelfAndOpponent(command.client, WITHDRAW_DRAW_REQUEST)
 	if err != nil {
 		return nil, err
 	}

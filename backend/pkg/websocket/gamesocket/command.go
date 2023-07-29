@@ -10,7 +10,7 @@ import (
 
 type Command interface {
 	execute() ([]ResponseHandler, error)
-	// parseContent parses the content of the command and returns an error if the content is invalid. The content is then stored in the command as a field.
+	// Stores it as a field. Returns an error if the content is invalid.
 	parseContent(any) error
 }
 

@@ -28,19 +28,28 @@ func (c *GameClient) closeConn() {
 	c.Conn().Close()
 }
 
-func (c *GameClient) Read() {
-	defer c.closeConn()
+type GameMessage struct {
+	Instruction string `json:"instruction"`
+	Content     any    `json:"content"`
+}
+
+func (client *GameClient) Read() {
+	defer client.closeConn()
 
 	for {
 		var message GameMessage
-		if err := c.Conn().ReadJSON(&message); err != nil {
+		if err := client.Conn().ReadJSON(&message); err != nil {
 			fmt.Println(err)
 			return
 		}
 
-		message.Client = c
+		command, err := NewCommand(message, client)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 
-		if err := c.Pool.Broadcast(message); err != nil {
+		if err := client.Pool.Broadcast(command); err != nil {
 			fmt.Println(err)
 			return
 		}

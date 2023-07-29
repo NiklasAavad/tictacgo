@@ -2,12 +2,50 @@ package gamesocket
 
 import (
 	"fmt"
+	"reflect"
+	"strings"
 
 	"github.com/NiklasPrograms/tictacgo/backend/pkg/game"
 )
 
 type Command interface {
 	execute() ([]ResponseHandler, error)
+	// parseContent parses the content of the command and returns an error if the content is invalid. The content is then stored in the command as a field.
+	parseContent(any) error
+}
+
+func NewCommand(message GameMessage, client *GameClient) (Command, error) {
+	command, err := parseInstruction(message.Instruction, client)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := command.parseContent(message.Content); err != nil {
+		return nil, err
+	}
+
+	return command, nil
+}
+
+func parseInstruction(instruction string, client *GameClient) (Command, error) {
+	instruction = strings.TrimSpace(strings.ToLower(instruction))
+
+	switch instruction {
+	case "start game":
+		return NewStartGameCommand(client)
+	case "choose square":
+		return NewChooseSquareCommand(client)
+	case "select character":
+		return NewSelectCharacterCommand(client)
+	case "request draw":
+		return NewRequestDrawCommand(client)
+	case "respond to draw":
+		return NewRespondToDrawRequestCommand(client)
+	case "withdraw draw request":
+		return NewWithdrawDrawRequestCommand(client)
+	default:
+		return nil, fmt.Errorf("invalid game instruction: %s", instruction)
+	}
 }
 
 // ------------------------------------------------------------------------------------------------------------
@@ -21,6 +59,10 @@ func NewStartGameCommand(client *GameClient) (*StartGameCommand, error) {
 		return nil, fmt.Errorf("Client cannot be nil")
 	}
 	return &StartGameCommand{client}, nil
+}
+
+func (*StartGameCommand) parseContent(any) error {
+	return nil // StartGameCommand has no content
 }
 
 func (command *StartGameCommand) execute() ([]ResponseHandler, error) {
@@ -58,16 +100,27 @@ type ChooseSquareCommand struct {
 	position game.Position
 }
 
-func NewChooseSquareCommand(client *GameClient, position game.Position) (*ChooseSquareCommand, error) {
+func NewChooseSquareCommand(client *GameClient) (*ChooseSquareCommand, error) {
 	if client == nil {
 		return nil, fmt.Errorf("Client cannot be nil")
 	}
 
-	if position == game.NO_POSITION {
-		return nil, fmt.Errorf("No position was given")
+	command := &ChooseSquareCommand{
+		client:   client,
+		position: game.NO_POSITION,
 	}
 
-	return &ChooseSquareCommand{client, position}, nil
+	return command, nil
+
+}
+
+func (command *ChooseSquareCommand) parseContent(content any) error {
+	position, err := game.ParsePosition(content)
+	if err != nil {
+		return err
+	}
+	command.position = position
+	return nil
 }
 
 func (command *ChooseSquareCommand) isClientInTurn() bool {
@@ -81,15 +134,18 @@ func (command *ChooseSquareCommand) isClientInTurn() bool {
 
 func (command *ChooseSquareCommand) execute() ([]ResponseHandler, error) {
 	pool := command.client.Pool
-	game := pool.game
 
 	var response GameResponse
+
+	if command.position == game.NO_POSITION {
+		return nil, fmt.Errorf("Position cannot be empty")
+	}
 
 	if !command.isClientInTurn() {
 		return nil, fmt.Errorf("It was not this client's turn to play")
 	}
 
-	board, err := game.ChooseSquare(command.position)
+	board, err := pool.game.ChooseSquare(command.position)
 	if err != nil {
 		return nil, err
 	}
@@ -112,16 +168,26 @@ type SelectCharacterCommand struct {
 	character game.SquareCharacter
 }
 
-func NewSelectCharacterCommand(client *GameClient, character game.SquareCharacter) (*SelectCharacterCommand, error) {
+func NewSelectCharacterCommand(client *GameClient) (*SelectCharacterCommand, error) {
 	if client == nil {
 		return nil, fmt.Errorf("Client cannot be nil")
 	}
 
-	if character == game.EMPTY_CHARACTER {
-		return nil, fmt.Errorf("No character was given")
+	command := &SelectCharacterCommand{
+		client:    client,
+		character: game.EMPTY_CHARACTER,
 	}
 
-	return &SelectCharacterCommand{client, character}, nil
+	return command, nil
+}
+
+func (command *SelectCharacterCommand) parseContent(content any) error {
+	character, err := game.ParseSquareCharacter(content)
+	if err != nil {
+		return err
+	}
+	command.character = character
+	return nil
 }
 
 func (command *SelectCharacterCommand) selectCharacter() error {
@@ -144,6 +210,10 @@ func (command *SelectCharacterCommand) execute() ([]ResponseHandler, error) {
 	pool := command.client.Pool
 
 	var response GameResponse
+
+	if command.character == game.EMPTY_CHARACTER {
+		return nil, fmt.Errorf("Character cannot be empty")
+	}
 
 	hasClientAlreadySelected := pool.xClient == command.client || pool.oClient == command.client
 	if hasClientAlreadySelected {
@@ -178,6 +248,10 @@ func NewRequestDrawCommand(client *GameClient) (*RequestDrawCommand, error) {
 	return &RequestDrawCommand{client}, nil
 }
 
+func (*RequestDrawCommand) parseContent(any) error {
+	return nil // RequestDrawCommand has no content
+}
+
 func (command *RequestDrawCommand) execute() ([]ResponseHandler, error) {
 	pool := command.client.Pool
 
@@ -208,12 +282,26 @@ type RespondToDrawRequestCommand struct {
 	accept bool
 }
 
-func NewRespondToDrawRequestCommand(client *GameClient, accept bool) (*RespondToDrawRequestCommand, error) {
+func NewRespondToDrawRequestCommand(client *GameClient) (*RespondToDrawRequestCommand, error) {
 	if client == nil {
 		return nil, fmt.Errorf("Client cannot be nil")
 	}
 
-	return &RespondToDrawRequestCommand{client, accept}, nil
+	command := &RespondToDrawRequestCommand{
+		client: client,
+		accept: false,
+	}
+
+	return command, nil
+}
+
+func (command *RespondToDrawRequestCommand) parseContent(content any) error {
+	accept, ok := content.(bool)
+	if !ok {
+		return fmt.Errorf("invalid content type for RespondToDrawInstruction: %v", reflect.TypeOf(content))
+	}
+	command.accept = accept
+	return nil
 }
 
 // TODO should add a time limit to respond to a draw request, probably through an attached timestamp?
@@ -271,6 +359,10 @@ func NewWithdrawDrawRequestCommand(client *GameClient) (*WithdrawDrawRequestComm
 	}
 
 	return &WithdrawDrawRequestCommand{client}, nil
+}
+
+func (*WithdrawDrawRequestCommand) parseContent(any) error {
+	return nil // WithdrawDrawRequestCommand has no content
 }
 
 func (command *WithdrawDrawRequestCommand) execute() ([]ResponseHandler, error) {

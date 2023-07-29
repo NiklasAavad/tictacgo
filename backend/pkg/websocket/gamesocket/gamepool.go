@@ -58,14 +58,9 @@ func (p *GamePool) NewClient(w http.ResponseWriter, r *http.Request) *GameClient
 	return client
 }
 
-// Broadcast broadcasts a GameMessage to all clients in the pool
-func (p *GamePool) Broadcast(m GameMessage) error {
-	command, err := m.ToCommand()
-	if err != nil {
-		return err
-	}
-
-	return p.channelStrategy.broadcast(p, command)
+// Broadcast broadcasts a Command to all clients in the pool
+func (p *GamePool) Broadcast(c Command) error {
+	return p.channelStrategy.broadcast(p, c)
 }
 
 // Register registers a client in the pool

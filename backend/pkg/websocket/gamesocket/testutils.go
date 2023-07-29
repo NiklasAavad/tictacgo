@@ -48,40 +48,28 @@ func createTestClient(pool *GamePool) *GameClient {
 	return client
 }
 
-func createSelectCharacterMessage(client *GameClient, character game.SquareCharacter) GameMessage {
-	instruction := &SelectCharacterInstruction{
-		character: character,
-	}
-	return GameMessage{instruction, client}
+func createSelectCharacterCommand(client *GameClient, character game.SquareCharacter) Command {
+	return &SelectCharacterCommand{client, character}
 }
 
-func createStartGameMessage(client *GameClient) GameMessage {
-	instruction := &StartGameInstruction{}
-	return GameMessage{instruction, client}
+func createStartGameCommand(client *GameClient) Command {
+	return &StartGameCommand{client}
 }
 
-func createChooseSquareMessage(client *GameClient, position game.Position) GameMessage {
-	instruction := &ChooseSquareInstruction{
-		position: position,
-	}
-	return GameMessage{instruction, client}
+func createChooseSquareCommand(client *GameClient, position game.Position) Command {
+	return &ChooseSquareCommand{client, position}
 }
 
-func createRequestDrawMessage(client *GameClient) GameMessage {
-	instruction := &RequestDrawInstruction{}
-	return GameMessage{instruction, client}
+func createRequestDrawCommand(client *GameClient) Command {
+	return &RequestDrawCommand{client}
 }
 
-func createRespondToDrawRequestMessage(client *GameClient, accept bool) GameMessage {
-	instruction := &RespondToDrawRequestInstruction{
-		accept: accept,
-	}
-	return GameMessage{instruction, client}
+func createRespondToDrawRequestCommand(client *GameClient, accept bool) Command {
+	return &RespondToDrawRequestCommand{client, accept}
 }
 
-func createWithdrawDrawRequestMessage(client *GameClient) GameMessage {
-	instruction := &WithdrawDrawRequestInstruction{}
-	return GameMessage{instruction, client}
+func createWithdrawDrawRequestCommand(client *GameClient) Command {
+	return &WithdrawDrawRequestCommand{client}
 }
 
 func createBothClients(pool *GamePool) (*GameClient, *GameClient) {
@@ -89,11 +77,11 @@ func createBothClients(pool *GamePool) (*GameClient, *GameClient) {
 }
 
 func selectBothCharacters(pool *GamePool, clientX, clientO *GameClient) error {
-	if err := pool.Broadcast(createSelectCharacterMessage(clientX, game.X)); err != nil {
+	if err := pool.Broadcast(createSelectCharacterCommand(clientX, game.X)); err != nil {
 		return err
 	}
 
-	if err := pool.Broadcast(createSelectCharacterMessage(clientO, game.O)); err != nil {
+	if err := pool.Broadcast(createSelectCharacterCommand(clientO, game.O)); err != nil {
 		return err
 	}
 
@@ -101,7 +89,7 @@ func selectBothCharacters(pool *GamePool, clientX, clientO *GameClient) error {
 }
 
 func startGame(pool *GamePool, client *GameClient) error {
-	message := createStartGameMessage(client)
+	message := createStartGameCommand(client)
 	return pool.Broadcast(message)
 }
 
@@ -120,7 +108,7 @@ func initGame(pool *GamePool) (*GameClient, *GameClient, error) {
 }
 
 func chooseSquare(pool *GamePool, c *GameClient, position game.Position) error {
-	message := createChooseSquareMessage(c, position)
+	message := createChooseSquareCommand(c, position)
 	return pool.Broadcast(message)
 }
 

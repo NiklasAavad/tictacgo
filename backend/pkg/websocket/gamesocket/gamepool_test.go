@@ -64,9 +64,9 @@ func TestShouldBeCharacterX(t *testing.T) {
 
 	client := createTestClient(pool)
 
-	message := createSelectCharacterMessage(client, game.X)
+	command := createSelectCharacterCommand(client, game.X)
 
-	if err := pool.Broadcast(message); err != nil {
+	if err := pool.Broadcast(command); err != nil {
 		t.Fatal(err)
 	}
 
@@ -81,9 +81,9 @@ func TestShouldBeCharacterO(t *testing.T) {
 
 	client := createTestClient(pool)
 
-	message := createSelectCharacterMessage(client, game.O)
+	command := createSelectCharacterCommand(client, game.O)
 
-	if err := pool.Broadcast(message); err != nil {
+	if err := pool.Broadcast(command); err != nil {
 		t.Fatal(err)
 	}
 
@@ -97,14 +97,14 @@ func TestShouldNotChangeCharacterIfCharacterIsAlreadyTaken(t *testing.T) {
 	defer teardown(t)
 
 	client1 := createTestClient(pool)
-	message1 := createSelectCharacterMessage(client1, game.X)
-	if err := pool.Broadcast(message1); err != nil {
+	command1 := createSelectCharacterCommand(client1, game.X)
+	if err := pool.Broadcast(command1); err != nil {
 		t.Fatal(err)
 	}
 
 	client2 := createTestClient(pool)
-	message2 := createSelectCharacterMessage(client2, game.X)
-	if err := pool.Broadcast(message2); err == nil { // should return error!
+	command2 := createSelectCharacterCommand(client2, game.X)
+	if err := pool.Broadcast(command2); err == nil { // should return error!
 		t.Fatal(err)
 	}
 
@@ -126,8 +126,8 @@ func TestGameShouldNotStartWhenNoCharactersSelected(t *testing.T) {
 
 	client := createTestClient(pool)
 
-	message := createStartGameMessage(client)
-	if err := pool.Broadcast(message); err == nil { // should return error!
+	command := createStartGameCommand(client)
+	if err := pool.Broadcast(command); err == nil { // should return error!
 		t.Fatal(err)
 	}
 
@@ -141,19 +141,19 @@ func TestGameShouldBeAbleToStartWhenBothCharactersAreSelected(t *testing.T) {
 	defer teardown(t)
 
 	client1 := createTestClient(pool)
-	message1 := createSelectCharacterMessage(client1, game.X)
-	if err := pool.Broadcast(message1); err != nil {
+	command1 := createSelectCharacterCommand(client1, game.X)
+	if err := pool.Broadcast(command1); err != nil {
 		t.Fatal(err)
 	}
 
 	client2 := createTestClient(pool)
-	message2 := createSelectCharacterMessage(client2, game.O)
-	if err := pool.Broadcast(message2); err != nil {
+	command2 := createSelectCharacterCommand(client2, game.O)
+	if err := pool.Broadcast(command2); err != nil {
 		t.Fatal(err)
 	}
 
-	message := createStartGameMessage(client1)
-	if err := pool.Broadcast(message); err != nil {
+	command := createStartGameCommand(client1)
+	if err := pool.Broadcast(command); err != nil {
 		t.Fatal(err)
 	}
 
@@ -220,8 +220,8 @@ func TestSpectatorCannotStartGame(t *testing.T) {
 	clientO := createTestClient(pool)
 	clientSpectator := createTestClient(pool)
 
-	messageX := createSelectCharacterMessage(clientX, game.X)
-	messageO := createSelectCharacterMessage(clientO, game.O)
+	messageX := createSelectCharacterCommand(clientX, game.X)
+	messageO := createSelectCharacterCommand(clientO, game.O)
 
 	if err := pool.Broadcast(messageX); err != nil {
 		t.Fatal(err)
@@ -231,8 +231,8 @@ func TestSpectatorCannotStartGame(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	startGameMessage := createStartGameMessage(clientSpectator)
-	if err := pool.Broadcast(startGameMessage); err == nil { // should return error!
+	startGameCommand := createStartGameCommand(clientSpectator)
+	if err := pool.Broadcast(startGameCommand); err == nil { // should return error!
 		t.Fatal(err)
 	}
 
@@ -247,7 +247,7 @@ func TestClientCannotChooseBothCharacters(t *testing.T) {
 
 	client := createTestClient(pool)
 
-	messageX := createSelectCharacterMessage(client, game.X)
+	messageX := createSelectCharacterCommand(client, game.X)
 	if err := pool.Broadcast(messageX); err != nil {
 		t.Fatal(err)
 	}
@@ -256,7 +256,7 @@ func TestClientCannotChooseBothCharacters(t *testing.T) {
 		t.Errorf("Client should have selected X")
 	}
 
-	messageO := createSelectCharacterMessage(client, game.O)
+	messageO := createSelectCharacterCommand(client, game.O)
 	if err := pool.Broadcast(messageO); err == nil { // should return error!
 		t.Fatal(err)
 	}
@@ -283,8 +283,8 @@ func TestClientCanRequestDraw(t *testing.T) {
 		t.Errorf("Game should not have a draw requested")
 	}
 
-	requestDrawMessage := createRequestDrawMessage(clientX)
-	if err := pool.Broadcast(requestDrawMessage); err != nil {
+	requestDrawCommand := createRequestDrawCommand(clientX)
+	if err := pool.Broadcast(requestDrawCommand); err != nil {
 		t.Fatal(err)
 	}
 
@@ -302,8 +302,8 @@ func TestClientCannotRequestDrawWhenGameIsNotStarted(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	requestDrawMessage := createRequestDrawMessage(clientX)
-	if err := pool.Broadcast(requestDrawMessage); err == nil { // should return error!
+	requestDrawCommand := createRequestDrawCommand(clientX)
+	if err := pool.Broadcast(requestDrawCommand); err == nil { // should return error!
 		t.Fatalf("Broadcast should fail, since game is not started")
 	}
 
@@ -325,8 +325,8 @@ func TestClientCannotRequestDrawWhenGameIsOver(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	requestDrawMessage := createRequestDrawMessage(clientO)
-	if err := pool.Broadcast(requestDrawMessage); err == nil { // should return error!
+	requestDrawCommand := createRequestDrawCommand(clientO)
+	if err := pool.Broadcast(requestDrawCommand); err == nil { // should return error!
 		t.Errorf("Broadcast should fail, since the game is over")
 	}
 
@@ -344,13 +344,13 @@ func TestClientCannotRequestDrawWhenDrawIsAlreadyRequested(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	firstRequestDrawMessage := createRequestDrawMessage(clientX)
-	if err := pool.Broadcast(firstRequestDrawMessage); err != nil {
+	firstRequestDrawCommand := createRequestDrawCommand(clientX)
+	if err := pool.Broadcast(firstRequestDrawCommand); err != nil {
 		t.Fatal(err)
 	}
 
-	secondRequestDrawMessage := createRequestDrawMessage(clientO)
-	if err := pool.Broadcast(secondRequestDrawMessage); err == nil { // should return error!
+	secondRequestDrawCommand := createRequestDrawCommand(clientO)
+	if err := pool.Broadcast(secondRequestDrawCommand); err == nil { // should return error!
 		t.Errorf("Broadcast should fail, since a draw is already requested")
 	}
 }
@@ -366,8 +366,8 @@ func TestSpectatorCannotRequestDraw(t *testing.T) {
 
 	spectator := createTestClient(pool)
 
-	requestDrawMessage := createRequestDrawMessage(spectator)
-	if err := pool.Broadcast(requestDrawMessage); err == nil { // should return error!
+	requestDrawCommand := createRequestDrawCommand(spectator)
+	if err := pool.Broadcast(requestDrawCommand); err == nil { // should return error!
 		t.Errorf("Broadcast should fail, since the spectator is not a player")
 	}
 
@@ -385,13 +385,13 @@ func TestClientCanAcceptDraw(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	requestDrawMessage := createRequestDrawMessage(clientX)
-	if err := pool.Broadcast(requestDrawMessage); err != nil {
+	requestDrawCommand := createRequestDrawCommand(clientX)
+	if err := pool.Broadcast(requestDrawCommand); err != nil {
 		t.Fatal(err)
 	}
 
-	acceptDrawMessage := createRespondToDrawRequestMessage(clientO, true)
-	if err := pool.Broadcast(acceptDrawMessage); err != nil {
+	acceptDrawCommand := createRespondToDrawRequestCommand(clientO, true)
+	if err := pool.Broadcast(acceptDrawCommand); err != nil {
 		t.Fatal(err)
 	}
 
@@ -414,13 +414,13 @@ func TestClientCanDeclineDraw(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	requestDrawMessage := createRequestDrawMessage(clientX)
-	if err := pool.Broadcast(requestDrawMessage); err != nil {
+	requestDrawCommand := createRequestDrawCommand(clientX)
+	if err := pool.Broadcast(requestDrawCommand); err != nil {
 		t.Fatal(err)
 	}
 
-	acceptDrawMessage := createRespondToDrawRequestMessage(clientO, false)
-	if err := pool.Broadcast(acceptDrawMessage); err != nil {
+	acceptDrawCommand := createRespondToDrawRequestCommand(clientO, false)
+	if err := pool.Broadcast(acceptDrawCommand); err != nil {
 		t.Fatal(err)
 	}
 
@@ -442,8 +442,8 @@ func TestClientCannotRespondToDrawRequestIfNoRequestIsActive(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	acceptDrawMessage := createRespondToDrawRequestMessage(clientO, true)
-	if err := pool.Broadcast(acceptDrawMessage); err == nil { // should return error!
+	acceptDrawCommand := createRespondToDrawRequestCommand(clientO, true)
+	if err := pool.Broadcast(acceptDrawCommand); err == nil { // should return error!
 		t.Errorf("Broadcast should fail, since no draw request is active")
 	}
 }
@@ -457,15 +457,15 @@ func TestClientCannotRespondToDrawRequestIfNotPlayer(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	requestDrawMessage := createRequestDrawMessage(clientX)
-	if err := pool.Broadcast(requestDrawMessage); err != nil {
+	requestDrawCommand := createRequestDrawCommand(clientX)
+	if err := pool.Broadcast(requestDrawCommand); err != nil {
 		t.Fatal(err)
 	}
 
 	spectator := createTestClient(pool)
 
-	acceptDrawMessage := createRespondToDrawRequestMessage(spectator, true)
-	if err := pool.Broadcast(acceptDrawMessage); err == nil { // should return error!
+	acceptDrawCommand := createRespondToDrawRequestCommand(spectator, true)
+	if err := pool.Broadcast(acceptDrawCommand); err == nil { // should return error!
 		t.Errorf("Broadcast should fail, since spectator is not a player")
 	}
 }
@@ -479,8 +479,8 @@ func TestClientCannotRespondToDrawRequestIfGameIsOver(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	requestDrawMessage := createRequestDrawMessage(clientO)
-	if err := pool.Broadcast(requestDrawMessage); err != nil {
+	requestDrawCommand := createRequestDrawCommand(clientO)
+	if err := pool.Broadcast(requestDrawCommand); err != nil {
 		t.Fatal(err)
 	}
 
@@ -488,8 +488,8 @@ func TestClientCannotRespondToDrawRequestIfGameIsOver(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	acceptDrawMessage := createRespondToDrawRequestMessage(clientX, true)
-	if err := pool.Broadcast(acceptDrawMessage); err == nil { // should return error!
+	acceptDrawCommand := createRespondToDrawRequestCommand(clientX, true)
+	if err := pool.Broadcast(acceptDrawCommand); err == nil { // should return error!
 		t.Errorf("Broadcast should fail, since game is over")
 	}
 }
@@ -503,13 +503,13 @@ func TestClientCannotRespondToOwnDrawRequest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	requestDrawMessage := createRequestDrawMessage(clientX)
-	if err := pool.Broadcast(requestDrawMessage); err != nil {
+	requestDrawCommand := createRequestDrawCommand(clientX)
+	if err := pool.Broadcast(requestDrawCommand); err != nil {
 		t.Fatal(err)
 	}
 
-	acceptDrawMessage := createRespondToDrawRequestMessage(clientX, true)
-	if err := pool.Broadcast(acceptDrawMessage); err == nil { // should return error!
+	acceptDrawCommand := createRespondToDrawRequestCommand(clientX, true)
+	if err := pool.Broadcast(acceptDrawCommand); err == nil { // should return error!
 		t.Errorf("Broadcast should fail, since clientX is the one who requested the draw")
 	}
 
@@ -527,8 +527,8 @@ func TestClientCanWithdrawDrawRequest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	requestDrawMessage := createRequestDrawMessage(clientX)
-	if err := pool.Broadcast(requestDrawMessage); err != nil {
+	requestDrawCommand := createRequestDrawCommand(clientX)
+	if err := pool.Broadcast(requestDrawCommand); err != nil {
 		t.Fatal(err)
 	}
 
@@ -536,8 +536,8 @@ func TestClientCanWithdrawDrawRequest(t *testing.T) {
 		t.Errorf("Game should have a draw requested")
 	}
 
-	withdrawDrawMessage := createWithdrawDrawRequestMessage(clientX)
-	if err := pool.Broadcast(withdrawDrawMessage); err != nil {
+	withdrawDrawCommand := createWithdrawDrawRequestCommand(clientX)
+	if err := pool.Broadcast(withdrawDrawCommand); err != nil {
 		t.Fatal(err)
 	}
 
@@ -555,8 +555,8 @@ func TestClientCannotWithdrawDrawRequestIfNoRequestIsActive(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	withdrawDrawMessage := createWithdrawDrawRequestMessage(clientX)
-	if err := pool.Broadcast(withdrawDrawMessage); err == nil { // should return error!
+	withdrawDrawCommand := createWithdrawDrawRequestCommand(clientX)
+	if err := pool.Broadcast(withdrawDrawCommand); err == nil { // should return error!
 		t.Errorf("Broadcast should fail, since no draw request is active")
 	}
 }
@@ -570,15 +570,15 @@ func TestClientCannotWithdrawDrawRequestIfNotPlayer(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	requestDrawMessage := createRequestDrawMessage(clientX)
-	if err := pool.Broadcast(requestDrawMessage); err != nil {
+	requestDrawCommand := createRequestDrawCommand(clientX)
+	if err := pool.Broadcast(requestDrawCommand); err != nil {
 		t.Fatal(err)
 	}
 
 	spectator := createTestClient(pool)
 
-	withdrawDrawMessage := createWithdrawDrawRequestMessage(spectator)
-	if err := pool.Broadcast(withdrawDrawMessage); err == nil { // should return error!
+	withdrawDrawCommand := createWithdrawDrawRequestCommand(spectator)
+	if err := pool.Broadcast(withdrawDrawCommand); err == nil { // should return error!
 		t.Errorf("Broadcast should fail, since spectator is not a player")
 	}
 }
@@ -592,8 +592,8 @@ func TestClientCannotWithdrawDrawRequestIfGameIsOver(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	requestDrawMessage := createRequestDrawMessage(clientX)
-	if err := pool.Broadcast(requestDrawMessage); err != nil {
+	requestDrawCommand := createRequestDrawCommand(clientX)
+	if err := pool.Broadcast(requestDrawCommand); err != nil {
 		t.Fatal(err)
 	}
 
@@ -601,8 +601,8 @@ func TestClientCannotWithdrawDrawRequestIfGameIsOver(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	withdrawDrawMessage := createWithdrawDrawRequestMessage(clientX)
-	if err := pool.Broadcast(withdrawDrawMessage); err == nil { // should return error!
+	withdrawDrawCommand := createWithdrawDrawRequestCommand(clientX)
+	if err := pool.Broadcast(withdrawDrawCommand); err == nil { // should return error!
 		t.Errorf("Broadcast should fail, since game is over")
 	}
 }
@@ -619,8 +619,8 @@ func TestClientCannotWithdrawDrawRequestIfGameIsNotStarted(t *testing.T) {
 
 	pool.DrawRequestHandler.IsDrawRequested = true // simulate draw request, as a draw request should NOT be possible either before game starts
 
-	withdrawDrawMessage := createWithdrawDrawRequestMessage(clientX)
-	if err := pool.Broadcast(withdrawDrawMessage); err == nil { // should return error!
+	withdrawDrawCommand := createWithdrawDrawRequestCommand(clientX)
+	if err := pool.Broadcast(withdrawDrawCommand); err == nil { // should return error!
 		t.Errorf("Broadcast should fail, since game is not started")
 	}
 }
@@ -634,13 +634,13 @@ func TestOnlyClientWhoSendDrawRequestCanWithdrawIt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	requestDrawMessage := createRequestDrawMessage(clientX)
-	if err := pool.Broadcast(requestDrawMessage); err != nil {
+	requestDrawCommand := createRequestDrawCommand(clientX)
+	if err := pool.Broadcast(requestDrawCommand); err != nil {
 		t.Fatal(err)
 	}
 
-	withdrawDrawMessage := createWithdrawDrawRequestMessage(clientO)
-	if err := pool.Broadcast(withdrawDrawMessage); err == nil { // should return error!
+	withdrawDrawCommand := createWithdrawDrawRequestCommand(clientO)
+	if err := pool.Broadcast(withdrawDrawCommand); err == nil { // should return error!
 		t.Errorf("Broadcast should fail, since only client who sent draw request can withdraw it")
 	}
 }

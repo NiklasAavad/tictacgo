@@ -14,8 +14,8 @@ func NewResponseHandler(response *GameResponse, receivers []*GameClient) (*Respo
 
 // Creates a response handler for the client and the opponent
 // The body of the response is a boolean indicating whether the receiver is the opponent
-func CreateResponseHandlersForSelfAndOpponent(client *GameClient, responseType ResponseType) ([]ResponseHandler, error) {
-	pool := client.Pool
+func CreateResponseHandlersForSelfAndOpponent(self *GameClient, responseType ResponseType) ([]ResponseHandler, error) {
+	pool := self.Pool
 
 	isBothCharactersChosen := pool.xClient != nil && pool.oClient != nil
 	if !isBothCharactersChosen {
@@ -35,7 +35,7 @@ func CreateResponseHandlersForSelfAndOpponent(client *GameClient, responseType R
 	}
 
 	var opponent *GameClient
-	if pool.xClient == client {
+	if pool.xClient == self {
 		opponent = pool.oClient
 	} else {
 		opponent = pool.xClient
@@ -46,7 +46,7 @@ func CreateResponseHandlersForSelfAndOpponent(client *GameClient, responseType R
 		return nil, err
 	}
 
-	selfResponseHandler, err := NewResponseHandler(&responseToSelf, []*GameClient{client})
+	selfResponseHandler, err := NewResponseHandler(&responseToSelf, []*GameClient{self})
 	if err != nil {
 		return nil, err
 	}
